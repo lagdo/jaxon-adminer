@@ -47,7 +47,7 @@ class Proxy
         $password = $options["password"];
         $db = ''; // $options["db"];
 
-        // Simulate a actual request to Adminer
+        // Simulate an actual request to Adminer
         $vendor = $options['type'];
         $server = $host;
         $_GET[$vendor] = $server;
