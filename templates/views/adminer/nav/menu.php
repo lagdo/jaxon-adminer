@@ -12,6 +12,6 @@ global $VERSION, $adminer;
         </a>
     </h1>
 
-<?php include($missing == "auth" ? './logins.php' : './database.php'); ?>
+<?php include($missing == "auth" ? './databases.php' : './database.php'); ?>
 
 </div>
