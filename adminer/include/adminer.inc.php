@@ -5,6 +5,9 @@ class Adminer {
 	/** @var array operators used in select, null for all operators */
 	var $operators;
 
+	/** @var array the selected database credentials, from Jaxon config options */
+	public $credentials;
+
 	/** Name in title and navigation
 	* @return string HTML code
 	*/
@@ -16,7 +19,9 @@ class Adminer {
 	* @return array ($server, $username, $password)
 	*/
 	function credentials() {
-		return array(SERVER, $_GET["username"], get_password());
+		return $this->credentials;
+		// return array($_GET["host"] . ':' . $_GET["port"], $_GET["username"], $_GET["password"]);
+		// return array(SERVER, $_GET["username"], get_password());
 	}
 
 	/** Get SSL connection options
