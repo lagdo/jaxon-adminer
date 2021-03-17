@@ -85,4 +85,4 @@ Contribute
 License
 -------
 
-The project is licensed under the BSD license.
+The project is licensed under the Apache license.
