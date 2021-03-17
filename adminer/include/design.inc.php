@@ -35,7 +35,8 @@ function page_header($title, $error = "", $breadcrumb = array(), $title2 = "") {
 <body class="<?php echo lang('ltr'); ?> nojs">
 <?php
 	$filename = get_temp_dir() . "/adminer.version";
-	if (!$_COOKIE["adminer_version"] && function_exists('openssl_verify') && file_exists($filename) && filemtime($filename) + 86400 > time()) { // 86400 - 1 day in seconds
+	if (!$_COOKIE["adminer_version"] && function_exists('openssl_verify') &&
+		file_exists($filename) && filemtime($filename) + 86400 > time()) { // 86400 - 1 day in seconds
 		$version = unserialize(file_get_contents($filename));
 		$public = "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwqWOVuF5uw7/+Z70djoK
@@ -104,6 +105,30 @@ var thousandsSeparator = '<?php echo js_escape(lang(',')); ?>';
 	stop_session();
 	define("PAGE_HEADER", 1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Send HTTP headers
 * @return null
