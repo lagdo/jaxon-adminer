@@ -7,8 +7,8 @@
 * @license https://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
 */
 
-include "./include/bootstrap.inc.php";
-include "./include/tmpfile.inc.php";
+include __DIR__ . "/include/bootstrap.inc.php";
+include __DIR__ . "/include/tmpfile.inc.php";
 
 $enum_length = "'(?:''|[^'\\\\]|\\\\.)*'";
 $inout = "IN|OUT|INOUT";
@@ -24,55 +24,55 @@ if (isset($_GET["function"])) {
 }
 
 if (isset($_GET["download"])) {
-	include "./download.inc.php";
+	include __DIR__ . "/download.inc.php";
 } elseif (isset($_GET["table"])) {
-	include "./table.inc.php";
+	include __DIR__ . "/table.inc.php";
 } elseif (isset($_GET["schema"])) {
-	include "./schema.inc.php";
+	include __DIR__ . "/schema.inc.php";
 } elseif (isset($_GET["dump"])) {
-	include "./dump.inc.php";
+	include __DIR__ . "/dump.inc.php";
 } elseif (isset($_GET["privileges"])) {
-	include "./privileges.inc.php";
+	include __DIR__ . "/privileges.inc.php";
 } elseif (isset($_GET["sql"])) {
-	include "./sql.inc.php";
+	include __DIR__ . "/sql.inc.php";
 } elseif (isset($_GET["edit"])) {
-	include "./edit.inc.php";
+	include __DIR__ . "/edit.inc.php";
 } elseif (isset($_GET["create"])) {
-	include "./create.inc.php";
+	include __DIR__ . "/create.inc.php";
 } elseif (isset($_GET["indexes"])) {
-	include "./indexes.inc.php";
+	include __DIR__ . "/indexes.inc.php";
 } elseif (isset($_GET["database"])) {
-	include "./database.inc.php";
+	include __DIR__ . "/database.inc.php";
 } elseif (isset($_GET["scheme"])) {
-	include "./scheme.inc.php";
+	include __DIR__ . "/scheme.inc.php";
 } elseif (isset($_GET["call"])) {
-	include "./call.inc.php";
+	include __DIR__ . "/call.inc.php";
 } elseif (isset($_GET["foreign"])) {
-	include "./foreign.inc.php";
+	include __DIR__ . "/foreign.inc.php";
 } elseif (isset($_GET["view"])) {
-	include "./view.inc.php";
+	include __DIR__ . "/view.inc.php";
 } elseif (isset($_GET["event"])) {
-	include "./event.inc.php";
+	include __DIR__ . "/event.inc.php";
 } elseif (isset($_GET["procedure"])) {
-	include "./procedure.inc.php";
+	include __DIR__ . "/procedure.inc.php";
 } elseif (isset($_GET["sequence"])) {
-	include "./sequence.inc.php";
+	include __DIR__ . "/sequence.inc.php";
 } elseif (isset($_GET["type"])) {
-	include "./type.inc.php";
+	include __DIR__ . "/type.inc.php";
 } elseif (isset($_GET["trigger"])) {
-	include "./trigger.inc.php";
+	include __DIR__ . "/trigger.inc.php";
 } elseif (isset($_GET["user"])) {
-	include "./user.inc.php";
+	include __DIR__ . "/user.inc.php";
 } elseif (isset($_GET["processlist"])) {
-	include "./processlist.inc.php";
+	include __DIR__ . "/processlist.inc.php";
 } elseif (isset($_GET["select"])) {
-	include "./select.inc.php";
+	include __DIR__ . "/select.inc.php";
 } elseif (isset($_GET["variables"])) {
-	include "./variables.inc.php";
+	include __DIR__ . "/variables.inc.php";
 } elseif (isset($_GET["script"])) {
-	include "./script.inc.php";
+	include __DIR__ . "/script.inc.php";
 } else {
-	include "./db.inc.php";
+	include __DIR__ . "/db.inc.php";
 }
 
 // each page calls its own page_header(), if the footer should not be called then the page exits

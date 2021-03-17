@@ -11,4 +11,4 @@ function adminer_object() {
 	));
 }
 
-include "./index.php";
+include __DIR__ . "/index.php";
