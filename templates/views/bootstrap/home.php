@@ -12,7 +12,11 @@
                 </span>
             </div>
         </div>
+        <div class="row" id="<?php echo $this->serverActionsId ?>" style="padding:10px 15px;">
+        </div>
         <div class="row" id="<?php echo $this->dbListId ?>" style="padding:10px 15px;">
+        </div>
+        <div class="row" id="<?php echo $this->dbActionsId ?>" style="padding:10px 15px;">
         </div>
         <div class="row" id="<?php echo $this->dbMenuId ?>" style="padding:10px 15px;">
         </div>

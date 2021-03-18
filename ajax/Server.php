@@ -49,21 +49,24 @@ class Server extends CallableClass
     {
         $options = $this->package->getServerOptions($server);
 
-        $serverData = $this->dbProxy->getServerData($options);
+        $serverInfo = $this->dbProxy->getServerInfo($options);
         // Make server data available to views
-        foreach($serverData as $name => $value)
+        foreach($serverInfo as $name => $value)
         {
             $this->view()->share($name, $value);
         }
 
-        $template = 'adminer::views::databases';
-        $content = $this->view()->render($template, [
+        $content = $this->view()->render('adminer::views::databases', [
             'select' => $this->rq()->select($server, \pm()->select('adminer-dbname-select')),
         ]);
         $this->response->html($this->package->getDbListId(), $content);
 
-        $template = 'adminer::views::server';
-        $content = $this->view()->render($template);
+        $content = $this->view()->render('adminer::views::actions', [
+            'actions' => $serverInfo['server_actions'],
+        ]);
+        $this->response->html($this->package->getServerActionsId(), $content);
+
+        $content = $this->view()->render('adminer::views::server');
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -86,7 +89,8 @@ class Server extends CallableClass
         catch(Exception $e)
         {
             $this->response->dialog->error("Unable", 'Error');
-            return $this->response;
         }
+
+        return $this->response;
     }
 }

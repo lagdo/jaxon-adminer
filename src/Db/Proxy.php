@@ -88,7 +88,7 @@ class Proxy
      *
      * @return void
      */
-    public function getServerData(array $options)
+    public function getServerInfo(array $options)
     {
         global $adminer, $drivers, $connection;
         $this->connect($options);
@@ -104,11 +104,17 @@ class Proxy
 
         // Content from the connect_error() function in connect.inc.php
         $actions = [
-			'database' => lang('Create database'),
-			'privileges' => lang('Privileges'),
-			'processlist' => lang('Process list'),
-			'variables' => lang('Variables'),
-			'status' => lang('Status'),
+            'database' => lang('Create database'),
+            'privileges' => lang('Privileges'),
+            'processlist' => lang('Process list'),
+            'variables' => lang('Variables'),
+            'status' => lang('Status'),
+        ];
+
+        $server_actions = [
+            'database' => lang('SQL command'),
+            'privileges' => lang('Export'),
+            'processlist' => lang('Create table'),
         ];
 
         $tables = \count_tables($databases);
@@ -128,6 +134,6 @@ class Proxy
             ];
         }
 
-        return \compact('databases', 'messages', 'actions', 'headers', 'details');
+        return \compact('databases', 'messages', 'actions', 'server_actions', 'headers', 'details');
     }
 }

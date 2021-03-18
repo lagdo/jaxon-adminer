@@ -15,9 +15,29 @@ class Package extends JaxonPackage
      *
      * @return string
      */
+    public function getServerActionsId()
+    {
+        return 'adminer-server-actions';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
     public function getDbListId()
     {
         return 'adminer-database-list';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
+    public function getDbActionsId()
+    {
+        return 'adminer-database-actions';
     }
 
     /**
@@ -128,7 +148,9 @@ class Package extends JaxonPackage
             'connect' => $connect,
             'servers' => $servers,
             'default' => $this->getConfig()->getOption('default', ''),
+            'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
+            'dbActionsId' => $this->getDbActionsId(),
             'dbMenuId' => $this->getDbMenuId(),
             'dbContentId' => $this->getDbContentId(),
         ]);
