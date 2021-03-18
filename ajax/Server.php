@@ -50,23 +50,22 @@ class Server extends CallableClass
         $options = $this->package->getServerOptions($server);
 
         $serverInfo = $this->dbProxy->getServerInfo($options);
-        // Make server data available to views
+        // Make server info available to views
         foreach($serverInfo as $name => $value)
         {
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::databases', [
+        $content = $this->view()->render('adminer::views::menu/server', [
             'select' => $this->rq()->select($server, \pm()->select('adminer-dbname-select')),
         ]);
         $this->response->html($this->package->getDbListId(), $content);
 
-        $content = $this->view()->render('adminer::views::actions', [
-            'actions' => $serverInfo['server_actions'],
-        ]);
+        $content = $this->view()->render('adminer::views::menu/actions');
         $this->response->html($this->package->getServerActionsId(), $content);
+        $this->response->html($this->package->getDbActionsId(), '');
 
-        $content = $this->view()->render('adminer::views::server');
+        $content = $this->view()->render('adminer::views::main/server');
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -81,15 +80,27 @@ class Server extends CallableClass
      */
     public function select($server, $database)
     {
-        $serverOptions = $this->package->getServerOptions($server);
+        $options = $this->package->getServerOptions($server);
 
-        try
+        $databaseInfo = $this->dbProxy->getDatabaseInfo($options, $database);
+        // Make database info available to views
+        foreach($databaseInfo as $name => $value)
         {
+            $this->view()->share($name, $value);
         }
-        catch(Exception $e)
-        {
-            $this->response->dialog->error("Unable", 'Error');
-        }
+        // $this->response->dialog->info(json_encode($databaseInfo), "Info");
+
+        $content = $this->view()->render('adminer::views::menu/actions');
+        $this->response->html($this->package->getDbActionsId(), $content);
+        $this->response->html($this->package->getServerActionsId(), '');
+
+        $content = $this->view()->render('adminer::views::menu/database', [
+            'select' => $this->rq()->select($server, \pm()->select('adminer-dbname-select')),
+        ]);
+        $this->response->html($this->package->getDbMenuId(), $content);
+
+        $content = $this->view()->render('adminer::views::main/database');
+        $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
     }

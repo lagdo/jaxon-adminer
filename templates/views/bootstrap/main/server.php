@@ -6,8 +6,8 @@
             </ul>
         </div>
         <div class="row" style="margin-bottom:10px;">
-            <div class="btn-group btn-group-justified" role="group" aria-label="...">
-<?php foreach($this->actions as $title): ?>
+            <div class="btn-group btn-group-justified" role="group">
+<?php foreach($this->main_actions as $title): ?>
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default"><?php echo $title ?></button>
                 </div>

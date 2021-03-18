@@ -1,5 +1,5 @@
             <div class="input-group">
-                <select class="form-control" id="adminer-dbhost-select">
+                <select class="form-control" id="adminer-dbname-select">
                     <option value=""></option>
 <?php foreach($this->databases as $database): ?>
                     <option value="<?php echo $database ?>"><?php echo $database ?></option>

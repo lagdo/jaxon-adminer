@@ -31,10 +31,11 @@ class Proxy
      * Connect to a database server
      *
      * @param array $options    The corresponding config options
+     * @param string $db        The database name
      *
      * @return void
      */
-    protected function connect(array $options)
+    protected function connect(array $options, string $db = '')
     {
         global $adminer, $host, $port, $connection, $driver;
 
@@ -45,7 +46,6 @@ class Proxy
         $port = $options['port'];
         $username = $options["username"];
         $password = $options["password"];
-        $db = ''; // $options["db"];
 
         // Simulate an actual request to Adminer
         $vendor = $options['type'];
@@ -61,12 +61,13 @@ class Proxy
         // From bootstrap.inc.php
         define("SERVER", $server); // read from pgsql=localhost
         define("DB", $db); // for the sake of speed and size
-        define("ME", preg_replace('~\?.*~', '', relative_uri()) . '?'
-         . (sid() ? SID . '&' : '')
-         . (DRIVER . "=" . urlencode($server) . '&')
-         . ("username=" . urlencode($username) . '&')
-         // . ('db=' . urlencode(DB) . '&')
-        );
+        define("ME", '');
+        // define("ME", preg_replace('~\?.*~', '', relative_uri()) . '?'
+        //  . (sid() ? SID . '&' : '')
+        //  . (DRIVER . "=" . urlencode($server) . '&')
+        //  . ("username=" . urlencode($username) . '&')
+        //  . ('db=' . urlencode(DB) . '&')
+        // );
 
         // Run the authentication code, from auth.inc.php.
         set_password($vendor, $server, $username, $password);
@@ -103,24 +104,29 @@ class Proxy
         ];
 
         // Content from the connect_error() function in connect.inc.php
-        $actions = [
-            'database' => lang('Create database'),
-            'privileges' => lang('Privileges'),
-            'processlist' => lang('Process list'),
-            'variables' => lang('Variables'),
-            'status' => lang('Status'),
+        $main_actions = [
+            'database' => \lang('Create database'),
+            'privileges' => \lang('Privileges'),
+            'processlist' => \lang('Process list'),
+            'variables' => \lang('Variables'),
+            'status' => \lang('Status'),
         ];
 
-        $server_actions = [
-            'database' => lang('SQL command'),
-            'privileges' => lang('Export'),
-            'processlist' => lang('Create table'),
+        $actions = [
+            'host_sql_command' => \lang('SQL command'),
+            'host_export' => \lang('Export'),
+            'host_create_table' => \lang('Create table'),
         ];
 
         $tables = \count_tables($databases);
 
         $dbSupport = support("database");
-        $headers = [lang('Database'), lang('Collation'), lang('Tables'), lang('Size')];
+        $headers = [
+            \lang('Database'),
+            \lang('Collation'),
+            \lang('Tables'),
+            \lang('Size'),
+        ];
 
         $collations = \collations();
         $details = [];
@@ -134,6 +140,99 @@ class Proxy
             ];
         }
 
-        return \compact('databases', 'messages', 'actions', 'server_actions', 'headers', 'details');
+        return \compact('databases', 'messages', 'actions', 'main_actions', 'headers', 'details');
+    }
+
+    /**
+     * Connect to a database server
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function getDatabaseInfo(array $options, string $database)
+    {
+        global $adminer, $connection;
+        $this->connect($options, $database);
+
+        $main_actions = [
+            'database' => \lang('Alter database'),
+            'c_scheme' => \lang('Create schema'),
+            'a_scheme' => \lang('Alter schema'),
+            'd_scheme' => \lang('Database schema'),
+            'privileges' => \lang('Privileges'),
+        ];
+
+        $actions = [
+            'db_sql_command' => \lang('SQL command'),
+            'db_import' => \lang('Import'),
+            'db_export' => \lang('Export'),
+            'db_create_table' => \lang('Create table'),
+        ];
+
+        $features = [
+            'table' => true,
+            'search' => \support('table'),
+        ];
+        $_features = [
+            'comment',
+            'indexes',
+            'scheme',
+            'copy',
+            'view',
+            'routine',
+            'procedure',
+            'sequence',
+            'type',
+            'event',
+        ];
+        foreach($_features as $feature)
+        {
+            $features[$feature] = \support($feature);
+        }
+        $menu_actions = [
+            'table' => \lang('Tables and views'),
+            'search' => \lang('Search data in tables'),
+            'routine' => \lang('Routines'),
+            'sequence' => \lang('Sequences'),
+            'type' => \lang('User types'),
+            'event' => \lang('Events'),
+        ];
+
+        $headers = [
+            \lang('Table'),
+			\lang('Engine'),
+			\lang('Collation'),
+			// \lang('Data Length'),
+			// \lang('Index Length'),
+			// \lang('Data Free'),
+			// \lang('Auto Increment'),
+			// \lang('Rows'),
+			\lang('Comment'),
+        ];
+
+        // From adminer.inc.php
+        $connection->select_db($database);
+        // $table_status = \table_status('', true); // Tables details
+        $table_status = \table_status(); // Tables details
+
+        // From db.inc.php
+        // $tables_list = \tables_list();
+
+        $tables = $table_status;
+        // $tables = [];
+        $details = [];
+        foreach( $table_status as $table => $status)
+        {
+            // $tables[] = \h($table);
+            $details[] = [
+                'name' => $adminer->tableName($status),
+                'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
+                'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
+            ];
+        }
+
+        return \compact('tables', 'actions', 'main_actions', 'features', 'menu_actions', 'headers', 'details');
     }
 }
