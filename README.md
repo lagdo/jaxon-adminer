@@ -13,9 +13,9 @@ Features
 
 - [x] Connect to a MySQL database.
 - [x] Show basic info about the MySQL database server.
+- [x] Show the list of tables in the connected database.
 - [ ] Show detailed info about the MySQL database server.
 - [ ] Connect to other database types.
-- [ ] Show the list of tables in the connected database.
 - [ ] Show detailed info about the connected database.
 - [ ] Execute requests and display results.
 - [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one.
@@ -40,7 +40,7 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
-                        'type' => '',     // mysql, pgsql, sqlite, etc. See the Adminer documentation.
+                        'type' => '',     // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
                         'host' => '',     // The database host name or address.
                         'port' => 0,      // The database port
                         'username' => '', // The database user credentials
@@ -48,7 +48,7 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
                     ],
                     'second_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
-                        'type' => '',     // mysql, pgsql, sqlite, etc. See the Adminer documentation.
+                        'type' => '',     // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
                         'host' => '',     // The database host name or address.
                         'port' => 0,      // The database port
                         'username' => '', // The database user credentials
