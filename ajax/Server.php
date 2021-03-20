@@ -41,7 +41,9 @@ class Server extends CallableClass
 
     /**
      * Connect to a db server.
-     * The database list will be displaye in the select component.
+     * The database list will be displayed in the HTML select component.
+     *
+     * @param string $server      The database server
      *
      * @return \Jaxon\Response\Response
      */
@@ -74,6 +76,7 @@ class Server extends CallableClass
     /**
      * Select a database
      *
+     * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
@@ -94,13 +97,23 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbActionsId(), $content);
         $this->response->html($this->package->getServerActionsId(), '');
 
+        $menu_handlers = [
+            'table' => $this->cl(Database::class)->rq()->showTables($server, $database),
+            // 'search' => null,
+            'routine' => $this->cl(Database::class)->rq()->showRoutines($server, $database),
+            'sequence' => $this->cl(Database::class)->rq()->showSequences($server, $database),
+            'type' => $this->cl(Database::class)->rq()->showUserTypes($server, $database),
+            'event' => $this->cl(Database::class)->rq()->showEvents($server, $database),
+        ];
+
         $content = $this->view()->render('adminer::views::menu/database', [
             'select' => $this->rq()->select($server, \pm()->select('adminer-dbname-select')),
+            'menu_handlers' => $menu_handlers,
         ]);
         $this->response->html($this->package->getDbMenuId(), $content);
 
-        $content = $this->view()->render('adminer::views::main/database');
-        $this->response->html($this->package->getDbContentId(), $content);
+        // Show the database tables
+        $this->cl(Database::class)->showTables($server, $database);
 
         return $this->response;
     }
