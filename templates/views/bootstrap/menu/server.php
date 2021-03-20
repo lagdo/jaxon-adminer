@@ -6,6 +6,6 @@
 <?php endforeach ?>
                 </select>
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-primary" onclick="<?php echo $this->select ?>; return false">Connect</button>
+                    <button type="button" class="btn btn-primary" id="adminer-dbname-select-btn">Connect</button>
                 </span>
             </div>

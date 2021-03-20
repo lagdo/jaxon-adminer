@@ -58,10 +58,10 @@ class Server extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::menu/server', [
-            'select' => $this->rq()->select($server, \pm()->select('adminer-dbname-select')),
-        ]);
+        $content = $this->view()->render('adminer::views::menu/server');
         $this->response->html($this->package->getDbListId(), $content);
+        $this->jq('#adminer-dbname-select-btn')
+            ->click($this->rq()->select($server, \pm()->select('adminer-dbname-select')));
 
         $content = $this->view()->render('adminer::views::menu/actions');
         $this->response->html($this->package->getServerActionsId(), $content);
@@ -97,20 +97,19 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbActionsId(), $content);
         $this->response->html($this->package->getServerActionsId(), '');
 
-        $menu_handlers = [
-            'table' => $this->cl(Database::class)->rq()->showTables($server, $database),
-            // 'search' => null,
-            'routine' => $this->cl(Database::class)->rq()->showRoutines($server, $database),
-            'sequence' => $this->cl(Database::class)->rq()->showSequences($server, $database),
-            'type' => $this->cl(Database::class)->rq()->showUserTypes($server, $database),
-            'event' => $this->cl(Database::class)->rq()->showEvents($server, $database),
-        ];
-
-        $content = $this->view()->render('adminer::views::menu/database', [
-            'select' => $this->rq()->select($server, \pm()->select('adminer-dbname-select')),
-            'menu_handlers' => $menu_handlers,
-        ]);
+        $content = $this->view()->render('adminer::views::menu/database');
         $this->response->html($this->package->getDbMenuId(), $content);
+        // Set the click handlers
+        $this->jq('#adminer-dbmenu-action-table')
+            ->click($this->cl(Database::class)->rq()->showTables($server, $database));
+        $this->jq('#adminer-dbmenu-action-routine')
+            ->click($this->cl(Database::class)->rq()->showRoutines($server, $database));
+        $this->jq('#adminer-dbmenu-action-sequence')
+            ->click($this->cl(Database::class)->rq()->showSequences($server, $database));
+        $this->jq('#adminer-dbmenu-action-type')
+            ->click($this->cl(Database::class)->rq()->showUserTypes($server, $database));
+        $this->jq('#adminer-dbmenu-action-event')
+            ->click($this->cl(Database::class)->rq()->showEvents($server, $database));
 
         // Show the database tables
         $this->cl(Database::class)->showTables($server, $database);

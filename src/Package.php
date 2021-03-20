@@ -85,17 +85,16 @@ class Package extends JaxonPackage
     /**
      * Get the default server to connect to
      *
-     * @param array $servers
-     *
      * @return string
      */
-    private function getDefaultServer(array $servers)
+    private function getDefaultServer()
     {
-        // $default = $this->getConfig()->getOption('default', '');
-        // if(\in_array($default, $servers))
-        // {
-        //     return $default;
-        // }
+        $servers = $this->getConfig()->getOption('servers', []);
+        $default = $this->getConfig()->getOption('default', '');
+        if(\array_key_exists($default, $servers))
+        {
+            return $default;
+        }
         // if(\count($servers) > 0)
         // {
         //     return $servers[0];
@@ -120,13 +119,11 @@ class Package extends JaxonPackage
      */
     public function getReadyScript()
     {
-        return '';
-        // $servers = \array_keys($this->getConfig()->getOption('servers', []));
-        // if(!($server = $this->getDefaultServer($servers)))
-        // {
-        //     return '';
-        // }
-        // return jaxon()->request(Server::class)->connect($server);
+        if(!($server = $this->getDefaultServer()))
+        {
+            return '';
+        }
+        return jaxon()->request(Server::class)->connect($server);
     }
 
     /**
