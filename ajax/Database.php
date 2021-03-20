@@ -52,6 +52,25 @@ class Database extends CallableClass
         $options = $this->package->getServerOptions($server);
 
         $tablesInfo = $this->dbProxy->getTables($options, $database);
+
+        $tableNameClass = 'adminer-table-name';
+        // Add links, classes and data values to table names.
+        $tablesInfo['details'] = \array_map(function($detail) use($tableNameClass) {
+            $detail['name'] = [
+                'class' => $tableNameClass,
+                'value' => $detail['name'],
+                'label' => $detail['name'],
+            ];
+            return $detail;
+        }, $tablesInfo['details']);
+        // \array_walk($tablesInfo['details'], function(&$detail) use($tableNameClass) {
+        //     $detail['name'] = [
+        //         'class' => $tableNameClass,
+        //         'value' => $detail['name'],
+        //         'label' => $detail['name'],
+        //     ];
+        // });
+
         // Make tables info available to views
         foreach($tablesInfo as $name => $value)
         {
@@ -60,6 +79,11 @@ class Database extends CallableClass
 
         $content = $this->view()->render('adminer::views::main/content');
         $this->response->html($this->package->getDbContentId(), $content);
+
+        // Set onclick handlers on table names
+        $table = \jq()->parent()->attr('data-value');
+        $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
+            ->click($this->cl(Table::class)->rq()->showTable($server, $database, $table));
 
         return $this->response;
     }
