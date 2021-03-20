@@ -5,6 +5,7 @@
 <?php endforeach ?>
             </ul>
         </div>
+
         <div class="row" style="margin-bottom:10px;">
             <div class="btn-group btn-group-justified" role="group">
 <?php foreach($this->main_actions as $title): ?>
@@ -28,10 +29,9 @@
                     <tbody>
 <?php foreach($this->details as $details): ?>
                         <tr>
-                            <th><?php echo $details['name'] ?></th>
-                            <td><?php echo $details['collation'] ?></td>
-                            <td><?php echo $details['tables'] ?></td>
-                            <td><?php echo $details['size'] ?></td>
+<?php foreach($details as $detail): ?>
+                            <td><?php echo $detail ?></td>
+<?php endforeach ?>
                         </tr>
 <?php endforeach ?>
                     </tbody>
