@@ -540,12 +540,14 @@ if (!defined("DRIVER")) {
         $return = array();
         foreach (get_rows("SHOW FULL COLUMNS FROM " . table($table)) as $row) {
             preg_match('~^([^( ]+)(?:\((.+)\))?( unsigned)?( zerofill)?$~', $row["Type"], $match);
+            $matchCount = count($match);
+
             $return[$row["Field"]] = array(
                 "field" => $row["Field"],
                 "full_type" => $row["Type"],
                 "type" => $match[1],
-                "length" => $match[2],
-                "unsigned" => ltrim($match[3] . $match[4]),
+                "length" => $matchCount > 2 ? $match[2] : '',
+                "unsigned" => $matchCount > 4 ? ltrim($match[3] . $match[4]) : '',
                 "default" => ($row["Default"] != "" || preg_match("~char|set~", $match[1]) ? (preg_match('~text~', $match[1]) ? stripslashes(preg_replace("~^'(.*)'\$~", '\1', $row["Default"])) : $row["Default"]) : null),
                 "null" => ($row["Null"] == "YES"),
                 "auto_increment" => ($row["Extra"] == "auto_increment"),
@@ -589,7 +591,10 @@ if (!defined("DRIVER")) {
         $create_table = $connection->result("SHOW CREATE TABLE " . table($table), 1);
         if ($create_table) {
             preg_match_all("~CONSTRAINT ($pattern) FOREIGN KEY ?\\(((?:$pattern,? ?)+)\\) REFERENCES ($pattern)(?:\\.($pattern))? \\(((?:$pattern,? ?)+)\\)(?: ON DELETE ($on_actions))?(?: ON UPDATE ($on_actions))?~", $create_table, $matches, PREG_SET_ORDER);
+
             foreach ($matches as $match) {
+                $matchCount = count($match);
+
                 preg_match_all("~$pattern~", $match[2], $source);
                 preg_match_all("~$pattern~", $match[5], $target);
                 $return[idf_unescape($match[1])] = array(
@@ -597,8 +602,8 @@ if (!defined("DRIVER")) {
                     "table" => idf_unescape($match[4] != "" ? $match[4] : $match[3]),
                     "source" => array_map('idf_unescape', $source[0]),
                     "target" => array_map('idf_unescape', $target[0]),
-                    "on_delete" => ($match[6] ? $match[6] : "RESTRICT"),
-                    "on_update" => ($match[7] ? $match[7] : "RESTRICT"),
+                    "on_delete" => ($matchCount > 6 ? $match[6] : "RESTRICT"),
+                    "on_update" => ($matchCount > 7 ? $match[7] : "RESTRICT"),
                 );
             }
         }

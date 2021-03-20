@@ -24,6 +24,13 @@ class Proxy
     protected $databaseProxy = null;
 
     /**
+     * The proxy to table features
+     *
+     * @var TableProxy
+     */
+    protected $tableProxy = null;
+
+    /**
      * Get the proxy to server features
      *
      * @return ServerProxy
@@ -44,11 +51,21 @@ class Proxy
     }
 
     /**
+     * Get the proxy to table features
+     *
+     * @return TableProxy
+     */
+    protected function table()
+    {
+        return $this->tableProxy ?: ($this->tableProxy = new TableProxy());
+    }
+
+    /**
      * Connect to a database server
      *
      * @param array $options    The corresponding config options
      *
-     * @return void
+     * @return array
      */
     public function getServerInfo(array $options)
     {
@@ -62,7 +79,7 @@ class Proxy
      * @param array $options    The corresponding config options
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     public function getDatabaseInfo(array $options, string $database)
     {
@@ -76,7 +93,7 @@ class Proxy
      * @param array $options    The corresponding config options
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     public function getTables(array $options, string $database)
     {
@@ -90,7 +107,7 @@ class Proxy
      * @param array $options    The corresponding config options
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     public function getRoutines(array $options, string $database)
     {
@@ -104,7 +121,7 @@ class Proxy
      * @param array $options    The corresponding config options
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     public function getSequences(array $options, string $database)
     {
@@ -118,7 +135,7 @@ class Proxy
      * @param array $options    The corresponding config options
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     public function getUserTypes(array $options, string $database)
     {
@@ -132,11 +149,71 @@ class Proxy
      * @param array $options    The corresponding config options
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     public function getEvents(array $options, string $database)
     {
         $this->server()->connect($options, $database);
         return $this->database()->getEvents($options, $database);
+    }
+
+    /**
+     * Get details about a table or a view
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array
+     */
+    public function getTableFields(array $options, string $database, string $table)
+    {
+        $this->server()->connect($options, $database);
+        return $this->table()->getTableFields($options, $database, $table);
+    }
+
+    /**
+     * Get the indexes of a table
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array|null
+     */
+    public function getTableIndexes(array $options, string $database, string $table)
+    {
+        $this->server()->connect($options, $database);
+        return $this->table()->getTableIndexes($options, $database, $table);
+    }
+
+    /**
+     * Get the foreign keys of a table
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array|null
+     */
+    public function getTableForeignKeys(array $options, string $database, string $table)
+    {
+        $this->server()->connect($options, $database);
+        return $this->table()->getTableForeignKeys($options, $database, $table);
+    }
+
+    /**
+     * Get the triggers of a table
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array|null
+     */
+    public function getTableTriggers(array $options, string $database, string $table)
+    {
+        $this->server()->connect($options, $database);
+        return $this->table()->getTableTriggers($options, $database, $table);
     }
 }
