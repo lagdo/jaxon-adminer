@@ -80,6 +80,10 @@ class Database extends CallableClass
         $content = $this->view()->render('adminer::views::main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-table', '#'. $this->package->getDbMenuId())->addClass('active');
+
         // Set onclick handlers on table names
         $table = \jq()->parent()->attr('data-value');
         $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
@@ -110,6 +114,10 @@ class Database extends CallableClass
         $content = $this->view()->render('adminer::views::main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-routine', '#'. $this->package->getDbMenuId())->addClass('active');
+
         return $this->response;
     }
 
@@ -134,6 +142,10 @@ class Database extends CallableClass
 
         $content = $this->view()->render('adminer::views::main/content');
         $this->response->html($this->package->getDbContentId(), $content);
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-sequence', '#'. $this->package->getDbMenuId())->addClass('active');
 
         return $this->response;
     }
@@ -160,6 +172,10 @@ class Database extends CallableClass
         $content = $this->view()->render('adminer::views::main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-type', '#'. $this->package->getDbMenuId())->addClass('active');
+
         return $this->response;
     }
 
@@ -184,6 +200,10 @@ class Database extends CallableClass
 
         $content = $this->view()->render('adminer::views::main/content');
         $this->response->html($this->package->getDbContentId(), $content);
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-event', '#'. $this->package->getDbMenuId())->addClass('active');
 
         return $this->response;
     }
