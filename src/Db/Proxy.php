@@ -2,9 +2,6 @@
 
 namespace Lagdo\Adminer\Db;
 
-use Jaxon\Plugin\Package as JaxonPackage;
-use Lagdo\Adminer\Ajax\Server;
-
 use Exception;
 
 /**
@@ -13,73 +10,37 @@ use Exception;
 class Proxy
 {
     /**
-     * Copied from auth.inc.php
+     * The proxy to server features
      *
-     * @return void
+     * @var ServerProxy
      */
-    protected function check_invalid_login() {
-        global $adminer;
-        $invalids = unserialize(@file_get_contents(get_temp_dir() . "/adminer.invalid")); // @ - may not exist
-        $invalid = ($invalids ? $invalids[$adminer->bruteForceKey()] : []);
-        $next_attempt = ($invalid[1] > 29 ? $invalid[0] - time() : 0); // allow 30 invalid attempts
-        if ($next_attempt > 0) { //! do the same with permanent login
-            throw new Exception(lang('Too many unsuccessful logins, try again in %d minute(s).', ceil($next_attempt / 60)));
-        }
+    protected $serverProxy = null;
+
+    /**
+     * The proxy to database features
+     *
+     * @var DatabaseProxy
+     */
+    protected $databaseProxy = null;
+
+    /**
+     * Get the proxy to server features
+     *
+     * @return ServerProxy
+     */
+    protected function server()
+    {
+        return $this->serverProxy ?: ($this->serverProxy = new ServerProxy());
     }
 
     /**
-     * Connect to a database server
+     * Get the proxy to database features
      *
-     * @param array $options    The corresponding config options
-     * @param string $db        The database name
-     *
-     * @return void
+     * @return DatabaseProxy
      */
-    protected function connect(array $options, string $db = '')
+    protected function database()
     {
-        global $adminer, $host, $port, $connection, $driver;
-
-        // Fixes
-        define("SID", \session_id());
-
-        $host = $options['host'];
-        $port = $options['port'];
-        $username = $options["username"];
-        $password = $options["password"];
-
-        // Simulate an actual request to Adminer
-        $vendor = $options['type'];
-        $server = $host;
-        $_GET[$vendor] = $server;
-        $_GET['username'] = $username;
-
-        // Load the adminer code, and discard the outputs
-        \ob_start();
-        include __DIR__ . '/../../adminer/jaxon.php';
-        \ob_end_clean();
-
-        // From bootstrap.inc.php
-        define("SERVER", $server); // read from pgsql=localhost
-        define("DB", $db); // for the sake of speed and size
-        define("ME", '');
-        // define("ME", preg_replace('~\?.*~', '', relative_uri()) . '?'
-        //  . (sid() ? SID . '&' : '')
-        //  . (DRIVER . "=" . urlencode($server) . '&')
-        //  . ("username=" . urlencode($username) . '&')
-        //  . ('db=' . urlencode(DB) . '&')
-        // );
-
-        // Run the authentication code, from auth.inc.php.
-        set_password($vendor, $server, $username, $password);
-        $_SESSION["db"][$vendor][$server][$username][$db] = true;
-        if (preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) { // is_numeric('80#') would still connect to port 80
-            throw new Exception(lang('Connecting to privileged ports is not allowed.'));
-        }
-
-        // $this->check_invalid_login();
-        $adminer->credentials = ["$host:$port", $username, $password];
-        $connection = connect();
-        $driver = new \Min_Driver($connection);
+        return $this->databaseProxy ?: ($this->databaseProxy = new DatabaseProxy());
     }
 
     /**
@@ -91,56 +52,8 @@ class Proxy
      */
     public function getServerInfo(array $options)
     {
-        global $adminer, $drivers, $connection;
-        $this->connect($options);
-
-        // Get the database lists
-        $databases = $adminer->databases();
-
-        $messages = [
-            lang('%s version: %s through PHP extension %s', $drivers[DRIVER], "<b>" .
-                h($connection->server_info) . "</b>", "<b>$connection->extension</b>"),
-            lang('Logged as: %s', "<b>" . h(logged_user()) . "</b>"),
-        ];
-
-        // Content from the connect_error() function in connect.inc.php
-        $main_actions = [
-            'database' => \lang('Create database'),
-            'privileges' => \lang('Privileges'),
-            'processlist' => \lang('Process list'),
-            'variables' => \lang('Variables'),
-            'status' => \lang('Status'),
-        ];
-
-        $actions = [
-            'host_sql_command' => \lang('SQL command'),
-            'host_export' => \lang('Export'),
-            'host_create_table' => \lang('Create table'),
-        ];
-
-        $tables = \count_tables($databases);
-
-        $dbSupport = support("database");
-        $headers = [
-            \lang('Database'),
-            \lang('Collation'),
-            \lang('Tables'),
-            \lang('Size'),
-        ];
-
-        $collations = \collations();
-        $details = [];
-        foreach($databases as $database)
-        {
-            $details[] = [
-                'name' => \h($database),
-                'collation' => \h(\db_collation($database, $collations)),
-                'tables' => $tables[$database],
-                'size' => \db_size($database),
-            ];
-        }
-
-        return \compact('databases', 'messages', 'actions', 'main_actions', 'headers', 'details');
+        $this->server()->connect($options);
+        return $this->server()->getServerInfo($options);
     }
 
     /**
@@ -153,86 +66,77 @@ class Proxy
      */
     public function getDatabaseInfo(array $options, string $database)
     {
-        global $adminer, $connection;
-        $this->connect($options, $database);
+        $this->server()->connect($options, $database);
+        return $this->server()->getDatabaseInfo($options, $database);
+    }
 
-        $main_actions = [
-            'database' => \lang('Alter database'),
-            'c_scheme' => \lang('Create schema'),
-            'a_scheme' => \lang('Alter schema'),
-            'd_scheme' => \lang('Database schema'),
-            'privileges' => \lang('Privileges'),
-        ];
+    /**
+     * Get the tables from a database server
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function getTables(array $options, string $database)
+    {
+        $this->server()->connect($options, $database);
+        return $this->database()->getTables($options, $database);
+    }
 
-        $actions = [
-            'db_sql_command' => \lang('SQL command'),
-            'db_import' => \lang('Import'),
-            'db_export' => \lang('Export'),
-            'db_create_table' => \lang('Create table'),
-        ];
+    /**
+     * Get the routines from a given database
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function getRoutines(array $options, string $database)
+    {
+        $this->server()->connect($options, $database);
+        return $this->database()->getRoutines($options, $database);
+    }
 
-        $features = [
-            'table' => true,
-            'search' => \support('table'),
-        ];
-        $_features = [
-            'comment',
-            'indexes',
-            'scheme',
-            'copy',
-            'view',
-            'routine',
-            'procedure',
-            'sequence',
-            'type',
-            'event',
-        ];
-        foreach($_features as $feature)
-        {
-            $features[$feature] = \support($feature);
-        }
-        $menu_actions = [
-            'table' => \lang('Tables and views'),
-            'search' => \lang('Search data in tables'),
-            'routine' => \lang('Routines'),
-            'sequence' => \lang('Sequences'),
-            'type' => \lang('User types'),
-            'event' => \lang('Events'),
-        ];
+    /**
+     * Get the routines from a given database
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function getSequences(array $options, string $database)
+    {
+        $this->server()->connect($options, $database);
+        return $this->database()->getSequences($options, $database);
+    }
 
-        $headers = [
-            \lang('Table'),
-			\lang('Engine'),
-			\lang('Collation'),
-			// \lang('Data Length'),
-			// \lang('Index Length'),
-			// \lang('Data Free'),
-			// \lang('Auto Increment'),
-			// \lang('Rows'),
-			\lang('Comment'),
-        ];
+    /**
+     * Get the routines from a given database
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function getUserTypes(array $options, string $database)
+    {
+        $this->server()->connect($options, $database);
+        return $this->database()->getUserTypes($options, $database);
+    }
 
-        // From adminer.inc.php
-        $connection->select_db($database);
-        // $table_status = \table_status('', true); // Tables details
-        $table_status = \table_status(); // Tables details
-
-        // From db.inc.php
-        // $tables_list = \tables_list();
-
-        $tables = $table_status;
-        // $tables = [];
-        $details = [];
-        foreach( $table_status as $table => $status)
-        {
-            // $tables[] = \h($table);
-            $details[] = [
-                'name' => $adminer->tableName($status),
-                'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
-                'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
-            ];
-        }
-
-        return \compact('tables', 'actions', 'main_actions', 'features', 'menu_actions', 'headers', 'details');
+    /**
+     * Get the routines from a given database
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return void
+     */
+    public function getEvents(array $options, string $database)
+    {
+        $this->server()->connect($options, $database);
+        return $this->database()->getEvents($options, $database);
     }
 }
