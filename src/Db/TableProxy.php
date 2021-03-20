@@ -83,14 +83,14 @@ class TableProxy
         $hasComment = \support('comment');
 
         $tabs = [
-            'fields' => \is_view($table_status) ? \lang('View') : \lang('Table'),
+            'fields' => \lang('Columns'),
             'indexes' => \lang('Indexes'),
             'foreign-keys' => \lang('Foreign keys'),
             'triggers' => \lang('Triggers'),
         ];
 
         $headers = [
-            \lang('Column'),
+            \lang('Name'),
             \lang('Type'),
             \lang('Collation'),
         ];
@@ -262,7 +262,12 @@ class TableProxy
             \lang('Add trigger'),
         ];
 
-        $headers = ['', '', '', ''];
+        $headers = [
+            \lang('Name'),
+            '&nbsp;',
+            '&nbsp;',
+            '&nbsp;',
+        ];
 
         if(!$triggers)
         {
