@@ -96,13 +96,13 @@ var thousandsSeparator = '<?php echo js_escape(lang(',')); ?>';
 	}
 	echo "<h2>$title_all</h2>\n";
 	echo "<div id='ajaxstatus' class='jsonly hidden'></div>\n";
-	restart_session();
-	page_messages($error);
-	$databases = &get_session("dbs");
-	if (DB != "" && $databases && !in_array(DB, $databases, true)) {
-		$databases = null;
-	}
-	stop_session();
+	// restart_session();
+	// page_messages($error);
+	// $databases = &get_session("dbs");
+	// if (DB != "" && $databases && !in_array(DB, $databases, true)) {
+	// 	$databases = null;
+	// }
+	// stop_session();
 	define("PAGE_HEADER", 1);
 }
 

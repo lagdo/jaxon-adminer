@@ -641,7 +641,7 @@ class Adminer {
     */
     function messageQuery($query, $time, $failed = false) {
         global $jush, $driver;
-        restart_session();
+        // restart_session();
         $history = &get_session("queries");
         if (!$history[$_GET["db"]]) {
             $history[$_GET["db"]] = array();

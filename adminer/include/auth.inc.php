@@ -50,7 +50,7 @@ function check_invalid_login() {
 
 $auth = $_POST["auth"];
 if ($auth) {
-	session_regenerate_id(); // defense against session fixation
+	// session_regenerate_id(); // defense against session fixation
 	$vendor = $auth["driver"];
 	$server = $auth["server"];
 	$username = $auth["username"];
@@ -72,16 +72,16 @@ if ($auth) {
 	) {
 		redirect(auth_url($vendor, $server, $username, $db));
 	}
-	
+
 } elseif ($_POST["logout"] && (!$has_token || verify_token())) {
-	foreach (array("pwds", "db", "dbs", "queries") as $key) {
-		set_session($key, null);
-	}
+	// foreach (array("pwds", "db", "dbs", "queries") as $key) {
+	// 	set_session($key, null);
+	// }
 	unset_permanent();
 	redirect(substr(preg_replace('~\b(username|db|ns)=[^&]*&~', '', ME), 0, -1), lang('Logout successful.') . ' ' . lang('Thanks for using Adminer, consider <a href="https://www.adminer.org/en/donation/">donating</a>.'));
-	
+
 } elseif ($permanent && !$_SESSION["pwds"]) {
-	session_regenerate_id();
+	// session_regenerate_id();
 	$private = $adminer->permanentLogin();
 	foreach ($permanent as $key => $val) {
 		list(, $cipher) = explode(":", $val);
@@ -114,7 +114,7 @@ function auth_error($error) {
 		if (($_COOKIE[$session_name] || $_GET[$session_name]) && !$has_token) {
 			$error = lang('Session expired, please login again.');
 		} else {
-			restart_session();
+			// restart_session();
 			add_invalid_login();
 			$password = get_password();
 			if ($password !== null) {
@@ -152,7 +152,7 @@ if (isset($_GET["username"]) && !class_exists("Min_DB")) {
 	exit;
 }
 
-stop_session(true);
+// stop_session(true);
 
 if (isset($_GET["username"]) && is_string(get_password())) {
 	list($host, $port) = explode(":", SERVER, 2);
@@ -199,7 +199,7 @@ if ($_POST) {
 			: lang('Invalid CSRF token. Send the form again.') . ' ' . lang('If you did not send this request from Adminer then close this page.')
 		);
 	}
-	
+
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
 	// posted form with no data means that post_max_size exceeded because Adminer always sends token at least
 	$error = lang('Too big POST data. Reduce the data or increase the %s configuration directive.', "'post_max_size'");
