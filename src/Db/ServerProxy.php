@@ -51,7 +51,7 @@ class ServerProxy
         $password = $options["password"];
 
         // Simulate an actual request to Adminer
-        $vendor = $options['type'];
+        $vendor = $options['driver'];
         $server = $host;
         $_GET[$vendor] = $server;
         $_GET['username'] = $username;

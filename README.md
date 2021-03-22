@@ -40,7 +40,7 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
-                        'type' => '',     // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
                         'host' => '',     // The database host name or address.
                         'port' => 0,      // The database port
                         'username' => '', // The database user credentials
@@ -48,7 +48,7 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
                     ],
                     'second_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
-                        'type' => '',     // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
                         'host' => '',     // The database host name or address.
                         'port' => 0,      // The database port
                         'username' => '', // The database user credentials
