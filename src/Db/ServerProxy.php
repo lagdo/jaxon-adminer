@@ -103,7 +103,9 @@ class ServerProxy
         global $adminer, $drivers, $connection;
 
         // Get the database lists
-        $databases = $adminer->databases();
+        // Passing false as parameter to this call prevent from using the slow_query() function,
+        // which outputs data to the browser that are prepended to the Jaxon response.
+        $databases = $adminer->databases(false);
 
         $messages = [
             \lang('%s version: %s through PHP extension %s', $drivers[DRIVER], "<b>" .
@@ -128,7 +130,7 @@ class ServerProxy
 
         $tables = \count_tables($databases);
 
-        $dbSupport = support("database");
+        $dbSupport = \support("database");
         $headers = [
             \lang('Database'),
             \lang('Collation'),
