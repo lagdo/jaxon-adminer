@@ -3,15 +3,15 @@
 namespace Lagdo\Adminer\Ajax;
 
 use Lagdo\Adminer\Package;
+use Lagdo\Adminer\AdminerCallable;
 use Lagdo\Adminer\Db\Proxy as DbProxy;
 
-use Jaxon\CallableClass;
 use Exception;
 
 /**
  * Adminer Ajax client
  */
-class Database extends CallableClass
+class Database extends AdminerCallable
 {
     /**
      * The Jaxon Adminer package
@@ -77,7 +77,7 @@ class Database extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::main/content');
+        $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
@@ -111,7 +111,7 @@ class Database extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::main/content');
+        $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
@@ -140,7 +140,7 @@ class Database extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::main/content');
+        $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
@@ -169,7 +169,7 @@ class Database extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::main/content');
+        $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
@@ -198,7 +198,7 @@ class Database extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::main/content');
+        $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item

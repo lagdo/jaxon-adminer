@@ -3,15 +3,15 @@
 namespace Lagdo\Adminer\Ajax;
 
 use Lagdo\Adminer\Package;
+use Lagdo\Adminer\AdminerCallable;
 use Lagdo\Adminer\Db\Proxy as DbProxy;
 
-use Jaxon\CallableClass;
 use Exception;
 
 /**
  * Adminer Ajax
  */
-class Server extends CallableClass
+class Server extends AdminerCallable
 {
     /**
      * The Jaxon Adminer package
@@ -58,17 +58,17 @@ class Server extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::menu/server');
+        $content = $this->render('menu/server');
         $this->response->html($this->package->getDbListId(), $content);
         $this->jq('#adminer-dbname-select-btn')
             ->click($this->rq()->select($server, \pm()->select('adminer-dbname-select')));
 
-        $content = $this->view()->render('adminer::views::menu/actions');
+        $content = $this->render('menu/actions');
         $this->response->html($this->package->getServerActionsId(), $content);
         $this->response->clear($this->package->getDbActionsId());
         $this->response->clear($this->package->getDbMenuId());
 
-        $content = $this->view()->render('adminer::views::main/server');
+        $content = $this->render('main/server');
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -94,11 +94,11 @@ class Server extends CallableClass
         }
         // $this->response->dialog->info(json_encode($databaseInfo), "Info");
 
-        $content = $this->view()->render('adminer::views::menu/actions');
+        $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbActionsId(), $content);
         $this->response->clear($this->package->getServerActionsId());
 
-        $content = $this->view()->render('adminer::views::menu/database');
+        $content = $this->render('menu/database');
         $this->response->html($this->package->getDbMenuId(), $content);
         // Set the click handlers
         $this->jq('#adminer-dbmenu-action-table')

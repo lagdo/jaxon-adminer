@@ -3,15 +3,15 @@
 namespace Lagdo\Adminer\Ajax;
 
 use Lagdo\Adminer\Package;
+use Lagdo\Adminer\AdminerCallable;
 use Lagdo\Adminer\Db\Proxy as DbProxy;
 
-use Jaxon\CallableClass;
 use Exception;
 
 /**
  * Adminer Ajax client
  */
-class Table extends CallableClass
+class Table extends AdminerCallable
 {
     /**
      * The Jaxon Adminer package
@@ -61,10 +61,10 @@ class Table extends CallableClass
             $this->view()->share($name, $value);
         }
 
-        $content = $this->view()->render('adminer::views::main/table');
+        $content = $this->render('main/table');
         $this->response->html($this->package->getDbContentId(), $content);
 
-        $content = $this->view()->render('adminer::views::main/content');
+        $content = $this->render('main/content');
         $this->response->html("tab-content-fields", $content);
 
         // Show indexes
@@ -77,7 +77,7 @@ class Table extends CallableClass
                 $this->view()->share($name, $value);
             }
 
-            $content = $this->view()->render('adminer::views::main/content');
+            $content = $this->render('main/content');
             $this->response->html("tab-content-indexes", $content);
         }
 
@@ -91,7 +91,7 @@ class Table extends CallableClass
                 $this->view()->share($name, $value);
             }
 
-            $content = $this->view()->render('adminer::views::main/content');
+            $content = $this->render('main/content');
             $this->response->html("tab-content-foreign-keys", $content);
         }
 
@@ -105,7 +105,7 @@ class Table extends CallableClass
                 $this->view()->share($name, $value);
             }
 
-            $content = $this->view()->render('adminer::views::main/content');
+            $content = $this->render('main/content');
             $this->response->html("tab-content-triggers", $content);
         }
 
