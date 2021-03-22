@@ -17,7 +17,7 @@
         "source": "https://github.com/lagdo/jaxon-adminer"
     },
     "require": {
-        "jaxon-php/jaxon-core": "^3.2",
+        "jaxon-php/jaxon-core": "^3.3",
         "jaxon-php/jaxon-dialogs": "^3.0"
     },
     "autoload": {

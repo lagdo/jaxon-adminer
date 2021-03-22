@@ -14,9 +14,13 @@ return [
             'renderer' => 'jaxon',
         ],
         'adminer::views' => [
-            'directory' => __DIR__ . '/../templates/views/bootstrap',
+            'directory' => __DIR__ . '/../templates/views',
             'extension' => '.php',
             'renderer' => 'jaxon',
+            'template' => [
+                'option' => 'template',
+                'default' => 'bootstrap',
+            ],
         ],
         // 'adminer_views' => [
         //     'directory' => __DIR__ . '/../templates/views/bootstrap',
