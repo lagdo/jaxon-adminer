@@ -65,7 +65,8 @@ class Server extends CallableClass
 
         $content = $this->view()->render('adminer::views::menu/actions');
         $this->response->html($this->package->getServerActionsId(), $content);
-        $this->response->html($this->package->getDbActionsId(), '');
+        $this->response->clear($this->package->getDbActionsId());
+        $this->response->clear($this->package->getDbMenuId());
 
         $content = $this->view()->render('adminer::views::main/server');
         $this->response->html($this->package->getDbContentId(), $content);
@@ -95,7 +96,7 @@ class Server extends CallableClass
 
         $content = $this->view()->render('adminer::views::menu/actions');
         $this->response->html($this->package->getDbActionsId(), $content);
-        $this->response->html($this->package->getServerActionsId(), '');
+        $this->response->clear($this->package->getServerActionsId());
 
         $content = $this->view()->render('adminer::views::menu/database');
         $this->response->html($this->package->getDbMenuId(), $content);
