@@ -71,6 +71,100 @@ class Server extends AdminerCallable
         $content = $this->render('main/server');
         $this->response->html($this->package->getDbContentId(), $content);
 
+        // Set the click handlers
+        // $this->jq('#adminer-main-action-database')
+        //     ->removeClass('btn-default')
+        //     ->addClass('btn-primary')
+        //     ->click($this->rq()->createDatabase($server));
+        // $this->jq('#adminer-main-action-privileges')
+        //     ->removeClass('btn-default')
+        //     ->addClass('btn-primary')
+        //     ->click($this->rq()->showPrivileges($server));
+        $this->jq('#adminer-main-action-processlist')
+            ->removeClass('btn-default')
+            ->addClass('btn-primary')
+            ->click($this->rq()->showProcesses($server));
+        $this->jq('#adminer-main-action-variables')
+            ->removeClass('btn-default')
+            ->addClass('btn-primary')
+            ->click($this->rq()->showVariables($server));
+        $this->jq('#adminer-main-action-status')
+            ->removeClass('btn-default')
+            ->addClass('btn-primary')
+            ->click($this->rq()->showStatus($server));
+
+        return $this->response;
+    }
+
+    /**
+     * Show the processes of a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showProcesses($server)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $processesInfo = $this->dbProxy->getProcesses($options);
+        // Make processes info available to views
+        foreach($processesInfo as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        $content = $this->render('main/row-content');
+        $this->response->html('adminer-server-main-table', $content);
+
+        return $this->response;
+    }
+
+    /**
+     * Show the variables of a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showVariables($server)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $variablesInfo = $this->dbProxy->getVariables($options);
+        // Make variables info available to views
+        foreach($variablesInfo as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        $content = $this->render('main/row-content');
+        $this->response->html('adminer-server-main-table', $content);
+
+        return $this->response;
+    }
+
+    /**
+     * Show the status of a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showStatus($server)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $statusInfo = $this->dbProxy->getStatus($options);
+        // Make status info available to views
+        foreach($statusInfo as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        $content = $this->render('main/row-content');
+        $this->response->html('adminer-server-main-table', $content);
+
         return $this->response;
     }
 

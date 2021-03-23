@@ -8,15 +8,16 @@
 
         <div class="row" style="margin-bottom:10px;">
             <div class="btn-group btn-group-justified" role="group">
-<?php foreach($this->main_actions as $title): ?>
+<?php foreach($this->main_actions as $id => $title): ?>
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default"><?php echo $title ?></button>
+                    <button id="adminer-main-action-<?php
+                        echo $id ?>" type="button" class="btn btn-default"><?php echo $title ?></button>
                 </div>
 <?php endforeach ?>
             </div>
         </div>
 
-        <div class="row">
+        <div id="adminer-server-main-table" class="row">
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>

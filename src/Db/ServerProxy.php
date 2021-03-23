@@ -210,4 +210,89 @@ class ServerProxy
 
         return \compact(/*'tables', */'actions', 'features', 'menu_actions');
     }
+
+    /**
+     * Get the processes
+     *
+     * @return array
+     */
+    public function getProcesses()
+    {
+        global $jush;
+        // From processlist.inc.php
+        $processes = \process_list();
+        $main_actions = [];
+
+        // From processlist.inc.php
+        // TODO: Add a kill column in the headers
+        $headers = [];
+        $details = [];
+        foreach($processes as $process)
+        {
+            // Set the keys of the first etry as headers
+            if(\count($headers) === 0)
+            {
+                $headers = \array_keys($process);
+            }
+            $detail = [];
+            foreach($process as $key => $val)
+            {
+                $detail[] =
+                    ($jush == "sql" && $key == "Info" && \preg_match("~Query|Killed~", $process["Command"]) && $val != "") ||
+                    ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
+                    ($jush == "oracle" && $key == "sql_text" && $val != "") ?
+                    "<code class='jush-$jush'>" . \shorten_utf8($val, 50) . "</code>" . lang('Clone')
+                    : \h($val);
+            }
+            $details[] = $detail;
+        }
+
+        return \compact('main_actions', 'headers', 'details');
+    }
+
+    /**
+     * Get the variables
+     *
+     * @return array
+     */
+    public function getVariables()
+    {
+        // From variables.inc.php
+        $variables = \show_variables();
+        $main_actions = [];
+
+        $headers = ['', ''];
+
+        $details = [];
+        // From variables.inc.php
+        foreach($variables as $key => $val)
+        {
+            $details[] = [\h($key), \shorten_utf8($val, 50)];
+        }
+
+        return \compact('main_actions', 'headers', 'details');
+    }
+
+    /**
+     * Get the server status
+     *
+     * @return array|null
+     */
+    public function getStatus()
+    {
+        // From variables.inc.php
+        $status = \show_status();
+        $main_actions = [];
+
+        $headers = ['', ''];
+
+        $details = [];
+        // From variables.inc.php
+        foreach($status as $key => $val)
+        {
+            $details[] = [\h($key), \h($val)];
+        }
+
+        return \compact('main_actions', 'headers', 'details');
+    }
 }

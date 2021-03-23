@@ -74,6 +74,45 @@ class Proxy
     }
 
     /**
+     * Get the processes
+     *
+     * @param array $options    The corresponding config options
+     *
+     * @return array
+     */
+    public function getProcesses(array $options)
+    {
+        $this->server()->connect($options);
+        return $this->server()->getProcesses();
+    }
+
+    /**
+     * Get the variables
+     *
+     * @param array $options    The corresponding config options
+     *
+     * @return array
+     */
+    public function getVariables(array $options)
+    {
+        $this->server()->connect($options);
+        return $this->server()->getVariables();
+    }
+
+    /**
+     * Get the server status
+     *
+     * @param array $options    The corresponding config options
+     *
+     * @return array|null
+     */
+    public function getStatus(array $options)
+    {
+        $this->server()->connect($options);
+        return $this->server()->getStatus();
+    }
+
+    /**
      * Connect to a database server
      *
      * @param array $options    The corresponding config options
