@@ -14,7 +14,7 @@ Features
 - [x] Connect to a MySQL database.
 - [x] Show basic info about the MySQL database server.
 - [x] Show the list of tables in the connected database.
-- [ ] Show detailed info about the MySQL database server.
+- [x] Show detailed info about the MySQL database server.
 - [ ] Connect to other database types.
 - [ ] Show detailed info about the connected database.
 - [ ] Execute requests and display results.
