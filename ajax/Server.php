@@ -52,18 +52,6 @@ class Server extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $serverInfo = $this->dbProxy->getServerInfo($options);
-
-        $dbNameClass = 'adminer-db-name';
-        // Add links, classes and data values to database names.
-        $serverInfo['details'] = \array_map(function($detail) use($dbNameClass) {
-            $detail['name'] = [
-                'class' => $dbNameClass,
-                'value' => $detail['name'],
-                'label' => $detail['name'],
-            ];
-            return $detail;
-        }, $serverInfo['details']);
-
         // Make server info available to views
         foreach($serverInfo as $name => $value)
         {
@@ -84,11 +72,12 @@ class Server extends AdminerCallable
         // Set onclick handlers on database dropdown select
         $this->jq('#adminer-dbname-select-btn')
             ->click($this->rq()->select($server, \pm()->select('adminer-dbname-select')));
-        // Set onclick handlers on database names
-        $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->rq()->select($server, \jq()->parent()->attr('data-value')));
 
         // Set the click handlers
+        $this->jq('#adminer-main-action-databases')
+            ->removeClass('btn-default')
+            ->addClass('btn-primary')
+            ->click($this->rq()->showDatabases($server));
         // $this->jq('#adminer-main-action-database')
         //     ->removeClass('btn-default')
         //     ->addClass('btn-primary')
@@ -109,6 +98,49 @@ class Server extends AdminerCallable
             ->removeClass('btn-default')
             ->addClass('btn-primary')
             ->click($this->rq()->showStatus($server));
+
+        // Show the database list
+        $this->showDatabases($server);
+
+        return $this->response;
+    }
+
+    /**
+     * Show the databases of a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showDatabases($server)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $databasesInfo = $this->dbProxy->getDatabases($options);
+
+        $dbNameClass = 'adminer-db-name';
+        // Add links, classes and data values to database names.
+        $databasesInfo['details'] = \array_map(function($detail) use($dbNameClass) {
+            $detail['name'] = [
+                'class' => $dbNameClass,
+                'value' => $detail['name'],
+                'label' => $detail['name'],
+            ];
+            return $detail;
+        }, $databasesInfo['details']);
+
+        // Make databases info available to views
+        foreach($databasesInfo as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        $content = $this->render('main/row-content');
+        $this->response->html('adminer-server-main-table', $content);
+
+        // Set onclick handlers on database names
+        $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
+            ->click($this->rq()->select($server, \jq()->parent()->attr('data-value')));
 
         return $this->response;
     }

@@ -74,6 +74,19 @@ class Proxy
     }
 
     /**
+     * Get the database list
+     *
+     * @param array $options    The corresponding config options
+     *
+     * @return void
+     */
+    public function getDatabases(array $options)
+    {
+        $this->server()->connect($options);
+        return $this->server()->getDatabases();
+    }
+
+    /**
      * Get the processes
      *
      * @param array $options    The corresponding config options

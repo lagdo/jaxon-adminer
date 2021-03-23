@@ -102,6 +102,16 @@ class ServerProxy
     {
         global $adminer, $drivers, $connection;
 
+        // Content from the connect_error() function in connect.inc.php
+        $main_actions = [
+            'databases' => \lang('Databases'),
+            'database' => \lang('Create database'),
+            'privileges' => \lang('Privileges'),
+            'processlist' => \lang('Process list'),
+            'variables' => \lang('Variables'),
+            'status' => \lang('Status'),
+        ];
+
         // Get the database lists
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser that are prepended to the Jaxon response.
@@ -113,44 +123,13 @@ class ServerProxy
             \lang('Logged as: %s', "<b>" . \h(\logged_user()) . "</b>"),
         ];
 
-        // Content from the connect_error() function in connect.inc.php
-        $main_actions = [
-            'database' => \lang('Create database'),
-            'privileges' => \lang('Privileges'),
-            'processlist' => \lang('Process list'),
-            'variables' => \lang('Variables'),
-            'status' => \lang('Status'),
-        ];
-
         $actions = [
             'host_sql_command' => \lang('SQL command'),
             'host_export' => \lang('Export'),
             'host_create_table' => \lang('Create table'),
         ];
 
-        $tables = \count_tables($databases);
-
-        $dbSupport = \support("database");
-        $headers = [
-            \lang('Database'),
-            \lang('Collation'),
-            \lang('Tables'),
-            \lang('Size'),
-        ];
-
-        $collations = \collations();
-        $details = [];
-        foreach($databases as $database)
-        {
-            $details[] = [
-                'name' => \h($database),
-                'collation' => \h(\db_collation($database, $collations)),
-                'tables' => $tables[$database],
-                'size' => \db_size($database),
-            ];
-        }
-
-        return \compact('databases', 'messages', 'actions', 'main_actions', 'headers', 'details');
+        return \compact('databases', 'messages', 'main_actions', 'actions');
     }
 
     /**
@@ -212,6 +191,44 @@ class ServerProxy
     }
 
     /**
+     * Get the database list
+     *
+     * @return void
+     */
+    public function getDatabases()
+    {
+        global $adminer;
+
+        // Get the database lists
+        // Passing false as parameter to this call prevent from using the slow_query() function,
+        // which outputs data to the browser that are prepended to the Jaxon response.
+        $databases = $adminer->databases(false);
+        $tables = \count_tables($databases);
+
+        $dbSupport = \support("database");
+        $headers = [
+            \lang('Database'),
+            \lang('Collation'),
+            \lang('Tables'),
+            \lang('Size'),
+        ];
+
+        $collations = \collations();
+        $details = [];
+        foreach($databases as $database)
+        {
+            $details[] = [
+                'name' => \h($database),
+                'collation' => \h(\db_collation($database, $collations)),
+                'tables' => $tables[$database],
+                'size' => \db_size($database),
+            ];
+        }
+
+        return \compact('headers', 'details');
+    }
+
+    /**
      * Get the processes
      *
      * @return array
@@ -221,7 +238,6 @@ class ServerProxy
         global $jush;
         // From processlist.inc.php
         $processes = \process_list();
-        $main_actions = [];
 
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
@@ -247,7 +263,7 @@ class ServerProxy
             $details[] = $detail;
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -259,7 +275,6 @@ class ServerProxy
     {
         // From variables.inc.php
         $variables = \show_variables();
-        $main_actions = [];
 
         $headers = ['', ''];
 
@@ -270,7 +285,7 @@ class ServerProxy
             $details[] = [\h($key), \shorten_utf8($val, 50)];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 
     /**
@@ -282,7 +297,6 @@ class ServerProxy
     {
         // From variables.inc.php
         $status = \show_status();
-        $main_actions = [];
 
         $headers = ['', ''];
 
@@ -293,6 +307,6 @@ class ServerProxy
             $details[] = [\h($key), \h($val)];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('headers', 'details');
     }
 }
