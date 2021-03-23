@@ -52,6 +52,18 @@ class Server extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $serverInfo = $this->dbProxy->getServerInfo($options);
+
+        $dbNameClass = 'adminer-db-name';
+        // Add links, classes and data values to database names.
+        $serverInfo['details'] = \array_map(function($detail) use($dbNameClass) {
+            $detail['name'] = [
+                'class' => $dbNameClass,
+                'value' => $detail['name'],
+                'label' => $detail['name'],
+            ];
+            return $detail;
+        }, $serverInfo['details']);
+
         // Make server info available to views
         foreach($serverInfo as $name => $value)
         {
@@ -60,8 +72,6 @@ class Server extends AdminerCallable
 
         $content = $this->render('menu/server');
         $this->response->html($this->package->getDbListId(), $content);
-        $this->jq('#adminer-dbname-select-btn')
-            ->click($this->rq()->select($server, \pm()->select('adminer-dbname-select')));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getServerActionsId(), $content);
@@ -70,6 +80,13 @@ class Server extends AdminerCallable
 
         $content = $this->render('main/server');
         $this->response->html($this->package->getDbContentId(), $content);
+
+        // Set onclick handlers on database dropdown select
+        $this->jq('#adminer-dbname-select-btn')
+            ->click($this->rq()->select($server, \pm()->select('adminer-dbname-select')));
+        // Set onclick handlers on database names
+        $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
+            ->click($this->rq()->select($server, \jq()->parent()->attr('data-value')));
 
         // Set the click handlers
         // $this->jq('#adminer-main-action-database')
@@ -194,6 +211,7 @@ class Server extends AdminerCallable
 
         $content = $this->render('menu/database');
         $this->response->html($this->package->getDbMenuId(), $content);
+
         // Set the click handlers
         $this->jq('#adminer-dbmenu-action-table')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
@@ -205,6 +223,8 @@ class Server extends AdminerCallable
             ->click($this->cl(Database::class)->rq()->showUserTypes($server, $database));
         $this->jq('#adminer-dbmenu-action-event')
             ->click($this->cl(Database::class)->rq()->showEvents($server, $database));
+        // Set the selected entry on database dropdown select
+        $this->jq('#adminer-dbname-select')->val($database)->change();
 
         // Show the database tables
         $this->cl(Database::class)->showTables($server, $database);
