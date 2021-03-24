@@ -22,28 +22,28 @@ class DatabaseProxy
         global $adminer;
 
         $main_actions = [
-            'database' => \lang('Alter database'),
-            'c_scheme' => \lang('Create schema'),
-            'a_scheme' => \lang('Alter schema'),
-            'd_scheme' => \lang('Database schema'),
-            'privileges' => \lang('Privileges'),
+            'database' => \adminer\lang('Alter database'),
+            'c_scheme' => \adminer\lang('Create schema'),
+            'a_scheme' => \adminer\lang('Alter schema'),
+            'd_scheme' => \adminer\lang('Database schema'),
+            'privileges' => \adminer\lang('Privileges'),
         ];
 
         $headers = [
-            \lang('Table'),
-            \lang('Engine'),
-            \lang('Collation'),
-            // \lang('Data Length'),
-            // \lang('Index Length'),
-            // \lang('Data Free'),
-            // \lang('Auto Increment'),
-            // \lang('Rows'),
-            \lang('Comment'),
+            \adminer\lang('Table'),
+            \adminer\lang('Engine'),
+            \adminer\lang('Collation'),
+            // \adminer\lang('Data Length'),
+            // \adminer\lang('Index Length'),
+            // \adminer\lang('Data Free'),
+            // \adminer\lang('Auto Increment'),
+            // \adminer\lang('Rows'),
+            \adminer\lang('Comment'),
         ];
 
         // From db.inc.php
-        // $table_status = \table_status('', true); // Tables details
-        $table_status = \table_status(); // Tables details
+        // $table_status = \adminer\table_status('', true); // Tables details
+        $table_status = \adminer\table_status(); // Tables details
 
         $details = [];
         foreach($table_status as $table => $status)
@@ -70,18 +70,18 @@ class DatabaseProxy
     public function getRoutines(array $options, string $database)
     {
         $main_actions = [
-            'procedure' => \lang('Create procedure'),
-            'function' => \lang('Create function'),
+            'procedure' => \adminer\lang('Create procedure'),
+            'function' => \adminer\lang('Create function'),
         ];
 
         $headers = [
-            \lang('Name'),
-            \lang('Type'),
-            \lang('Return type'),
+            \adminer\lang('Name'),
+            \adminer\lang('Type'),
+            \adminer\lang('Return type'),
         ];
 
         // From db.inc.php
-        $routines = \support("routine") ? \routines() : [];
+        $routines = \adminer\support("routine") ? \adminer\routines() : [];
         $details = [];
         foreach($routines as $routine)
         {
@@ -90,10 +90,10 @@ class DatabaseProxy
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
 
             $details[] = [
-                'name' => \h($routine["ROUTINE_NAME"]),
-                'type' => \h($routine["ROUTINE_TYPE"]),
-                'returnType' => \h($routine["DTD_IDENTIFIER"]),
-                // 'alter' => \lang('Alter'),
+                'name' => \adminer\h($routine["ROUTINE_NAME"]),
+                'type' => \adminer\h($routine["ROUTINE_TYPE"]),
+                'returnType' => \adminer\h($routine["DTD_IDENTIFIER"]),
+                // 'alter' => \adminer\lang('Alter'),
             ];
         }
 
@@ -111,25 +111,25 @@ class DatabaseProxy
     public function getSequences(array $options, string $database)
     {
         $main_actions = [
-            'sequence' => \lang('Create sequence'),
+            'sequence' => \adminer\lang('Create sequence'),
         ];
 
         $headers = [
-            \lang('Name'),
+            \adminer\lang('Name'),
         ];
 
         $sequences = [];
-        if(\support("sequence"))
+        if(\adminer\support("sequence"))
         {
             // From db.inc.php
-            $sequences = \get_vals("SELECT sequence_name FROM information_schema.sequences ".
+            $sequences = \adminer\get_vals("SELECT sequence_name FROM information_schema.sequences ".
                 "WHERE sequence_schema = current_schema() ORDER BY sequence_name");
         }
         $details = [];
         foreach($sequences as $sequence)
         {
             $details[] = [
-                'name' => \h($sequence),
+                'name' => \adminer\h($sequence),
             ];
         }
 
@@ -147,20 +147,20 @@ class DatabaseProxy
     public function getUserTypes(array $options, string $database)
     {
         $main_actions = [
-            'type' => \lang('Create type'),
+            'type' => \adminer\lang('Create type'),
         ];
 
         $headers = [
-            \lang('Name'),
+            \adminer\lang('Name'),
         ];
 
         // From db.inc.php
-        $userTypes = \support("type") ? \types() : [];
+        $userTypes = \adminer\support("type") ? \adminer\types() : [];
         $details = [];
         foreach($userTypes as $userType)
         {
             $details[] = [
-                'name' => \h($userType),
+                'name' => \adminer\h($userType),
             ];
         }
 
@@ -178,33 +178,34 @@ class DatabaseProxy
     public function getEvents(array $options, string $database)
     {
         $main_actions = [
-            'event' => \lang('Create event'),
+            'event' => \adminer\lang('Create event'),
         ];
 
         $headers = [
-            \lang('Name'),
-            \lang('Schedule'),
-            \lang('Start'),
-            // \lang('End'),
+            \adminer\lang('Name'),
+            \adminer\lang('Schedule'),
+            \adminer\lang('Start'),
+            // \adminer\lang('End'),
         ];
 
         // From db.inc.php
-        $events = \support("event") ? \get_rows("SHOW EVENTS") : [];
+        $events = \adminer\support("event") ? \adminer\get_rows("SHOW EVENTS") : [];
         $details = [];
         foreach($events as $event)
         {
             $detail = [
-                'name' => \h($event["Name"]),
+                'name' => \adminer\h($event["Name"]),
             ];
             if(($event["Execute at"]))
             {
-                $detail['schedule'] = \lang('At given time');
+                $detail['schedule'] = \adminer\lang('At given time');
                 $detail['start'] = $event["Execute at"];
                 // $detail['end'] = '';
             }
             else
             {
-                $detail['schedule'] = \lang('Every') . " " . $event["Interval value"] . " " . $event["Interval field"];
+                $detail['schedule'] = \adminer\lang('Every') . " " .
+                    $event["Interval value"] . " " . $event["Interval field"];
                 $detail['start'] = $event["Starts"];
                 // $detail['end'] = '';
             }

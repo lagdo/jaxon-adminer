@@ -1,4 +1,6 @@
 <?php
+namespace adminer;
+
 // any method change in this file should be transferred to editor/include/adminer.inc.php and plugins/plugin.php
 
 class Adminer {
@@ -389,7 +391,7 @@ class Adminer {
         print_fieldset("search", lang('Search'), $where);
         foreach ($indexes as $i => $index) {
             if ($index["type"] == "FULLTEXT") {
-                echo "<div>(<i>" . implode("</i>, <i>", array_map('h', $index["columns"])) . "</i>) AGAINST";
+                echo "<div>(<i>" . implode("</i>, <i>", array_map('\\adminer\\h', $index["columns"])) . "</i>) AGAINST";
                 echo " <input type='search' name='fulltext[$i]' value='" . h($_GET["fulltext"][$i]) . "'>";
                 echo script("qsl('input').oninput = selectFieldChange;", "");
                 echo checkbox("boolean[$i]", 1, isset($_GET["boolean"][$i]), "BOOL");
@@ -538,7 +540,7 @@ class Adminer {
         $return = array();
         foreach ($indexes as $i => $index) {
             if ($index["type"] == "FULLTEXT" && $_GET["fulltext"][$i] != "") {
-                $return[] = "MATCH (" . implode(", ", array_map('idf_escape', $index["columns"])) . ") AGAINST (" . q($_GET["fulltext"][$i]) . (isset($_GET["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
+                $return[] = "MATCH (" . implode(", ", array_map('\\adminer\\idf_escape', $index["columns"])) . ") AGAINST (" . q($_GET["fulltext"][$i]) . (isset($_GET["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
             }
         }
         foreach ((array) $_GET["where"] as $key => $val) {
@@ -857,7 +859,7 @@ class Adminer {
                         dump_csv($row);
                     } else {
                         if (!$insert) {
-                            $insert = "INSERT INTO " . table($table) . " (" . implode(", ", array_map('idf_escape', $keys)) . ") VALUES";
+                            $insert = "INSERT INTO " . table($table) . " (" . implode(", ", array_map('\\adminer\\idf_escape', $keys)) . ") VALUES";
                         }
                         foreach ($row as $key => $val) {
                             $field = $fields[$key];

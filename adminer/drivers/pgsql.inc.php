@@ -1,4 +1,6 @@
 <?php
+namespace adminer;
+
 $drivers["pgsql"] = "PostgreSQL";
 
 if (isset($_GET["pgsql"])) {
@@ -582,7 +584,7 @@ ORDER BY connamespace, conname") as $row) {
 	}
 
 	function truncate_tables($tables) {
-		return queries("TRUNCATE " . implode(", ", array_map('table', $tables)));
+		return queries("TRUNCATE " . implode(", ", array_map('\\adminer\\table', $tables)));
 		return true;
 	}
 
@@ -788,8 +790,8 @@ AND typelem = 0"
 		// primary + unique keys
 		foreach ($indexes as $index_name => $index) {
 			switch($index['type']) {
-				case 'UNIQUE': $return_parts[] = "CONSTRAINT " . idf_escape($index_name) . " UNIQUE (" . implode(', ', array_map('idf_escape', $index['columns'])) . ")"; break;
-				case 'PRIMARY': $return_parts[] = "CONSTRAINT " . idf_escape($index_name) . " PRIMARY KEY (" . implode(', ', array_map('idf_escape', $index['columns'])) . ")"; break;
+				case 'UNIQUE': $return_parts[] = "CONSTRAINT " . idf_escape($index_name) . " UNIQUE (" . implode(', ', array_map('\\adminer\\idf_escape', $index['columns'])) . ")"; break;
+				case 'PRIMARY': $return_parts[] = "CONSTRAINT " . idf_escape($index_name) . " PRIMARY KEY (" . implode(', ', array_map('\\adminer\\idf_escape', $index['columns'])) . ")"; break;
 			}
 		}
 

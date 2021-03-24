@@ -1,4 +1,6 @@
 <?php
+namespace adminer;
+
 /** Get database connection
 * @return Min_DB
 */

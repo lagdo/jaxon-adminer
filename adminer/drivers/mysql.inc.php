@@ -1,4 +1,7 @@
 <?php
+namespace adminer;
+use MySQLi;
+
 $drivers = array("server" => "MySQL") + $drivers;
 
 if (!defined("DRIVER")) {
@@ -600,8 +603,8 @@ if (!defined("DRIVER")) {
                 $return[idf_unescape($match[1])] = array(
                     "db" => idf_unescape($match[4] != "" ? $match[3] : $match[4]),
                     "table" => idf_unescape($match[4] != "" ? $match[4] : $match[3]),
-                    "source" => array_map('idf_unescape', $source[0]),
-                    "target" => array_map('idf_unescape', $target[0]),
+                    "source" => array_map('\\adminer\\idf_unescape', $source[0]),
+                    "target" => array_map('\\adminer\\idf_unescape', $target[0]),
                     "on_delete" => ($matchCount > 6 ? $match[6] : "RESTRICT"),
                     "on_update" => ($matchCount > 7 ? $match[7] : "RESTRICT"),
                 );
@@ -784,7 +787,7 @@ if (!defined("DRIVER")) {
     * @return bool
     */
     function drop_views($views) {
-        return queries("DROP VIEW " . implode(", ", array_map('table', $views)));
+        return queries("DROP VIEW " . implode(", ", array_map('\\adminer\\table', $views)));
     }
 
     /** Drop tables
@@ -792,7 +795,7 @@ if (!defined("DRIVER")) {
     * @return bool
     */
     function drop_tables($tables) {
-        return queries("DROP TABLE " . implode(", ", array_map('table', $tables)));
+        return queries("DROP TABLE " . implode(", ", array_map('\\adminer\\table', $tables)));
     }
 
     /** Move tables to other schema

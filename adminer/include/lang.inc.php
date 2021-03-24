@@ -1,4 +1,6 @@
 <?php
+namespace adminer;
+
 // not used in a single language version
 
 $langs = array(

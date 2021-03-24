@@ -1,4 +1,6 @@
 <?php
+namespace adminer;
+
 $connection = '';
 
 $has_token = $_SESSION["token"];

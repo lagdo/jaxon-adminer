@@ -73,7 +73,7 @@ class ServerProxy
         // );
 
         // Run the authentication code, from auth.inc.php.
-        set_password($vendor, $server, $username, $password);
+        \adminer\set_password($vendor, $server, $username, $password);
         $_SESSION["db"][$vendor][$server][$username][$db] = true;
         if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) { // is_numeric('80#') would still connect to port 80
             throw new Exception(lang('Connecting to privileged ports is not allowed.'));
@@ -81,8 +81,8 @@ class ServerProxy
 
         // $this->check_invalid_login();
         $adminer->credentials = ["$host:$port", $username, $password];
-        $connection = connect();
-        $driver = new \Min_Driver($connection);
+        $connection = \adminer\connect();
+        $driver = new \adminer\Min_Driver($connection);
 
         // From adminer.inc.php
         if(($db))
@@ -104,12 +104,12 @@ class ServerProxy
 
         // Content from the connect_error() function in connect.inc.php
         $main_actions = [
-            'databases' => \lang('Databases'),
-            'database' => \lang('Create database'),
-            'privileges' => \lang('Privileges'),
-            'processlist' => \lang('Process list'),
-            'variables' => \lang('Variables'),
-            'status' => \lang('Status'),
+            'databases' => \adminer\lang('Databases'),
+            'database' => \adminer\lang('Create database'),
+            'privileges' => \adminer\lang('Privileges'),
+            'processlist' => \adminer\lang('Process list'),
+            'variables' => \adminer\lang('Variables'),
+            'status' => \adminer\lang('Status'),
         ];
 
         // Get the database lists
@@ -118,15 +118,15 @@ class ServerProxy
         $databases = $adminer->databases(false);
 
         $messages = [
-            \lang('%s version: %s through PHP extension %s', $drivers[DRIVER], "<b>" .
-                \h($connection->server_info) . "</b>", "<b>$connection->extension</b>"),
-            \lang('Logged as: %s', "<b>" . \h(\logged_user()) . "</b>"),
+            \adminer\lang('%s version: %s through PHP extension %s', $drivers[DRIVER], "<b>" .
+                \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>"),
+            \adminer\lang('Logged as: %s', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>"),
         ];
 
         $actions = [
-            'host_sql_command' => \lang('SQL command'),
-            'host_export' => \lang('Export'),
-            'host_create_table' => \lang('Create table'),
+            'host_sql_command' => \adminer\lang('SQL command'),
+            'host_export' => \adminer\lang('Export'),
+            'host_create_table' => \adminer\lang('Create table'),
         ];
 
         return \compact('databases', 'messages', 'main_actions', 'actions');
@@ -143,15 +143,15 @@ class ServerProxy
     public function getDatabaseInfo(array $options, string $database)
     {
         $actions = [
-            'db_sql_command' => \lang('SQL command'),
-            'db_import' => \lang('Import'),
-            'db_export' => \lang('Export'),
-            'db_create_table' => \lang('Create table'),
+            'db_sql_command' => \adminer\lang('SQL command'),
+            'db_import' => \adminer\lang('Import'),
+            'db_export' => \adminer\lang('Export'),
+            'db_create_table' => \adminer\lang('Create table'),
         ];
 
         $features = [
             'table' => true,
-            'search' => \support('table'),
+            'search' => \adminer\support('table'),
         ];
         $_features = [
             'comment',
@@ -167,24 +167,24 @@ class ServerProxy
         ];
         foreach($_features as $feature)
         {
-            $features[$feature] = \support($feature);
+            $features[$feature] = \adminer\support($feature);
         }
         $menu_actions = [
-            'table' => \lang('Tables and views'),
-            // 'search' => \lang('Search data in tables'),
-            'routine' => \lang('Routines'),
-            'sequence' => \lang('Sequences'),
-            'type' => \lang('User types'),
-            'event' => \lang('Events'),
+            'table' => \adminer\lang('Tables and views'),
+            // 'search' => \adminer\lang('Search data in tables'),
+            'routine' => \adminer\lang('Routines'),
+            'sequence' => \adminer\lang('Sequences'),
+            'type' => \adminer\lang('User types'),
+            'event' => \adminer\lang('Events'),
         ];
 
         // From db.inc.php
-        // $tables_list = \tables_list();
+        // $tables_list = \adminer\tables_list();
 
         // $tables = [];
         // foreach($table_status as $table)
         // {
-        //     $tables[] = \h($table);
+        //     $tables[] = \adminer\h($table);
         // }
 
         return \compact(/*'tables', */'actions', 'features', 'menu_actions');
@@ -203,25 +203,25 @@ class ServerProxy
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser that are prepended to the Jaxon response.
         $databases = $adminer->databases(false);
-        $tables = \count_tables($databases);
+        $tables = \adminer\count_tables($databases);
 
-        $dbSupport = \support("database");
+        $dbSupport = \adminer\support("database");
         $headers = [
-            \lang('Database'),
-            \lang('Collation'),
-            \lang('Tables'),
-            \lang('Size'),
+            \adminer\lang('Database'),
+            \adminer\lang('Collation'),
+            \adminer\lang('Tables'),
+            \adminer\lang('Size'),
         ];
 
-        $collations = \collations();
+        $collations = \adminer\collations();
         $details = [];
         foreach($databases as $database)
         {
             $details[] = [
-                'name' => \h($database),
-                'collation' => \h(\db_collation($database, $collations)),
+                'name' => \adminer\h($database),
+                'collation' => \adminer\h(\adminer\db_collation($database, $collations)),
                 'tables' => $tables[$database],
-                'size' => \db_size($database),
+                'size' => \adminer\db_size($database),
             ];
         }
 
@@ -237,7 +237,7 @@ class ServerProxy
     {
         global $jush;
         // From processlist.inc.php
-        $processes = \process_list();
+        $processes = \adminer\process_list();
 
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
@@ -257,8 +257,8 @@ class ServerProxy
                     ($jush == "sql" && $key == "Info" && \preg_match("~Query|Killed~", $process["Command"]) && $val != "") ||
                     ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
                     ($jush == "oracle" && $key == "sql_text" && $val != "") ?
-                    "<code class='jush-$jush'>" . \shorten_utf8($val, 50) . "</code>" . lang('Clone')
-                    : \h($val);
+                    "<code class='jush-$jush'>" . \adminer\shorten_utf8($val, 50) . "</code>" . \adminer\lang('Clone')
+                    : \adminer\h($val);
             }
             $details[] = $detail;
         }
@@ -274,7 +274,7 @@ class ServerProxy
     public function getVariables()
     {
         // From variables.inc.php
-        $variables = \show_variables();
+        $variables = \adminer\show_variables();
 
         $headers = ['', ''];
 
@@ -282,7 +282,7 @@ class ServerProxy
         // From variables.inc.php
         foreach($variables as $key => $val)
         {
-            $details[] = [\h($key), \shorten_utf8($val, 50)];
+            $details[] = [\adminer\h($key), \adminer\shorten_utf8($val, 50)];
         }
 
         return \compact('headers', 'details');
@@ -296,7 +296,7 @@ class ServerProxy
     public function getStatus()
     {
         // From variables.inc.php
-        $status = \show_status();
+        $status = \adminer\show_status();
 
         $headers = ['', ''];
 
@@ -304,7 +304,7 @@ class ServerProxy
         // From variables.inc.php
         foreach($status as $key => $val)
         {
-            $details[] = [\h($key), \h($val)];
+            $details[] = [\adminer\h($key), \adminer\h($val)];
         }
 
         return \compact('headers', 'details');

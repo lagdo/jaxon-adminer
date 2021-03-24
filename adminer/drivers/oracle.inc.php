@@ -1,4 +1,6 @@
 <?php
+namespace adminer;
+
 $drivers["oracle"] = "Oracle (beta)";
 
 if (isset($_GET["oracle"])) {
