@@ -10,12 +10,12 @@ if (!$has_token) {
 $token = get_token(); ///< @var string CSRF protection
 
 $permanent = array();
-if ($_COOKIE["adminer_permanent"]) {
-	foreach (explode(" ", $_COOKIE["adminer_permanent"]) as $val) {
-		list($key) = explode(":", $val);
-		$permanent[$key] = $val;
-	}
-}
+// if ($_COOKIE["adminer_permanent"]) {
+// 	foreach (explode(" ", $_COOKIE["adminer_permanent"]) as $val) {
+// 		list($key) = explode(":", $val);
+// 		$permanent[$key] = $val;
+// 	}
+// }
 
 function add_invalid_login() {
 	global $adminer;
