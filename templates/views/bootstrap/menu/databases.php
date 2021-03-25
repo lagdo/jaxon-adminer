@@ -6,6 +6,6 @@
 <?php endforeach ?>
                     </select>
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary" id="adminer-dbname-select-btn">Show</button>
+                        <button type="button" class="btn btn-primary btn-select" id="adminer-dbname-select-btn">Show</button>
                     </span>
                 </div>

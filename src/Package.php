@@ -15,6 +15,16 @@ class Package extends JaxonPackage
      *
      * @return string
      */
+    public function getContainerId()
+    {
+        return 'adminer';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
     public function getUserInfoId()
     {
         return 'adminer-user-info';
@@ -123,6 +133,25 @@ class Package extends JaxonPackage
     }
 
     /**
+     * Get the HTML tags to include CSS code and files into the page
+     *
+     * @return string
+     */
+    public function getCss()
+    {
+        return $this->view()->render('adminer::codes::styles', [
+            'containerId' => $this->getContainerId(),
+            'userInfoId' => $this->getUserInfoId(),
+            'serverInfoId' => $this->getServerInfoId(),
+            'serverActionsId' => $this->getServerActionsId(),
+            'dbListId' => $this->getDbListId(),
+            'dbMenuId' => $this->getDbMenuId(),
+            'dbActionsId' => $this->getDbActionsId(),
+            'dbContentId' => $this->getDbContentId(),
+        ]);
+    }
+
+    /**
      * Get the HTML tags to include javascript code and files into the page
      *
      * @return string
@@ -165,6 +194,7 @@ class Package extends JaxonPackage
             'connect' => $connect,
             'servers' => $servers,
             'default' => $this->getConfig()->getOption('default', ''),
+            'containerId' => $this->getContainerId(),
             'userInfoId' => $this->getUserInfoId(),
             'serverInfoId' => $this->getServerInfoId(),
             'serverActionsId' => $this->getServerActionsId(),

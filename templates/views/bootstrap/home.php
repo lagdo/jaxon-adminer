@@ -1,4 +1,4 @@
-<div class="row" style="margin: 20px 0 0 0;">
+<div class="row" id="<?php echo $this->containerId ?>">
     <div class="col-md-3">
         <div class="row">
             <div class="col-md-12">
@@ -10,15 +10,15 @@
                             endif?>><?php echo $title ?></option>
 <?php endforeach ?>
                     </select>
-                    <span class="input-group-btn">
-                        <button class="btn btn-primary" type="button" onclick="<?php
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary btn-select" type="button" onclick="<?php
                             echo $this->connect ?>; return false">Show</button>
-                    </span>
+                    </div>
                 </div>
             </div>
             <!--<div class="col-md-12" id="<?php echo $this->serverActionsId ?>">
             </div>-->
-            <div class="col-md-12" id="<?php echo $this->dbListId ?>" style="margin: 10px 0;">
+            <div class="col-md-12" id="<?php echo $this->dbListId ?>">
             </div>
             <!--<div class="col-md-12" id="<?php echo $this->dbActionsId ?>">
             </div>-->
