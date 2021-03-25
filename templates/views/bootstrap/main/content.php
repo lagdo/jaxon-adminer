@@ -1,5 +1,6 @@
             <div class="table-responsive">
                 <table class="table table-bordered">
+<?php if(is_array($this->headers)): ?>
                     <thead>
                         <tr>
 <?php foreach($this->headers as $header): ?>
@@ -7,6 +8,7 @@
 <?php endforeach ?>
                         </tr>
                     </thead>
+<?php endif ?>
                     <tbody>
 <?php foreach($this->details as $details): ?>
                         <tr>

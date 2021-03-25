@@ -294,7 +294,7 @@ class ServerProxy
         // From variables.inc.php
         $variables = \adminer\show_variables();
 
-        $headers = ['', ''];
+        $headers = false;
 
         $details = [];
         // From variables.inc.php
@@ -316,7 +316,7 @@ class ServerProxy
         // From variables.inc.php
         $status = \adminer\show_status();
 
-        $headers = ['', ''];
+        $headers = false;
 
         $details = [];
         // From variables.inc.php
