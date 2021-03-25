@@ -1,9 +1,6 @@
-<?php foreach(array_chunk($this->actions, 2) as $titles): ?>
-            <div class="btn-group btn-group-justified" role="group">
-<?php foreach($titles as $title): ?>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default btn-sm"><?php echo $title ?></button>
+                <div class="list-group">
+<?php foreach($this->menu_actions as $id => $title): ?>
+                    <a href="javascript:void(0)" class="list-group-item menu-action-<?php
+                        echo $id ?>" id="adminer-menu-action-<?php echo $id ?>"><?php echo $title ?></a>
+<?php endforeach ?>
                 </div>
-<?php endforeach ?>
-            </div>
-<?php endforeach ?>

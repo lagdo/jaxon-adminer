@@ -40,6 +40,52 @@ class Database extends AdminerCallable
     }
 
     /**
+     * Select a database
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function select($server, $database)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $databaseInfo = $this->dbProxy->getDatabaseInfo($options, $database);
+        // Make database info available to views
+        foreach($databaseInfo as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        // $content = $this->render('menu/actions');
+        // $this->response->html($this->package->getDbActionsId(), $content);
+        // $this->response->clear($this->package->getServerActionsId());
+
+        $content = $this->render('menu/actions');
+        $this->response->html($this->package->getDbMenuId(), $content);
+
+        // Set the click handlers
+        $this->jq('#adminer-menu-action-table')
+            ->click($this->rq()->showTables($server, $database));
+        $this->jq('#adminer-menu-action-routine')
+            ->click($this->rq()->showRoutines($server, $database));
+        $this->jq('#adminer-menu-action-sequence')
+            ->click($this->rq()->showSequences($server, $database));
+        $this->jq('#adminer-menu-action-type')
+            ->click($this->rq()->showUserTypes($server, $database));
+        $this->jq('#adminer-menu-action-event')
+            ->click($this->rq()->showEvents($server, $database));
+        // Set the selected entry on database dropdown select
+        $this->jq('#adminer-dbname-select')->val($database)->change();
+
+        // Show the database tables
+        $this->showTables($server, $database);
+
+        return $this->response;
+    }
+
+    /**
      * Show the tables of a given database
      *
      * @param string $server      The database server

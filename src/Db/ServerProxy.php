@@ -74,8 +74,9 @@ class ServerProxy
 
         // Run the authentication code, from auth.inc.php.
         \adminer\set_password($vendor, $server, $username, $password);
-        $_SESSION["db"][$vendor][$server][$username][$db] = true;
-        if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) { // is_numeric('80#') would still connect to port 80
+        // $_SESSION["db"][$vendor][$server][$username][$db] = true;
+        if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) {
+            // is_numeric('80#') would still connect to port 80
             throw new Exception(lang('Connecting to privileged ports is not allowed.'));
         }
 
@@ -103,11 +104,9 @@ class ServerProxy
         global $adminer, $drivers, $connection;
 
         // Content from the connect_error() function in connect.inc.php
-        $main_actions = [
+        $menu_actions = [
             'databases' => \adminer\lang('Databases'),
-            'database' => \adminer\lang('Create database'),
-            'privileges' => \adminer\lang('Privileges'),
-            'processlist' => \adminer\lang('Process list'),
+            'processes' => \adminer\lang('Process list'),
             'variables' => \adminer\lang('Variables'),
             'status' => \adminer\lang('Status'),
         ];
@@ -117,19 +116,19 @@ class ServerProxy
         // which outputs data to the browser that are prepended to the Jaxon response.
         $databases = $adminer->databases(false);
 
-        $messages = [
-            \adminer\lang('%s version: %s through PHP extension %s', $drivers[DRIVER], "<b>" .
-                \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>"),
-            \adminer\lang('Logged as: %s', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>"),
-        ];
+        $server = \adminer\lang('%s version: %s. PHP extension %s.', $drivers[DRIVER],
+            "<b>" . \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>");
+        $user = \adminer\lang('Logged as: %s.', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>");
 
         $actions = [
+            'database' => \adminer\lang('Create database'),
+            'privileges' => \adminer\lang('Privileges'),
             'host_sql_command' => \adminer\lang('SQL command'),
             'host_export' => \adminer\lang('Export'),
             'host_create_table' => \adminer\lang('Create table'),
         ];
 
-        return \compact('databases', 'messages', 'main_actions', 'actions');
+        return \compact('server', 'user', 'databases', 'menu_actions', 'actions');
     }
 
     /**

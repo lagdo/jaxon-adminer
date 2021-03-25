@@ -61,7 +61,7 @@ class Table extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/table');
+        $content = $this->render('main/db-table');
         $this->response->html($this->package->getDbContentId(), $content);
 
         $content = $this->render('main/content');

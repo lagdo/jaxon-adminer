@@ -58,45 +58,31 @@ class Server extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('menu/server');
+        $content = $this->render('info/user');
+        $this->response->html($this->package->getUserInfoId(), $content);
+
+        $content = $this->render('info/server');
+        $this->response->html($this->package->getServerInfoId(), $content);
+
+        $content = $this->render('menu/databases');
         $this->response->html($this->package->getDbListId(), $content);
-
-        $content = $this->render('menu/actions');
-        $this->response->html($this->package->getServerActionsId(), $content);
-        $this->response->clear($this->package->getDbActionsId());
-        $this->response->clear($this->package->getDbMenuId());
-
-        $content = $this->render('main/server');
-        $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on database dropdown select
         $this->jq('#adminer-dbname-select-btn')
-            ->click($this->rq()->select($server, \pm()->select('adminer-dbname-select')));
+            ->click($this->cl(Database::class)->rq()
+            ->select($server, \pm()->select('adminer-dbname-select')));
+
+        $content = $this->render('menu/actions');
+        $this->response->html($this->package->getDbMenuId(), $content);
 
         // Set the click handlers
-        $this->jq('#adminer-main-action-databases')
-            ->removeClass('btn-default')
-            ->addClass('btn-primary')
+        $this->jq('#adminer-menu-action-databases')
             ->click($this->rq()->showDatabases($server));
-        // $this->jq('#adminer-main-action-database')
-        //     ->removeClass('btn-default')
-        //     ->addClass('btn-primary')
-        //     ->click($this->rq()->createDatabase($server));
-        // $this->jq('#adminer-main-action-privileges')
-        //     ->removeClass('btn-default')
-        //     ->addClass('btn-primary')
-        //     ->click($this->rq()->showPrivileges($server));
-        $this->jq('#adminer-main-action-processlist')
-            ->removeClass('btn-default')
-            ->addClass('btn-primary')
+        $this->jq('#adminer-menu-action-processes')
             ->click($this->rq()->showProcesses($server));
-        $this->jq('#adminer-main-action-variables')
-            ->removeClass('btn-default')
-            ->addClass('btn-primary')
+        $this->jq('#adminer-menu-action-variables')
             ->click($this->rq()->showVariables($server));
-        $this->jq('#adminer-main-action-status')
-            ->removeClass('btn-default')
-            ->addClass('btn-primary')
+        $this->jq('#adminer-menu-action-status')
             ->click($this->rq()->showStatus($server));
 
         // Show the database list
@@ -135,12 +121,17 @@ class Server extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/row-content');
-        $this->response->html('adminer-server-main-table', $content);
+        $content = $this->render('main/content');
+        $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on database names
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->rq()->select($server, \jq()->parent()->attr('data-value')));
+            ->click($this->cl(Database::class)->rq()
+            ->select($server, \jq()->parent()->attr('data-value')));
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-databases', '#'. $this->package->getDbMenuId())->addClass('active');
 
         return $this->response;
     }
@@ -163,8 +154,12 @@ class Server extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/row-content');
-        $this->response->html('adminer-server-main-table', $content);
+        $content = $this->render('main/content');
+        $this->response->html($this->package->getDbContentId(), $content);
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-processes', '#'. $this->package->getDbMenuId())->addClass('active');
 
         return $this->response;
     }
@@ -187,8 +182,12 @@ class Server extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/row-content');
-        $this->response->html('adminer-server-main-table', $content);
+        $content = $this->render('main/content');
+        $this->response->html($this->package->getDbContentId(), $content);
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-variables', '#'. $this->package->getDbMenuId())->addClass('active');
 
         return $this->response;
     }
@@ -211,55 +210,12 @@ class Server extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/row-content');
-        $this->response->html('adminer-server-main-table', $content);
+        $content = $this->render('main/content');
+        $this->response->html($this->package->getDbContentId(), $content);
 
-        return $this->response;
-    }
-
-    /**
-     * Select a database
-     *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     *
-     * @return \Jaxon\Response\Response
-     */
-    public function select($server, $database)
-    {
-        $options = $this->package->getServerOptions($server);
-
-        $databaseInfo = $this->dbProxy->getDatabaseInfo($options, $database);
-        // Make database info available to views
-        foreach($databaseInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
-        // $this->response->dialog->info(json_encode($databaseInfo), "Info");
-
-        $content = $this->render('menu/actions');
-        $this->response->html($this->package->getDbActionsId(), $content);
-        $this->response->clear($this->package->getServerActionsId());
-
-        $content = $this->render('menu/database');
-        $this->response->html($this->package->getDbMenuId(), $content);
-
-        // Set the click handlers
-        $this->jq('#adminer-dbmenu-action-table')
-            ->click($this->cl(Database::class)->rq()->showTables($server, $database));
-        $this->jq('#adminer-dbmenu-action-routine')
-            ->click($this->cl(Database::class)->rq()->showRoutines($server, $database));
-        $this->jq('#adminer-dbmenu-action-sequence')
-            ->click($this->cl(Database::class)->rq()->showSequences($server, $database));
-        $this->jq('#adminer-dbmenu-action-type')
-            ->click($this->cl(Database::class)->rq()->showUserTypes($server, $database));
-        $this->jq('#adminer-dbmenu-action-event')
-            ->click($this->cl(Database::class)->rq()->showEvents($server, $database));
-        // Set the selected entry on database dropdown select
-        $this->jq('#adminer-dbname-select')->val($database)->change();
-
-        // Show the database tables
-        $this->cl(Database::class)->showTables($server, $database);
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-status', '#'. $this->package->getDbMenuId())->addClass('active');
 
         return $this->response;
     }

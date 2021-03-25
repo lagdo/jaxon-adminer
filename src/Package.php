@@ -15,6 +15,26 @@ class Package extends JaxonPackage
      *
      * @return string
      */
+    public function getUserInfoId()
+    {
+        return 'adminer-user-info';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
+    public function getServerInfoId()
+    {
+        return 'adminer-server-info';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
     public function getServerActionsId()
     {
         return 'adminer-server-actions';
@@ -35,9 +55,9 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getDbActionsId()
+    public function getDbMenuId()
     {
-        return 'adminer-database-actions';
+        return 'adminer-database-menu';
     }
 
     /**
@@ -45,9 +65,9 @@ class Package extends JaxonPackage
      *
      * @return string
      */
-    public function getDbMenuId()
+    public function getDbActionsId()
     {
-        return 'adminer-database-menu';
+        return 'adminer-database-actions';
     }
 
     /**
@@ -145,10 +165,12 @@ class Package extends JaxonPackage
             'connect' => $connect,
             'servers' => $servers,
             'default' => $this->getConfig()->getOption('default', ''),
+            'userInfoId' => $this->getUserInfoId(),
+            'serverInfoId' => $this->getServerInfoId(),
             'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
-            'dbActionsId' => $this->getDbActionsId(),
             'dbMenuId' => $this->getDbMenuId(),
+            'dbActionsId' => $this->getDbActionsId(),
             'dbContentId' => $this->getDbContentId(),
         ]);
     }
