@@ -68,9 +68,9 @@ class Server extends AdminerCallable
         $this->response->html($this->package->getDbListId(), $content);
 
         // Set onclick handlers on database dropdown select
+        $database = \pm()->select('adminer-dbname-select');
         $this->jq('#adminer-dbname-select-btn')
-            ->click($this->cl(Database::class)->rq()
-            ->select($server, \pm()->select('adminer-dbname-select')));
+            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
@@ -125,9 +125,9 @@ class Server extends AdminerCallable
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Set onclick handlers on database names
+        $database = \jq()->parent()->attr('data-value');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Database::class)->rq()
-            ->select($server, \jq()->parent()->attr('data-value')));
+            ->click($this->cl(Database::class)->rq()->select($server, $database));
 
         // Activate the sidebar menu item
         $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
