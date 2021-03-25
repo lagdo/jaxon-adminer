@@ -10,6 +10,31 @@ use Exception;
 class ServerProxy
 {
     /**
+     * The database list
+     *
+     * @var array
+     */
+    protected $_databases = null;
+
+    /**
+     * Fetch and return the database from the connected server
+     *
+     * @return array
+     */
+    protected function databases()
+    {
+        global $adminer;
+        // Get the database lists
+        // Passing false as parameter to this call prevent from using the slow_query() function,
+        // which outputs data to the browser that are prepended to the Jaxon response.
+        if($this->_databases === null)
+        {
+            $this->_databases = $adminer->databases(false);
+        }
+        return $this->_databases;
+    }
+
+    /**
      * Copied from auth.inc.php
      *
      * @return void
@@ -101,7 +126,7 @@ class ServerProxy
      */
     public function getServerInfo(array $options)
     {
-        global $adminer, $drivers, $connection;
+        global $drivers, $connection;
 
         // Content from the connect_error() function in connect.inc.php
         $menu_actions = [
@@ -111,10 +136,8 @@ class ServerProxy
             'status' => \adminer\lang('Status'),
         ];
 
-        // Get the database lists
-        // Passing false as parameter to this call prevent from using the slow_query() function,
-        // which outputs data to the browser that are prepended to the Jaxon response.
-        $databases = $adminer->databases(false);
+        // Get the database list
+        $databases = $this->databases();
 
         $server = \adminer\lang('%s version: %s. PHP extension %s.', $drivers[DRIVER],
             "<b>" . \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>");
@@ -196,12 +219,8 @@ class ServerProxy
      */
     public function getDatabases()
     {
-        global $adminer;
-
-        // Get the database lists
-        // Passing false as parameter to this call prevent from using the slow_query() function,
-        // which outputs data to the browser that are prepended to the Jaxon response.
-        $databases = $adminer->databases(false);
+        // Get the database list
+        $databases = $this->databases();
         $tables = \adminer\count_tables($databases);
 
         $dbSupport = \adminer\support("database");
