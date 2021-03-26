@@ -15,8 +15,9 @@ Features
 - [x] Show basic info about the MySQL database server.
 - [x] Show the list of tables in the connected database.
 - [x] Show detailed info about the MySQL database server.
+- [x] Show detailed info about the connected database.
+- [x] Connect to PostgreSQL databases.
 - [ ] Connect to other database types.
-- [ ] Show detailed info about the connected database.
 - [ ] Execute requests and display results.
 - [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one.
 - [ ] Improve the Adminer code integration.
