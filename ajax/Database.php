@@ -112,6 +112,9 @@ class Database extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
+
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
@@ -146,6 +149,9 @@ class Database extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
+
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
@@ -174,6 +180,9 @@ class Database extends AdminerCallable
         {
             $this->view()->share($name, $value);
         }
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
 
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
@@ -204,6 +213,9 @@ class Database extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
+
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
 
@@ -232,6 +244,9 @@ class Database extends AdminerCallable
         {
             $this->view()->share($name, $value);
         }
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
 
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);

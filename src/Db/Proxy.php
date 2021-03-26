@@ -104,6 +104,10 @@ class Proxy
     public function getDatabases(array $options)
     {
         $this->server()->connect($options);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], \adminer\lang('Databases')];
+
         return $this->server()->getDatabases();
     }
 
@@ -117,6 +121,10 @@ class Proxy
     public function getProcesses(array $options)
     {
         $this->server()->connect($options);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], \adminer\lang('Process list')];
+
         return $this->server()->getProcesses();
     }
 
@@ -130,6 +138,10 @@ class Proxy
     public function getVariables(array $options)
     {
         $this->server()->connect($options);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], \adminer\lang('Variables')];
+
         return $this->server()->getVariables();
     }
 
@@ -143,6 +155,10 @@ class Proxy
     public function getStatus(array $options)
     {
         $this->server()->connect($options);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], \adminer\lang('Status')];
+
         return $this->server()->getStatus();
     }
 
@@ -175,6 +191,10 @@ class Proxy
     public function getTables(array $options, string $database)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Tables and views')];
+
         return $this->database()->getTables($options, $database);
     }
 
@@ -189,6 +209,10 @@ class Proxy
     public function getRoutines(array $options, string $database)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Routines')];
+
         return $this->database()->getRoutines($options, $database);
     }
 
@@ -203,6 +227,10 @@ class Proxy
     public function getSequences(array $options, string $database)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Sequences')];
+
         return $this->database()->getSequences($options, $database);
     }
 
@@ -217,6 +245,10 @@ class Proxy
     public function getUserTypes(array $options, string $database)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('User types')];
+
         return $this->database()->getUserTypes($options, $database);
     }
 
@@ -231,6 +263,10 @@ class Proxy
     public function getEvents(array $options, string $database)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Events')];
+
         return $this->database()->getEvents($options, $database);
     }
 

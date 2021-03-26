@@ -30,9 +30,9 @@
 
     <div class="col-md-9">
         <div class="row">
-            <div class="col-md-4" id="<?php echo $this->userInfoId ?>">
-            </div>
             <div class="col-md-8" id="<?php echo $this->serverInfoId ?>">
+            </div>
+            <div class="col-md-4" id="<?php echo $this->userInfoId ?>">
             </div>
             <div class="col-md-12" id="<?php echo $this->breadcrumbsId ?>">
             </div>
