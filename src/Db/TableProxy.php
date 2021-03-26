@@ -156,18 +156,18 @@ class TableProxy
             {
                 $type .= " <i>" . \adminer\lang('Auto Increment') . "</i>";
             }
-            if(isset($field["default"]))
+            if(\array_key_exists("default", $field))
             {
                 $type .= /*' ' . \adminer\lang('Default value') .*/ ' [<b>' . \adminer\h($field["default"]) . '</b>]';
             }
             $detail = [
-                'name' => \adminer\h($field["field"]),
+                'name' => \adminer\h($field["field"] ?? ''),
                 'type' => $type,
-                'collation' => \adminer\h($field["collation"]),
+                'collation' => \adminer\h($field["collation"] ?? ''),
             ];
             if($hasComment)
             {
-                $detail['comment'] = \adminer\h($field["comment"]);
+                $detail['comment'] = \adminer\h($field["comment"] ?? '');
             }
 
             $details[] = $detail;
@@ -214,11 +214,22 @@ class TableProxy
         foreach ($indexes as $name => $index) {
             \ksort($index["columns"]); // enforce correct columns order
             $print = [];
-            foreach ($index["columns"] as $key => $val) {
-                $print[] = "<i>" . \adminer\h($val) . "</i>"
-                    . ($index["lengths"][$key] ? "(" . $index["lengths"][$key] . ")" : "")
-                    . ($index["descs"][$key] ? " DESC" : "")
-                ;
+            foreach($index["columns"] as $key => $val)
+            {
+                $value = "<i>" . \adminer\h($val) . "</i>";
+                if(\array_key_exists("lengths", $index) &&
+                    \is_array($index["lengths"]) &&
+                    \array_key_exists($key, $index["lengths"]))
+                {
+                    $value .= "(" . $index["lengths"][$key] . ")";
+                }
+                if(\array_key_exists("descs", $index) &&
+                    \is_array($index["descs"]) &&
+                    \array_key_exists($key, $index["descs"]))
+                {
+                    $value .= " DESC";
+                }
+                $print[] = $value;
             }
             $details[] = [
                 'name' => \adminer\h($name),
@@ -269,12 +280,17 @@ class TableProxy
         // From table.inc.php
         foreach($foreign_keys as $name => $foreign_key)
         {
-            $target = (isset($foreign_key["db"]) && $foreign_key["db"] != "" ? "<b>" .
-                \adminer\h($foreign_key["db"]) . "</b>." : "") .
-                (isset($foreign_key["ns"]) && $foreign_key["ns"] != "" ?
-                "<b>" . \adminer\h($foreign_key["ns"]) . "</b>." : "") .
-                \adminer\h($foreign_key["table"]) . '(' . \implode(', ',
-                \array_map('\\adminer\\h', $foreign_key["target"])) . ')';
+            $target = '';
+            if(\array_key_exists("db", $foreign_key) && $foreign_key["db"] != "")
+            {
+                $target .= "<b>" . \adminer\h($foreign_key["db"]) . "</b>.";
+            }
+            if(\array_key_exists("ns", $foreign_key) && $foreign_key["ns"] != "")
+            {
+                $target .= "<b>" . \adminer\h($foreign_key["ns"]) . "</b>.";
+            }
+            $target = \adminer\h($foreign_key["table"]) .
+                '(' . \implode(', ', \array_map('\\adminer\\h', $foreign_key["target"])) . ')';
             $details[] = [
                 'name' => \adminer\h($name),
                 'source' => "<i>" . \implode("</i>, <i>",

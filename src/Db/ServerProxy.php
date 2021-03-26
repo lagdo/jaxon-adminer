@@ -232,7 +232,7 @@ class ServerProxy
             $details[] = [
                 'name' => \adminer\h($database),
                 'collation' => \adminer\h(\adminer\db_collation($database, $collations)),
-                'tables' => $tables[$database],
+                'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => \adminer\db_size($database),
             ];
         }
@@ -265,12 +265,14 @@ class ServerProxy
             $detail = [];
             foreach($process as $key => $val)
             {
+                $match = \array_key_exists('Command', $process) &&
+                    \preg_match("~Query|Killed~", $process["Command"]);
                 $detail[] =
-                    ($jush == "sql" && $key == "Info" && \preg_match("~Query|Killed~", $process["Command"]) && $val != "") ||
+                    ($jush == "sql" && $key == "Info" && $match && $val != "") ||
                     ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
                     ($jush == "oracle" && $key == "sql_text" && $val != "") ?
-                    "<code class='jush-$jush'>" . \adminer\shorten_utf8($val, 50) . "</code>" . \adminer\lang('Clone')
-                    : \adminer\h($val);
+                    "<code class='jush-$jush'>" . \adminer\shorten_utf8($val, 50) .
+                    "</code>" . \adminer\lang('Clone') : \adminer\h($val);
             }
             $details[] = $detail;
         }

@@ -90,9 +90,12 @@ class DatabaseProxy
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
 
             $details[] = [
-                'name' => \adminer\h($routine["ROUTINE_NAME"]),
-                'type' => \adminer\h($routine["ROUTINE_TYPE"]),
-                'returnType' => \adminer\h($routine["DTD_IDENTIFIER"]),
+                'name' => \array_key_exists("ROUTINE_NAME", $routine) ?
+                    \adminer\h($routine["ROUTINE_NAME"]) : '',
+                'type' => \array_key_exists("ROUTINE_TYPE", $routine) ?
+                    \adminer\h($routine["ROUTINE_TYPE"]) : '',
+                'returnType' => \array_key_exists("DTD_IDENTIFIER", $routine) ?
+                    \adminer\h($routine["DTD_IDENTIFIER"]) : '',
                 // 'alter' => \adminer\lang('Alter'),
             ];
         }
