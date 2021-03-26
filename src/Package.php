@@ -45,6 +45,16 @@ class Package extends JaxonPackage
      *
      * @return string
      */
+    public function getBreadcrumbsId()
+    {
+        return 'adminer-breadcrumbs';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
     public function getServerActionsId()
     {
         return 'adminer-server-actions';
@@ -143,6 +153,7 @@ class Package extends JaxonPackage
             'containerId' => $this->getContainerId(),
             'userInfoId' => $this->getUserInfoId(),
             'serverInfoId' => $this->getServerInfoId(),
+            'breadcrumbsId' => $this->getBreadcrumbsId(),
             'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
             'dbMenuId' => $this->getDbMenuId(),
@@ -197,6 +208,7 @@ class Package extends JaxonPackage
             'containerId' => $this->getContainerId(),
             'userInfoId' => $this->getUserInfoId(),
             'serverInfoId' => $this->getServerInfoId(),
+            'breadcrumbsId' => $this->getBreadcrumbsId(),
             'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
             'dbMenuId' => $this->getDbMenuId(),

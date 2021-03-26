@@ -14,20 +14,6 @@ use Exception;
 class Server extends AdminerCallable
 {
     /**
-     * The Jaxon Adminer package
-     *
-     * @var Package
-     */
-    protected $package;
-
-    /**
-     * The proxy to Adminer functions
-     *
-     * @var DbProxy
-     */
-    protected $dbProxy;
-
-    /**
      * The constructor
      *
      * @param Package $package    The Adminer package
@@ -57,6 +43,9 @@ class Server extends AdminerCallable
         {
             $this->view()->share($name, $value);
         }
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
 
         $content = $this->render('info/user');
         $this->response->html($this->package->getUserInfoId(), $content);

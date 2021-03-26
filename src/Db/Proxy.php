@@ -10,6 +10,13 @@ use Exception;
 class Proxy
 {
     /**
+     * The breadcrumbs items
+     *
+     * @var array
+     */
+    protected $breadcrumbs = [];
+
+    /**
      * The proxy to server features
      *
      * @var ServerProxy
@@ -61,6 +68,16 @@ class Proxy
     }
 
     /**
+     * Get the breadcrumbs items
+     *
+     * @return array
+     */
+    public function getBreadcrumbs()
+    {
+        return $this->breadcrumbs;
+    }
+
+    /**
      * Connect to a database server
      *
      * @param array $options    The corresponding config options
@@ -70,6 +87,10 @@ class Proxy
     public function getServerInfo(array $options)
     {
         $this->server()->connect($options);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name']];
+
         return $this->server()->getServerInfo($options);
     }
 
@@ -136,6 +157,10 @@ class Proxy
     public function getDatabaseInfo(array $options, string $database)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database];
+
         return $this->server()->getDatabaseInfo($options, $database);
     }
 
@@ -221,6 +246,10 @@ class Proxy
     public function getTableFields(array $options, string $database, string $table)
     {
         $this->server()->connect($options, $database);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], $database, $table];
+
         return $this->table()->getTableFields($options, $database, $table);
     }
 

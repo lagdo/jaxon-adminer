@@ -14,20 +14,6 @@ use Exception;
 class Table extends AdminerCallable
 {
     /**
-     * The Jaxon Adminer package
-     *
-     * @var Package
-     */
-    protected $package;
-
-    /**
-     * The proxy to Adminer functions
-     *
-     * @var DbProxy
-     */
-    protected $dbProxy;
-
-    /**
      * The constructor
      *
      * @param Package $package    The Adminer package
@@ -60,6 +46,9 @@ class Table extends AdminerCallable
         {
             $this->view()->share($name, $value);
         }
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
 
         $content = $this->render('main/db-table');
         $this->response->html($this->package->getDbContentId(), $content);

@@ -11,6 +11,20 @@ use Jaxon\Utils\View\Store;
 class AdminerCallable extends CallableClass
 {
     /**
+     * The Jaxon Adminer package
+     *
+     * @var Package
+     */
+    protected $package;
+
+    /**
+     * The proxy to Adminer functions
+     *
+     * @var DbProxy
+     */
+    protected $dbProxy;
+
+    /**
      * Render a view
      *
      * @param string        $sViewName        The view name
@@ -21,5 +35,18 @@ class AdminerCallable extends CallableClass
     protected function render($sViewName, array $aViewData = [])
     {
         return $this->view()->render('adminer::views::' . $sViewName, $aViewData);
+    }
+
+    /**
+     * Show breadcrumbs
+     *
+     * @return void
+     */
+    protected function showBreadcrumbs()
+    {
+        $content = $this->render('main/breadcrumbs', [
+            'breadcrumbs' => $this->dbProxy->getBreadcrumbs(),
+        ]);
+        $this->response->html($this->package->getBreadcrumbsId(), $content);
     }
 }

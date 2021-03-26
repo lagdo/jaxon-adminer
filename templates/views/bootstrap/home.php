@@ -34,6 +34,8 @@
             </div>
             <div class="col-md-8" id="<?php echo $this->serverInfoId ?>">
             </div>
+            <div class="col-md-12" id="<?php echo $this->breadcrumbsId ?>">
+            </div>
         </row>
         <div class="col-md-12" id="<?php echo $this->dbContentId ?>">
         </div>
