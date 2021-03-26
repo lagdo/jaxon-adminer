@@ -171,34 +171,29 @@ class ServerProxy
             'db_create_table' => \adminer\lang('Create table'),
         ];
 
-        $features = [
-            'table' => true,
-            'search' => \adminer\support('table'),
-        ];
-        $_features = [
-            'comment',
-            'indexes',
-            'scheme',
-            'copy',
-            'view',
-            'routine',
-            'procedure',
-            'sequence',
-            'type',
-            'event',
-        ];
-        foreach($_features as $feature)
-        {
-            $features[$feature] = \adminer\support($feature);
-        }
         $menu_actions = [
             'table' => \adminer\lang('Tables and views'),
-            // 'search' => \adminer\lang('Search data in tables'),
-            'routine' => \adminer\lang('Routines'),
-            'sequence' => \adminer\lang('Sequences'),
-            'type' => \adminer\lang('User types'),
-            'event' => \adminer\lang('Events'),
+            // 'routine' => \adminer\lang('Routines'),
+            // 'sequence' => \adminer\lang('Sequences'),
+            // 'type' => \adminer\lang('User types'),
+            // 'event' => \adminer\lang('Events'),
         ];
+        if(\adminer\support('routine'))
+        {
+            $menu_actions['routine'] = \adminer\lang('Routines');
+        }
+        if(\adminer\support('sequence'))
+        {
+            $menu_actions['sequence'] = \adminer\lang('Sequences');
+        }
+        if(\adminer\support('type'))
+        {
+            $menu_actions['type'] = \adminer\lang('User types');
+        }
+        if(\adminer\support('event'))
+        {
+            $menu_actions['event'] = \adminer\lang('Events');
+        }
 
         // From db.inc.php
         // $tables_list = \adminer\tables_list();
@@ -209,7 +204,7 @@ class ServerProxy
         //     $tables[] = \adminer\h($table);
         // }
 
-        return \compact(/*'tables', */'actions', 'features', 'menu_actions');
+        return \compact(/*'tables', */'actions', 'menu_actions');
     }
 
     /**
@@ -223,7 +218,6 @@ class ServerProxy
         $databases = $this->databases();
         $tables = \adminer\count_tables($databases);
 
-        $dbSupport = \adminer\support("database");
         $headers = [
             \adminer\lang('Database'),
             \adminer\lang('Collation'),

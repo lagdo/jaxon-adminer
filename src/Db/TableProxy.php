@@ -10,6 +10,29 @@ use Exception;
 class TableProxy
 {
     /**
+     * The current table status
+     *
+     * @var mixed
+     */
+    protected $tableStatus = null;
+
+    /**
+     * Get the current table status
+     *
+     * @param string $table
+     *
+     * @return mixed
+     */
+    protected function status(string $table)
+    {
+        if(!$this->tableStatus)
+        {
+            $this->tableStatus = \adminer\table_status1($table, true);
+        }
+        return $this->tableStatus;
+    }
+
+    /**
      * Print links after select heading
      * Copied from selectLinks() in adminer.inc.php
      *
@@ -69,7 +92,7 @@ class TableProxy
         {
             throw new Exception(\error());
         }
-        $table_status = \adminer\table_status1($table, true);
+        $table_status = $this->status($table);
         $name = $adminer->tableName($table_status);
         $title = ($fields && \adminer\is_view($table_status) ?
             ($table_status['Engine'] == 'materialized view' ?
@@ -84,10 +107,32 @@ class TableProxy
 
         $tabs = [
             'fields' => \adminer\lang('Columns'),
-            'indexes' => \adminer\lang('Indexes'),
-            'foreign-keys' => \adminer\lang('Foreign keys'),
-            'triggers' => \adminer\lang('Triggers'),
+            // 'indexes' => \adminer\lang('Indexes'),
+            // 'foreign-keys' => \adminer\lang('Foreign keys'),
+            // 'triggers' => \adminer\lang('Triggers'),
         ];
+        if(\adminer\is_view($table_status))
+        {
+            if(\adminer\support("view_trigger"))
+            {
+                $tabs['triggers'] = \adminer\lang('Triggers');
+            }
+        }
+        else
+        {
+            if(\adminer\support("indexes"))
+            {
+                $tabs['indexes'] = \adminer\lang('Indexes');
+            }
+            if(\adminer\fk_support($table_status))
+            {
+                $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
+            }
+            if(\adminer\support("trigger"))
+            {
+                $tabs['triggers'] = \adminer\lang('Triggers');
+            }
+        }
 
         $headers = [
             \adminer\lang('Name'),
@@ -142,7 +187,7 @@ class TableProxy
      */
     public function getTableIndexes(array $options, string $database, string $table)
     {
-        $table_status = \adminer\table_status1($table, true);
+        $table_status = $this->status($table);
         if(\adminer\is_view($table_status) || !\adminer\support("indexes"))
         {
             return null;
@@ -196,7 +241,7 @@ class TableProxy
      */
     public function getTableForeignKeys(array $options, string $database, string $table)
     {
-        $table_status = \adminer\table_status1($table, true);
+        $table_status = $this->status($table);
         if(\adminer\is_view($table_status) || !\adminer\fk_support($table_status))
         {
             return null;
@@ -254,7 +299,7 @@ class TableProxy
      */
     public function getTableTriggers(array $options, string $database, string $table)
     {
-        $table_status = \adminer\table_status1($table, true);
+        $table_status = $this->status($table);
         if(!\adminer\support(\adminer\is_view($table_status) ? "view_trigger" : "trigger"))
         {
             return null;
