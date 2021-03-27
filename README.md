@@ -1,5 +1,5 @@
-A database admin dashboard based on the Jaxon ajax library and Adminer
-======================================================================
+A database admin dashboard based on Jaxon and Adminer
+=====================================================
 
 This package inserts a database admin dashboard into an existing PHP application.
 Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application, which can be loaded with an HTTP or an Ajax request.
