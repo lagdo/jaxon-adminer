@@ -113,9 +113,13 @@ class Server extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $content = $this->render('main/content');
+        // Add checkboxes to database table
+        $checkbox = 'database';
+        $content = $this->render('main/content', ['checkbox' => $checkbox]);
         $this->response->html($this->package->getDbContentId(), $content);
 
+        // Set onclick handlers on table checkbox
+        $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on database names
         $database = \jq()->parent()->attr('data-value');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())

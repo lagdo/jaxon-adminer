@@ -77,12 +77,13 @@ class Database extends AdminerCallable
     /**
      * Display the content of a section
      *
-     * @param array  $viewData  The data to be displayed in the view
      * @param string $menuId    The menu item id
+     * @param array  $viewData  The data to be displayed in the view
+     * @param array  $contentData  The data to be displayed in the view
      *
      * @return void
      */
-    protected function showSection(array $viewData, string $menuId)
+    protected function showSection(string $menuId, array $viewData, array $contentData = [])
     {
         // Make data available to views
         foreach($viewData as $name => $value)
@@ -93,7 +94,7 @@ class Database extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $content = $this->render('main/content');
+        $content = $this->render('main/content', $contentData);
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
@@ -133,8 +134,11 @@ class Database extends AdminerCallable
         //     ];
         // });
 
-        $this->showSection($tablesInfo, 'table');
+        $checkbox = 'table';
+        $this->showSection('table', $tablesInfo, ['checkbox' => $checkbox]);
 
+        // Set onclick handlers on table checkbox
+        $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
         $table = \jq()->parent()->attr('data-value');
         $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
@@ -156,7 +160,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $routinesInfo = $this->dbProxy->getRoutines($options, $database);
-        $this->showSection($routinesInfo, 'routine');
+        $this->showSection('routine', $routinesInfo);
 
         return $this->response;
     }
@@ -192,7 +196,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $userTypesInfo = $this->dbProxy->getUserTypes($options, $database);
-        $this->showSection($userTypesInfo, 'type');
+        $this->showSection('type', $userTypesInfo);
 
         return $this->response;
     }
@@ -210,7 +214,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $eventsInfo = $this->dbProxy->getEvents($options, $database);
-        $this->showSection($eventsInfo, 'event');
+        $this->showSection('event', $eventsInfo);
 
         return $this->response;
     }

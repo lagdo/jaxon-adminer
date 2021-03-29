@@ -15,4 +15,7 @@
 #<?php echo $this->userInfoId ?> .panel, #<?php echo $this->serverInfoId ?> .panel {
     margin-bottom: 0;
 }
+.adminer-table-checkbox {
+    width: 20px;
+}
 </style>
