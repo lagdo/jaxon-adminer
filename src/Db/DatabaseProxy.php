@@ -12,12 +12,9 @@ class DatabaseProxy
     /**
      * Get the tables from a database server
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
      * @return void
      */
-    public function getTables(array $options, string $database)
+    public function getTables()
     {
         global $adminer;
 
@@ -62,12 +59,9 @@ class DatabaseProxy
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
      * @return void
      */
-    public function getRoutines(array $options, string $database)
+    public function getRoutines()
     {
         $main_actions = [
             'procedure' => \adminer\lang('Create procedure'),
@@ -106,12 +100,9 @@ class DatabaseProxy
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
      * @return void
      */
-    public function getSequences(array $options, string $database)
+    public function getSequences()
     {
         $main_actions = [
             'sequence' => \adminer\lang('Create sequence'),
@@ -142,12 +133,9 @@ class DatabaseProxy
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return void
+     * @return array
      */
-    public function getUserTypes(array $options, string $database)
+    public function getUserTypes()
     {
         $main_actions = [
             'type' => \adminer\lang('Create type'),
@@ -173,12 +161,9 @@ class DatabaseProxy
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return void
+     * @return array
      */
-    public function getEvents(array $options, string $database)
+    public function getEvents()
     {
         $main_actions = [
             'event' => \adminer\lang('Create event'),

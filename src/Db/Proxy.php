@@ -91,7 +91,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name']];
 
-        return $this->server()->getServerInfo($options);
+        return $this->server()->getServerInfo();
     }
 
     /**
@@ -177,7 +177,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database];
 
-        return $this->server()->getDatabaseInfo($options, $database);
+        return $this->server()->getDatabaseInfo();
     }
 
     /**
@@ -195,7 +195,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Tables and views')];
 
-        return $this->database()->getTables($options, $database);
+        return $this->database()->getTables();
     }
 
     /**
@@ -213,7 +213,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Routines')];
 
-        return $this->database()->getRoutines($options, $database);
+        return $this->database()->getRoutines();
     }
 
     /**
@@ -231,7 +231,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Sequences')];
 
-        return $this->database()->getSequences($options, $database);
+        return $this->database()->getSequences();
     }
 
     /**
@@ -249,7 +249,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, \adminer\lang('User types')];
 
-        return $this->database()->getUserTypes($options, $database);
+        return $this->database()->getUserTypes();
     }
 
     /**
@@ -267,7 +267,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Events')];
 
-        return $this->database()->getEvents($options, $database);
+        return $this->database()->getEvents();
     }
 
     /**
@@ -286,7 +286,7 @@ class Proxy
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, $table];
 
-        return $this->table()->getTableInfo($options, $database, $table);
+        return $this->table()->getTableInfo($table);
     }
 
     /**
@@ -301,7 +301,7 @@ class Proxy
     public function getTableFields(array $options, string $database, string $table)
     {
         $this->server()->connect($options, $database);
-        return $this->table()->getTableFields($options, $database, $table);
+        return $this->table()->getTableFields($table);
     }
 
     /**
@@ -316,7 +316,7 @@ class Proxy
     public function getTableIndexes(array $options, string $database, string $table)
     {
         $this->server()->connect($options, $database);
-        return $this->table()->getTableIndexes($options, $database, $table);
+        return $this->table()->getTableIndexes($table);
     }
 
     /**
@@ -331,7 +331,7 @@ class Proxy
     public function getTableForeignKeys(array $options, string $database, string $table)
     {
         $this->server()->connect($options, $database);
-        return $this->table()->getTableForeignKeys($options, $database, $table);
+        return $this->table()->getTableForeignKeys($table);
     }
 
     /**
@@ -346,6 +346,6 @@ class Proxy
     public function getTableTriggers(array $options, string $database, string $table)
     {
         $this->server()->connect($options, $database);
-        return $this->table()->getTableTriggers($options, $database, $table);
+        return $this->table()->getTableTriggers($table);
     }
 }

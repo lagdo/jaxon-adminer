@@ -76,13 +76,11 @@ class TableProxy
     /**
      * Get details about a table or a view
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableInfo(array $options, string $database, string $table)
+    public function getTableInfo(string $table)
     {
         global $adminer;
 
@@ -131,13 +129,11 @@ class TableProxy
     /**
      * Get the fields of a table or a view
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableFields(array $options, string $database, string $table)
+    public function getTableFields(string $table)
     {
         // From table.inc.php
         $fields = \adminer\fields($table);
@@ -225,13 +221,11 @@ class TableProxy
     /**
      * Get the indexes of a table
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableIndexes(array $options, string $database, string $table)
+    public function getTableIndexes(string $table)
     {
         $table_status = $this->status($table);
         if(\adminer\is_view($table_status) || !\adminer\support("indexes"))
@@ -290,13 +284,11 @@ class TableProxy
     /**
      * Get the foreign keys of a table
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableForeignKeys(array $options, string $database, string $table)
+    public function getTableForeignKeys(string $table)
     {
         $table_status = $this->status($table);
         if(\adminer\is_view($table_status) || !\adminer\fk_support($table_status))
@@ -353,13 +345,11 @@ class TableProxy
     /**
      * Get the triggers of a table
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableTriggers(array $options, string $database, string $table)
+    public function getTableTriggers(string $table)
     {
         $table_status = $this->status($table);
         if(!\adminer\support(\adminer\is_view($table_status) ? "view_trigger" : "trigger"))

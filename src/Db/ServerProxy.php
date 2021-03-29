@@ -120,11 +120,9 @@ class ServerProxy
     /**
      * Connect to a database server
      *
-     * @param array $options    The corresponding config options
-     *
      * @return void
      */
-    public function getServerInfo(array $options)
+    public function getServerInfo()
     {
         global $drivers, $connection;
 
@@ -157,12 +155,9 @@ class ServerProxy
     /**
      * Connect to a database server
      *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
      * @return void
      */
-    public function getDatabaseInfo(array $options, string $database)
+    public function getDatabaseInfo()
     {
         $actions = [
             'db_sql_command' => \adminer\lang('SQL command'),
