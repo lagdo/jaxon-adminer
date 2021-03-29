@@ -82,28 +82,19 @@ class TableProxy
      *
      * @return array
      */
-    public function getTableFields(array $options, string $database, string $table)
+    public function getTableInfo(array $options, string $database, string $table)
     {
         global $adminer;
 
         // From table.inc.php
-        $fields = \adminer\fields($table);
-        if(!$fields)
-        {
-            throw new Exception(\error());
-        }
         $table_status = $this->status($table);
         $name = $adminer->tableName($table_status);
-        $title = ($fields && \adminer\is_view($table_status) ?
+        $title = (\adminer\is_view($table_status) ?
             ($table_status['Engine'] == 'materialized view' ?
             \adminer\lang('Materialized view') : \adminer\lang('View')) :
             \adminer\lang('Table')) . ": " . ($name != "" ? $name : \adminer\h($table));
 
-        $comment = $table_status["Comment"];
-
-        $main_actions = $this->getTableLinks($table_status);
-
-        $hasComment = \adminer\support('comment');
+        $comment = $table_status["Comment"] ?? '';
 
         $tabs = [
             'fields' => \adminer\lang('Columns'),
@@ -133,6 +124,61 @@ class TableProxy
                 $tabs['triggers'] = \adminer\lang('Triggers');
             }
         }
+
+        return \compact('title', 'comment', 'tabs');
+    }
+
+    /**
+     * Get the fields of a table or a view
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array
+     */
+    public function getTableFields(array $options, string $database, string $table)
+    {
+        // From table.inc.php
+        $fields = \adminer\fields($table);
+        if(!$fields)
+        {
+            throw new Exception(\error());
+        }
+
+        $table_status = $this->status($table);
+        $main_actions = $this->getTableLinks($table_status);
+
+        $tabs = [
+            'fields' => \adminer\lang('Columns'),
+            // 'indexes' => \adminer\lang('Indexes'),
+            // 'foreign-keys' => \adminer\lang('Foreign keys'),
+            // 'triggers' => \adminer\lang('Triggers'),
+        ];
+        if(\adminer\is_view($table_status))
+        {
+            if(\adminer\support("view_trigger"))
+            {
+                $tabs['triggers'] = \adminer\lang('Triggers');
+            }
+        }
+        else
+        {
+            if(\adminer\support("indexes"))
+            {
+                $tabs['indexes'] = \adminer\lang('Indexes');
+            }
+            if(\adminer\fk_support($table_status))
+            {
+                $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
+            }
+            if(\adminer\support("trigger"))
+            {
+                $tabs['triggers'] = \adminer\lang('Triggers');
+            }
+        }
+
+        $hasComment = \adminer\support('comment');
 
         $headers = [
             \adminer\lang('Name'),
@@ -173,7 +219,7 @@ class TableProxy
             $details[] = $detail;
         }
 
-        return \compact('title', 'comment', 'tabs', 'main_actions', 'headers', 'details');
+        return \compact('main_actions', 'headers', 'details');
     }
 
     /**

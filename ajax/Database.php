@@ -75,6 +75,33 @@ class Database extends AdminerCallable
     }
 
     /**
+     * Display the content of a section
+     *
+     * @param array  $viewData  The data to be displayed in the view
+     * @param string $menuId    The menu item id
+     *
+     * @return void
+     */
+    protected function showSection(array $viewData, string $menuId)
+    {
+        // Make data available to views
+        foreach($viewData as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
+
+        $content = $this->render('main/content');
+        $this->response->html($this->package->getDbContentId(), $content);
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq(".menu-action-$menuId", '#'. $this->package->getDbMenuId())->addClass('active');
+    }
+
+    /**
      * Show the tables of a given database
      *
      * @param string $server      The database server
@@ -106,21 +133,7 @@ class Database extends AdminerCallable
         //     ];
         // });
 
-        // Make tables info available to views
-        foreach($tablesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
-
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        $content = $this->render('main/content');
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-table', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->showSection($tablesInfo, 'table');
 
         // Set onclick handlers on table names
         $table = \jq()->parent()->attr('data-value');
@@ -143,21 +156,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $routinesInfo = $this->dbProxy->getRoutines($options, $database);
-        // Make routines info available to views
-        foreach($routinesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
-
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        $content = $this->render('main/content');
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-routine', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->showSection($routinesInfo, 'routine');
 
         return $this->response;
     }
@@ -175,21 +174,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $sequencesInfo = $this->dbProxy->getSequences($options, $database);
-        // Make sequences info available to views
-        foreach($sequencesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
-
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        $content = $this->render('main/content');
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-sequence', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->showSection($sequencesInfo, 'sequence');
 
         return $this->response;
     }
@@ -207,21 +192,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $userTypesInfo = $this->dbProxy->getUserTypes($options, $database);
-        // Make userTypes info available to views
-        foreach($userTypesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
-
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        $content = $this->render('main/content');
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-type', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->showSection($userTypesInfo, 'type');
 
         return $this->response;
     }
@@ -239,21 +210,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $eventsInfo = $this->dbProxy->getEvents($options, $database);
-        // Make events info available to views
-        foreach($eventsInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
-
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        $content = $this->render('main/content');
-        $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-event', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->showSection($eventsInfo, 'event');
 
         return $this->response;
     }

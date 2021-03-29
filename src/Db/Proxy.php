@@ -279,13 +279,28 @@ class Proxy
      *
      * @return array
      */
-    public function getTableFields(array $options, string $database, string $table)
+    public function getTableInfo(array $options, string $database, string $table)
     {
         $this->server()->connect($options, $database);
 
         // Set breadcrumbs
         $this->breadcrumbs = [$options['name'], $database, $table];
 
+        return $this->table()->getTableInfo($options, $database, $table);
+    }
+
+    /**
+     * Get details about a table or a view
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array
+     */
+    public function getTableFields(array $options, string $database, string $table)
+    {
+        $this->server()->connect($options, $database);
         return $this->table()->getTableFields($options, $database, $table);
     }
 
