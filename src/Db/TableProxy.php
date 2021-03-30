@@ -139,7 +139,7 @@ class TableProxy
         $fields = \adminer\fields($table);
         if(!$fields)
         {
-            throw new Exception(\error());
+            throw new Exception(\adminer\error());
         }
 
         $table_status = $this->status($table);

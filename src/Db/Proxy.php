@@ -163,6 +163,21 @@ class Proxy
     }
 
     /**
+     * Drop a database
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return bool
+     */
+    public function dropDatabase(array $options, string $database)
+    {
+        $this->server()->connect($options);
+
+        return $this->server()->dropDatabase($database);
+    }
+
+    /**
      * Connect to a database server
      *
      * @param array $options    The corresponding config options

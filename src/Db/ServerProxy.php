@@ -41,11 +41,11 @@ class ServerProxy
      */
     protected function check_invalid_login() {
         global $adminer;
-        $invalids = unserialize(@file_get_contents(get_temp_dir() . "/adminer.invalid")); // @ - may not exist
+        $invalids = \unserialize(@\file_get_contents(\adminer\get_temp_dir() . "/adminer.invalid")); // @ - may not exist
         $invalid = ($invalids ? $invalids[$adminer->bruteForceKey()] : []);
         $next_attempt = ($invalid[1] > 29 ? $invalid[0] - time() : 0); // allow 30 invalid attempts
         if($next_attempt > 0) { //! do the same with permanent login
-            throw new Exception(lang('Too many unsuccessful logins, try again in %d minute(s).', ceil($next_attempt / 60)));
+            throw new Exception(\adminer\lang('Too many unsuccessful logins, try again in %d minute(s).', ceil($next_attempt / 60)));
         }
     }
 
@@ -102,7 +102,7 @@ class ServerProxy
         // $_SESSION["db"][$vendor][$server][$username][$db] = true;
         if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) {
             // is_numeric('80#') would still connect to port 80
-            throw new Exception(lang('Connecting to privileged ports is not allowed.'));
+            throw new Exception(\adminer\lang('Connecting to privileged ports is not allowed.'));
         }
 
         // $this->check_invalid_login();
@@ -150,6 +150,18 @@ class ServerProxy
         ];
 
         return \compact('server', 'user', 'databases', 'menu_actions', 'actions');
+    }
+
+    /**
+     * Drop a database
+     *
+     * @param string $database  The database name
+     *
+     * @return bool
+     */
+    public function dropDatabase(string $database)
+    {
+        return \adminer\drop_databases([$database]);
     }
 
     /**
@@ -218,6 +230,7 @@ class ServerProxy
             \adminer\lang('Collation'),
             \adminer\lang('Tables'),
             \adminer\lang('Size'),
+            '',
         ];
 
         $collations = \adminer\collations();

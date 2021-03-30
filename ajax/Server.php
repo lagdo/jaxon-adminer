@@ -94,12 +94,19 @@ class Server extends AdminerCallable
         $databasesInfo = $this->dbProxy->getDatabases($options);
 
         $dbNameClass = 'adminer-db-name';
+        $dbDropClass = 'adminer-db-drop';
         // Add links, classes and data values to database names.
-        $databasesInfo['details'] = \array_map(function($detail) use($dbNameClass) {
+        $databasesInfo['details'] = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
+            $name = $detail['name'];
             $detail['name'] = [
                 'class' => $dbNameClass,
-                'value' => $detail['name'],
-                'label' => $detail['name'],
+                'value' => $name,
+                'label' => $name,
+            ];
+            $detail['drop'] = [
+                'class' => $dbDropClass,
+                'value' => $name,
+                'label' => 'Drop',
             ];
             return $detail;
         }, $databasesInfo['details']);
@@ -120,10 +127,17 @@ class Server extends AdminerCallable
 
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
+
         // Set onclick handlers on database names
         $database = \jq()->parent()->attr('data-value');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Database::class)->rq()->select($server, $database));
+
+        // Set onclick handlers on database drop
+        $database = \jq()->parent()->attr('data-value');
+        $this->jq('.' . $dbDropClass . '>a', '#' . $this->package->getDbContentId())
+            ->click($this->cl(Database::class)->rq()->drop($server, $database)
+            ->confirm("Delete database {1}?", $database));
 
         // Activate the sidebar menu item
         $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');

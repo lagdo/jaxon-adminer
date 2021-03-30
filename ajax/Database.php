@@ -26,6 +26,29 @@ class Database extends AdminerCallable
     }
 
     /**
+     * Drop a database
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function drop($server, $database)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        if(!$this->dbProxy->dropDatabase($options, $database))
+        {
+            $this->response->dialog->error("Cannot delete database $database.");
+            return $this->response;
+        }
+
+        $this->cl(Server::class)->showDatabases($server);
+        $this->response->dialog->info("Database $database deleted.");
+        return $this->response;
+    }
+
+    /**
      * Select a database
      *
      * @param string $server      The database server
