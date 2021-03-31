@@ -342,6 +342,10 @@ class ServerProxy
     {
         // From variables.inc.php
         $status = \adminer\show_status();
+        if(!\is_array($status))
+        {
+            $status = [];
+        }
 
         $headers = false;
 

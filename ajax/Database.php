@@ -260,7 +260,7 @@ class Database extends AdminerCallable
         $options = $this->package->getServerOptions($server);
 
         $sequencesInfo = $this->dbProxy->getSequences($options, $database);
-        $this->showSection($sequencesInfo, 'sequence');
+        $this->showSection('sequence', $sequencesInfo);
 
         return $this->response;
     }
