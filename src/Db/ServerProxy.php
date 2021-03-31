@@ -141,15 +141,20 @@ class ServerProxy
             "<b>" . \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>");
         $user = \adminer\lang('Logged as: %s.', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>");
 
-        $actions = [
-            'database' => \adminer\lang('Create database'),
-            'privileges' => \adminer\lang('Privileges'),
-            'host_sql_command' => \adminer\lang('SQL command'),
-            'host_export' => \adminer\lang('Export'),
-            'host_create_table' => \adminer\lang('Create table'),
-        ];
+        return \compact('server', 'user', 'databases', 'menu_actions');
+    }
 
-        return \compact('server', 'user', 'databases', 'menu_actions', 'actions');
+    /**
+     * Create a database
+     *
+     * @param string $database  The database name
+     * @param string $collation The database collation
+     *
+     * @return bool
+     */
+    public function createDatabase(string $database, string $collation = '')
+    {
+        return \adminer\create_database($database, $collation);
     }
 
     /**
@@ -172,10 +177,10 @@ class ServerProxy
     public function getDatabaseInfo()
     {
         $actions = [
-            'db_sql_command' => \adminer\lang('SQL command'),
-            'db_import' => \adminer\lang('Import'),
-            'db_export' => \adminer\lang('Export'),
-            'db_create_table' => \adminer\lang('Create table'),
+            // 'db_sql_command' => \adminer\lang('SQL command'),
+            // 'db_import' => \adminer\lang('Import'),
+            // 'db_export' => \adminer\lang('Export'),
+            // 'db_create_table' => \adminer\lang('Create table'),
         ];
 
         $menu_actions = [
@@ -215,15 +220,33 @@ class ServerProxy
     }
 
     /**
+     * Get the collation list
+     *
+     * @return array
+     */
+    public function getCollations()
+    {
+        return \adminer\collations();
+    }
+
+    /**
      * Get the database list
      *
-     * @return void
+     * @return array
      */
     public function getDatabases()
     {
         // Get the database list
         $databases = $this->databases();
         $tables = \adminer\count_tables($databases);
+
+        $actions = [
+            'add-database' => \adminer\lang('Create database'),
+            // 'privileges' => \adminer\lang('Privileges'),
+            // 'host-sql-command' => \adminer\lang('SQL command'),
+            // 'host-export' => \adminer\lang('Export'),
+            // 'host-create-table' => \adminer\lang('Create table'),
+        ];
 
         $headers = [
             \adminer\lang('Database'),
@@ -245,7 +268,7 @@ class ServerProxy
             ];
         }
 
-        return \compact('headers', 'details');
+        return \compact('headers', 'details', 'actions');
     }
 
     /**

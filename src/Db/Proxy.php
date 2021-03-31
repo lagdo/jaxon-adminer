@@ -95,11 +95,24 @@ class Proxy
     }
 
     /**
+     * Get the collation list
+     *
+     * @param array $options    The corresponding config options
+     *
+     * @return array
+     */
+    public function getCollations(array $options)
+    {
+        $this->server()->connect($options);
+        return $this->server()->getCollations();
+    }
+
+    /**
      * Get the database list
      *
      * @param array $options    The corresponding config options
      *
-     * @return void
+     * @return array
      */
     public function getDatabases(array $options)
     {
@@ -163,6 +176,21 @@ class Proxy
     }
 
     /**
+     * Create a database
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $collation The database collation
+     *
+     * @return bool
+     */
+    public function createDatabase(array $options, string $database, string $collation = '')
+    {
+        $this->server()->connect($options);
+        return $this->server()->createDatabase($database, $collation);
+    }
+
+    /**
      * Drop a database
      *
      * @param array $options    The corresponding config options
@@ -173,7 +201,6 @@ class Proxy
     public function dropDatabase(array $options, string $database)
     {
         $this->server()->connect($options);
-
         return $this->server()->dropDatabase($database);
     }
 

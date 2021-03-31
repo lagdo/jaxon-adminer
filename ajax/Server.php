@@ -128,6 +128,10 @@ class Server extends AdminerCallable
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
 
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-main-action-add-database')
+            ->click($this->cl(Database::class)->rq()->add($server));
+
         // Set onclick handlers on database names
         $database = \jq()->parent()->attr('data-value');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())

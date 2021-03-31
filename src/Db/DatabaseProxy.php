@@ -19,11 +19,11 @@ class DatabaseProxy
         global $adminer;
 
         $main_actions = [
-            'database' => \adminer\lang('Alter database'),
-            'c_scheme' => \adminer\lang('Create schema'),
-            'a_scheme' => \adminer\lang('Alter schema'),
-            'd_scheme' => \adminer\lang('Database schema'),
-            'privileges' => \adminer\lang('Privileges'),
+            // 'database' => \adminer\lang('Alter database'),
+            // 'c_scheme' => \adminer\lang('Create schema'),
+            // 'a_scheme' => \adminer\lang('Alter schema'),
+            // 'd_scheme' => \adminer\lang('Database schema'),
+            // 'privileges' => \adminer\lang('Privileges'),
         ];
 
         $headers = [

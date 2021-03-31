@@ -18,4 +18,10 @@
 .adminer-table-checkbox {
     width: 20px;
 }
+.breadcrumb {
+    float: left;
+    padding: 5px 10px 5px 10px;
+    margin-bottom: 10px;
+    margin-top: 11px;
+}
 </style>

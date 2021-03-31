@@ -26,6 +26,65 @@ class Database extends AdminerCallable
     }
 
     /**
+     * Show the  create database dialog
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function add($server)
+    {
+        $options = $this->package->getServerOptions($server);
+        $collations = $this->dbProxy->getCollations($options);
+
+        $formId = 'database-form';
+        $title = 'Create a database';
+        $content = $this->render('database/add', [
+            'formId' => $formId,
+            'collations' => $collations,
+        ]);
+        $buttons = [[
+            'title' => 'Cancel',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ],[
+            'title' => 'Save',
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->create($server, pr()->form($formId)),
+        ]];
+        $this->response->dialog->show($title, $content, $buttons);
+        return $this->response;
+    }
+
+    /**
+     * Show the  create database dialog
+     *
+     * @param string $server      The database server
+     * @param string $formValues  The form values
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function create($server, array $formValues)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $database = $formValues['name'];
+        $collation = $formValues['collation'];
+
+        if(!$this->dbProxy->createDatabase($options, $database, $collation))
+        {
+            $this->response->dialog->error("Cannot create database $database.");
+            return $this->response;
+        }
+        $this->cl(Server::class)->showDatabases($server);
+
+        $this->response->dialog->hide();
+        $this->response->dialog->info("Database $database created.");
+
+        return $this->response;
+    }
+
+    /**
      * Drop a database
      *
      * @param string $server      The database server
