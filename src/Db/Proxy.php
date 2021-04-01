@@ -24,6 +24,13 @@ class Proxy
     protected $serverProxy = null;
 
     /**
+     * The proxy to user features
+     *
+     * @var UserProxy
+     */
+    protected $userProxy = null;
+
+    /**
      * The proxy to database features
      *
      * @var DatabaseProxy
@@ -45,6 +52,16 @@ class Proxy
     protected function server()
     {
         return $this->serverProxy ?: ($this->serverProxy = new ServerProxy());
+    }
+
+    /**
+     * Get the proxy to user features
+     *
+     * @return UserProxy
+     */
+    protected function user()
+    {
+        return $this->userProxy ?: ($this->userProxy = new UserProxy());
     }
 
     /**
@@ -105,6 +122,55 @@ class Proxy
     {
         $this->server()->connect($options);
         return $this->server()->getCollations();
+    }
+
+    /**
+     * Get the privilege list
+     * This feature is available only for MySQL
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getPrivileges(array $options, $database = '')
+    {
+        $this->server()->connect($options);
+
+        // Set breadcrumbs
+        $this->breadcrumbs = [$options['name'], \adminer\lang('Privileges')];
+
+        return $this->user()->getPrivileges($database);
+    }
+
+    /**
+     * Get the privileges for a new user
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function newUserPrivileges(array $options, $database)
+    {
+        $this->server()->connect($options);
+        return $this->user()->newUserPrivileges($database);
+    }
+
+    /**
+     * Get the privileges for a new user
+     *
+     * @param array $options    The corresponding config options
+     * @param string $database  The database name
+     * @param string $user      The user name
+     * @param string $host      The host name
+     *
+     * @return array
+     */
+    public function getUserPrivileges(array $options, $database, $user, $host)
+    {
+        $this->server()->connect($options);
+        return $this->user()->getUserPrivileges($database, $user, $host);
     }
 
     /**

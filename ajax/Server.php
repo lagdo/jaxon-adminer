@@ -67,6 +67,8 @@ class Server extends AdminerCallable
         // Set the click handlers
         $this->jq('#adminer-menu-action-databases')
             ->click($this->rq()->showDatabases($server));
+        $this->jq('#adminer-menu-action-privileges')
+            ->click($this->rq()->showPrivileges($server));
         $this->jq('#adminer-menu-action-processes')
             ->click($this->rq()->showProcesses($server));
         $this->jq('#adminer-menu-action-variables')
@@ -150,6 +152,62 @@ class Server extends AdminerCallable
         // Activate the sidebar menu item
         $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
         $this->jq('.menu-action-databases', '#'. $this->package->getDbMenuId())->addClass('active');
+
+        return $this->response;
+    }
+
+    /**
+     * Show the privileges of a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showPrivileges($server)
+    {
+        $options = $this->package->getServerOptions($server);
+
+        $privilegesInfo = $this->dbProxy->getPrivileges($options);
+
+        $editClass = 'adminer-privilege-name';
+        // Add links, classes and data values to privileges.
+        $privilegesInfo['details'] = \array_map(function($detail) use($editClass) {
+            $detail['edit'] = [
+                'label' => '<a href="javascript:void(0)">Edit</a>',
+                'props' => [
+                    'class' => $editClass,
+                    'data-user' => $detail['user'],
+                    'data-host' => $detail['host'],
+                ],
+            ];
+            return $detail;
+        }, $privilegesInfo['details']);
+
+        // Make privileges info available to views
+        foreach($privilegesInfo as $name => $value)
+        {
+            $this->view()->share($name, $value);
+        }
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
+
+        $content = $this->render('main/content');
+        $this->response->html($this->package->getDbContentId(), $content);
+
+        // Activate the sidebar menu item
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $this->jq('.menu-action-privileges', '#'. $this->package->getDbMenuId())->addClass('active');
+
+        // Set onclick handlers on database names
+        $user = \jq()->parent()->attr('data-user');
+        $host = \jq()->parent()->attr('data-host');
+        $this->jq('.' . $editClass . '>a', '#' . $this->package->getDbContentId())
+            ->click($this->cl(User::class)->rq()->edit($server, $user, $host));
+
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-main-action-add-user')
+            ->click($this->cl(User::class)->rq()->add($server));
 
         return $this->response;
     }
