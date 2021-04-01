@@ -126,20 +126,37 @@ class ServerProxy
     {
         global $drivers, $connection;
 
-        // Content from the connect_error() function in connect.inc.php
-        $menu_actions = [
-            'databases' => \adminer\lang('Databases'),
-            'processes' => \adminer\lang('Process list'),
-            'variables' => \adminer\lang('Variables'),
-            'status' => \adminer\lang('Status'),
-        ];
-
-        // Get the database list
-        $databases = $this->databases();
-
         $server = \adminer\lang('%s version: %s. PHP extension %s.', $drivers[DRIVER],
             "<b>" . \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>");
         $user = \adminer\lang('Logged as: %s.', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>");
+
+        // Content from the connect_error() function in connect.inc.php
+        $menu_actions = [
+            'databases' => \adminer\lang('Databases'),
+        ];
+        // if(\adminer\support('database'))
+        // {
+        //     $menu_actions['databases'] = \adminer\lang('Databases');
+        // }
+        if(\adminer\support('privileges'))
+        {
+            $menu_actions['privileges'] = \adminer\lang('Privileges');
+        }
+        if(\adminer\support('processlist'))
+        {
+            $menu_actions['processes'] = \adminer\lang('Process list');
+        }
+        if(\adminer\support('variables'))
+        {
+            $menu_actions['variables'] = \adminer\lang('Variables');
+        }
+        if(\adminer\support('status'))
+        {
+            $menu_actions['status'] = \adminer\lang('Status');
+        }
+
+        // Get the database list
+        $databases = $this->databases();
 
         return \compact('server', 'user', 'databases', 'menu_actions');
     }
