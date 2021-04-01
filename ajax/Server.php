@@ -93,20 +93,24 @@ class Server extends AdminerCallable
 
         $databasesInfo = $this->dbProxy->getDatabases($options);
 
-        $dbNameClass = 'adminer-db-name';
-        $dbDropClass = 'adminer-db-drop';
+        $dbNameClass = 'adminer-database-name';
+        $dbDropClass = 'adminer-database-drop';
         // Add links, classes and data values to database names.
         $databasesInfo['details'] = \array_map(function($detail) use($dbNameClass, $dbDropClass) {
             $name = $detail['name'];
             $detail['name'] = [
-                'class' => $dbNameClass,
-                'value' => $name,
-                'label' => $name,
+                'label' => '<a href="javascript:void(0)">' . $name . '</a>',
+                'props' => [
+                    'class' => $dbNameClass,
+                    'data-name' => $name,
+                ],
             ];
             $detail['drop'] = [
-                'class' => $dbDropClass,
-                'value' => $name,
-                'label' => 'Drop',
+                'label' => '<a href="javascript:void(0)">Drop</a>',
+                'props' => [
+                    'class' => $dbDropClass,
+                    'data-name' => $name,
+                ],
             ];
             return $detail;
         }, $databasesInfo['details']);
@@ -133,12 +137,12 @@ class Server extends AdminerCallable
             ->click($this->cl(Database::class)->rq()->add($server));
 
         // Set onclick handlers on database names
-        $database = \jq()->parent()->attr('data-value');
+        $database = \jq()->parent()->attr('data-name');
         $this->jq('.' . $dbNameClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Database::class)->rq()->select($server, $database));
 
         // Set onclick handlers on database drop
-        $database = \jq()->parent()->attr('data-value');
+        $database = \jq()->parent()->attr('data-name');
         $this->jq('.' . $dbDropClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Database::class)->rq()->drop($server, $database)
             ->confirm("Delete database {1}?", $database));

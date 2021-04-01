@@ -22,10 +22,9 @@
 <?php endif ?>
 <?php foreach($details as $detail): ?>
 <?php if(is_array($detail)): ?>
-                            <td class="<?php
-                                echo $detail['class'] ?>" data-value="<?php
-                                echo $detail['value'] ?>"><a href="javascript:void(0)"><?php
-                                echo $detail['label'] ?></a></td>
+                            <td<?php foreach($detail['props'] as $name => $value): ?> <?php
+                                echo $name ?>="<?php echo $value ?>"<?php
+                                endforeach ?>><?php echo $detail['label'] ?></td>
 <?php else: ?>
                             <td><?php echo $detail ?></td>
 <?php endif ?>

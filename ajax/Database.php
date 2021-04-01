@@ -202,17 +202,21 @@ class Database extends AdminerCallable
         // Add links, classes and data values to table names.
         $tablesInfo['details'] = \array_map(function($detail) use($tableNameClass) {
             $detail['name'] = [
-                'class' => $tableNameClass,
-                'value' => $detail['name'],
-                'label' => $detail['name'],
+                'label' => '<a href="javascript:void(0)">' . $detail['name'] . '</a>',
+                'props' => [
+                    'class' => $tableNameClass,
+                    'data-name' => $detail['name'],
+                ],
             ];
             return $detail;
         }, $tablesInfo['details']);
         // \array_walk($tablesInfo['details'], function(&$detail) use($tableNameClass) {
         //     $detail['name'] = [
-        //         'class' => $tableNameClass,
-        //         'value' => $detail['name'],
-        //         'label' => $detail['name'],
+        //         'label' => '<a href="javascript:void(0)">' . $detail['name'] . '</a>',
+        //         'props' => [
+        //             'class' => $tableNameClass,
+        //             'data-name' => $detail['name'],
+        //         ],
         //     ];
         // });
 
@@ -222,7 +226,7 @@ class Database extends AdminerCallable
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
-        $table = \jq()->parent()->attr('data-value');
+        $table = \jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Table::class)->rq()->showTable($server, $database, $table));
 
