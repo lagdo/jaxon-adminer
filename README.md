@@ -17,6 +17,7 @@ Features
 - [x] Show detailed info about the MySQL database server.
 - [x] Show detailed info about the connected database.
 - [x] Connect to PostgreSQL databases.
+- [x] Restrict access to server info and databases.
 - [ ] Connect to other database types.
 - [ ] Execute requests and display results.
 - [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one.
@@ -68,6 +69,116 @@ In the page that displays the dashboard, insert the HTML code returned by the ca
 - If the dashboard is displayed on a dedicated page, make a call to `jaxon()->package(\Lagdo\Adminer\Package::class)->ready()` in your PHP code when loading the page.
 
 - If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `jaxon()->package(\Lagdo\Adminer\Package::class)->getReadyScript()` after the page is loaded.
+
+Additional config options
+-------------------------
+
+There are other config options that can be used to customize `Jaxon Adminer` operation.
+
+The `default` option sets a database server `Jaxon Adminer` must connect to when it starts.
+
+```php
+    'app' => [
+        'packages' => [
+            Lagdo\Adminer\Package::class => [
+                'servers' => [
+                    'first_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                    'second_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                ],
+                'default' => 'second_server',
+            ],
+        ],
+    ],
+```
+
+The `access` options restrict access only to a databases or a defined set of databases on each server.
+If the `access.server` is set to `false` at package level, then the access to all servers information will be forbidden.
+The `access.server` option can also be set at a server level, and in this case it applies only to this specific server.
+
+```php
+    'app' => [
+        'packages' => [
+            Lagdo\Adminer\Package::class => [
+                'servers' => [
+                    'first_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                    'second_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                        'access' => [
+                            'server' => true,
+                        ],
+                    ],
+                ],
+                'default' => 'second_server',
+                'access' => [
+                    'server' => false,
+                ],
+            ],
+        ],
+    ],
+```
+In the above configuration, the user will be able to access server information only on the `second_server`.
+
+The `access.databases` option defines the set of databases the user can access.
+This option can only be defined at server level, and will apply to this specific server.
+
+```php
+    'app' => [
+        'packages' => [
+            Lagdo\Adminer\Package::class => [
+                'servers' => [
+                    'first_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                    'second_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                        'access' => [
+                            'server' => false,
+                            'databases' => ['db1', 'db2', 'db3'],
+                        ],
+                    ],
+                ],
+                'default' => 'second_server',
+            ],
+        ],
+    ],
+```
+In the above configuration, the user will be able to get access only to three databases on the `second_server`.
 
 Notes
 -----
