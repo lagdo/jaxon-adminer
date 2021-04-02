@@ -147,30 +147,29 @@ class Proxy
      * Get the privileges for a new user
      *
      * @param array $options    The corresponding config options
-     * @param string $database  The database name
      *
      * @return array
      */
-    public function newUserPrivileges(array $options, $database)
+    public function newUserPrivileges(array $options)
     {
         $this->server()->connect($options);
-        return $this->user()->newUserPrivileges($database);
+        return $this->user()->newUserPrivileges();
     }
 
     /**
      * Get the privileges for a new user
      *
      * @param array $options    The corresponding config options
-     * @param string $database  The database name
      * @param string $user      The user name
      * @param string $host      The host name
+     * @param string $database  The database name
      *
      * @return array
      */
-    public function getUserPrivileges(array $options, $database, $user, $host)
+    public function getUserPrivileges(array $options, $user, $host, $database)
     {
         $this->server()->connect($options);
-        return $this->user()->getUserPrivileges($database, $user, $host);
+        return $this->user()->getUserPrivileges($user, $host, $database);
     }
 
     /**

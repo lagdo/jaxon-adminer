@@ -29,15 +29,14 @@ class User extends AdminerCallable
      * Show the new user form
      *
      * @param string $server      The database server
-     * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
      */
-    public function add(string $server, string $database = '')
+    public function add(string $server)
     {
         $options = $this->package->getServerOptions($server);
 
-        $userInfo = $this->dbProxy->newUserPrivileges($options, $database);
+        $userInfo = $this->dbProxy->newUserPrivileges($options);
 
         // Make user info available to views
         foreach($userInfo as $name => $value)
@@ -45,11 +44,24 @@ class User extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
+        $formId = 'user-form';
+        $title = 'Add user privileges';
         $content = $this->render('main/user', [
-            'formId' => '',
+            'formId' => $formId,
             'content' => $content = $this->render('main/content'),
         ]);
-        $this->response->html($this->package->getDbContentId(), $content);
+        // $this->response->html($this->package->getDbContentId(), $content);
+
+        $buttons = [[
+            'title' => 'Cancel',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ],[
+            'title' => 'Save',
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->create($server, pr()->form($formId)),
+        ]];
+        $this->response->dialog->show($title, $content, $buttons);
 
         return $this->response;
     }
@@ -64,11 +76,11 @@ class User extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function edit(string $server, string $username, string $hostname, string $database = '')
+    public function edit(string $server, string $username, string $hostname, string $database)
     {
         $options = $this->package->getServerOptions($server);
 
-        $userInfo = $this->dbProxy->getUserPrivileges($options, $database, $username, $hostname);
+        $userInfo = $this->dbProxy->getUserPrivileges($options, $username, $hostname, $database);
 
         // Make user info available to views
         foreach($userInfo as $name => $value)
@@ -76,11 +88,24 @@ class User extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
+        $formId = 'user-form';
+        $title = 'Edit user privileges';
         $content = $this->render('main/user', [
-            'formId' => '',
+            'formId' => $formId,
             'content' => $content = $this->render('main/content'),
         ]);
-        $this->response->html($this->package->getDbContentId(), $content);
+        // $this->response->html($this->package->getDbContentId(), $content);
+
+        $buttons = [[
+            'title' => 'Cancel',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ],[
+            'title' => 'Save',
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->create($server, pr()->form($formId)),
+        ]];
+        $this->response->dialog->show($title, $content, $buttons);
 
         return $this->response;
     }

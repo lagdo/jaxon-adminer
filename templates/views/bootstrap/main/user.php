@@ -4,7 +4,7 @@
                         <div class="form-group">
                             <label for="host" class="col-md-3 control-label"><?php
                                 echo $this->user['host']['label'] ?></label>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <input type="text" name="host" class="form-control" value="<?php
                                     echo $this->user['host']['value'] ?>" data-maxlength="60" autocapitalize="off" />
                             </div>
@@ -12,7 +12,7 @@
                         <div class="form-group">
                             <label for="user" class="col-md-3 control-label"><?php
                                 echo $this->user['name']['label'] ?></label>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <input type="text" name="user" class="form-control" value="<?php
                                     echo $this->user['name']['value'] ?>" data-maxlength="80" autocapitalize="off" />
                             </div>
@@ -20,7 +20,7 @@
                         <div class="form-group">
                             <label for="pass" class="col-md-3 control-label"><?php
                                 echo $this->user['pass']['label'] ?></label>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <input type="text" name="pass" class="form-control" value="<?php
                                     echo $this->user['pass']['value'] ?>" autocomplete="new-password" />
                             </div>

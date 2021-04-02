@@ -204,8 +204,15 @@ class Server extends AdminerCallable
         $privilegesInfo = $this->dbProxy->getPrivileges($options);
 
         $editClass = 'adminer-privilege-name';
+        $optionClass = 'jaxon-adminer-grant';
         // Add links, classes and data values to privileges.
-        $privilegesInfo['details'] = \array_map(function($detail) use($editClass) {
+        $privilegesInfo['details'] = \array_map(function($detail) use($editClass, $optionClass) {
+            // Set the grant select options.
+            $detail['grants'] = $this->render('html/select', [
+                'options' => $detail['grants'],
+                'optionClass' => $optionClass,
+            ]);
+            // Set the Edit button.
             $detail['edit'] = [
                 'label' => '<a href="javascript:void(0)">Edit</a>',
                 'props' => [
@@ -236,8 +243,9 @@ class Server extends AdminerCallable
         // Set onclick handlers on database names
         $user = \jq()->parent()->attr('data-user');
         $host = \jq()->parent()->attr('data-host');
+        $database = \jq()->parent()->parent()->find("option.$optionClass:selected")->val();
         $this->jq('.' . $editClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(User::class)->rq()->edit($server, $user, $host));
+            ->click($this->cl(User::class)->rq()->edit($server, $user, $host, $database));
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-user')

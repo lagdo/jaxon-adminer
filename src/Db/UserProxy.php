@@ -17,58 +17,14 @@ class UserProxy
     protected $password = '';
 
     /**
-     * Get the privilege list
-     * This feature is available only for MySQL
-     *
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getPrivileges($database = '')
-    {
-        global $connection;
-
-        $actions = [
-            'add-user' => \adminer\lang('Create user'),
-        ];
-
-        $headers = [
-            \adminer\lang('Username'),
-            \adminer\lang('Server'),
-            '',
-        ];
-
-        // From privileges.inc.php
-        $result = $connection->query("SELECT User, Host FROM mysql." .
-            ($database == "" ? "user" : "db WHERE " . q($database) . " LIKE Db") .
-            " ORDER BY Host, User");
-        $grant = $result;
-        if(!$result) {
-            // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
-            $result = $connection->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
-                "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
-        }
-        $details = [];
-        while ($row = $result->fetch_assoc()) {
-            $details[] = [
-                'user' => \adminer\h($row["User"]),
-                'host' => \adminer\h($row["Host"]),
-            ];
-        }
-
-        return \compact('headers', 'details', 'actions');
-    }
-
-    /**
      * Get the grants of a user on a given host
      *
-     * @param string $database  The database name
      * @param string $user      The user name
      * @param string $host      The host name
      *
      * @return array
      */
-    protected function fetchUserGrants($database, $user = '', $host = '')
+    protected function fetchUserGrants($user = '', $host = '')
     {
         global $connection;
 
@@ -105,7 +61,6 @@ class UserProxy
             }
         }
 
-        $grants[($database == "" || $grants ? "" : \adminer\idf_escape(\addcslashes($database, "%_\\"))) . ".*"] = [];
         return $grants;
     }
 
@@ -213,15 +168,65 @@ class UserProxy
     }
 
     /**
-     * Get the grants of a user on a given host
+     * Get the privilege list
+     * This feature is available only for MySQL
      *
      * @param string $database  The database name
      *
      * @return array
      */
-    public function newUserPrivileges($database)
+    public function getPrivileges($database = '')
     {
-        $grants = $this->fetchUserGrants($database);
+        global $connection;
+
+        $actions = [
+            'add-user' => \adminer\lang('Create user'),
+        ];
+
+        $headers = [
+            \adminer\lang('Username'),
+            \adminer\lang('Server'),
+            '',
+            '',
+        ];
+
+        // From privileges.inc.php
+        $result = $connection->query("SELECT User, Host FROM mysql." .
+            ($database == "" ? "user" : "db WHERE " . q($database) . " LIKE Db") .
+            " ORDER BY Host, User");
+        $grant = $result;
+        if(!$result) {
+            // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
+            $result = $connection->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
+                "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
+        }
+        $details = [];
+        while ($row = $result->fetch_assoc()) {
+            $details[] = [
+                'user' => \adminer\h($row["User"]),
+                'host' => \adminer\h($row["Host"]),
+            ];
+        }
+
+        // Fetch user grants
+        foreach($details as &$detail)
+        {
+            $grants = $this->fetchUserGrants($detail['user'], $detail['host']);
+            $detail['grants'] = \array_keys($grants);
+        }
+
+        return \compact('headers', 'details', 'actions');
+    }
+
+    /**
+     * Get the grants of a user on a given host
+     *
+     * @return array
+     */
+    public function newUserPrivileges()
+    {
+        $grants = [".*" => []];
+
         $headers = [
             \adminer\lang('Contexts'),
             \adminer\lang('Privileges'),
@@ -265,15 +270,20 @@ class UserProxy
     /**
      * Get the grants of a user on a given host
      *
-     * @param string $database  The database name
      * @param string $user      The user name
      * @param string $host      The host name
+     * @param string $database  The database name
      *
      * @return array
      */
-    public function getUserPrivileges($database, $user, $host)
+    public function getUserPrivileges($user, $host, $database)
     {
-        $grants = $this->fetchUserGrants($database, $user, $host);
+        $grants = $this->fetchUserGrants($user, $host);
+        if($database !== '')
+        {
+            $grants = \array_key_exists($database, $grants) ? [$database => $grants[$database]] : [];
+        }
+
         $headers = [
             \adminer\lang('Contexts'),
             \adminer\lang('Privileges'),
