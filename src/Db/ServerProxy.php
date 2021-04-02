@@ -10,11 +10,18 @@ use Exception;
 class ServerProxy
 {
     /**
-     * The database list
+     * The final database list
      *
      * @var array
      */
-    protected $_databases = null;
+    protected $finalDatabases = null;
+
+    /**
+     * The databases the user has access to
+     *
+     * @var array
+     */
+    protected $userDatabases = null;
 
     /**
      * Fetch and return the database from the connected server
@@ -27,11 +34,15 @@ class ServerProxy
         // Get the database lists
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser that are prepended to the Jaxon response.
-        if($this->_databases === null)
+        if($this->finalDatabases === null)
         {
-            $this->_databases = $adminer->databases(false);
+            $this->finalDatabases = $adminer->databases(false);
+            if(\is_array($this->userDatabases))
+            {
+                $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
+            }
         }
-        return $this->_databases;
+        return $this->finalDatabases;
     }
 
     /**
@@ -65,6 +76,15 @@ class ServerProxy
         if(($connection))
         {
             return;
+        }
+
+        // Set the user databases, if defined.
+        if(\array_key_exists('access', $options) &&
+            \is_array($options['access']) &&
+            \array_key_exists('databases', $options['access']) &&
+            \is_array($options['access']['databases']))
+        {
+            $this->userDatabases = $options['access']['databases'];
         }
 
         // Fixes
