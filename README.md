@@ -2,7 +2,7 @@ A database admin dashboard based on Jaxon and Adminer
 =====================================================
 
 This package inserts a database admin dashboard into an existing PHP application.
-Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application, which can be loaded with an HTTP or an Ajax request.
+Thanks to the [Jaxon library](https://www.jaxon-php.org), it installs and runs in a page of the application.
 All its operations are performed with Ajax requests.
 
 It is based on [Adminer](https://www.adminer.org/en/), so it will provide the same features.
@@ -105,9 +105,9 @@ The `default` option sets a database server `Jaxon Adminer` must connect to when
     ],
 ```
 
-The `access` options restrict access only to a databases or a defined set of databases on each server.
+The `access` options restrict access only to databases or a defined set of databases on any server.
 If the `access.server` is set to `false` at package level, then the access to all servers information will be forbidden.
-The `access.server` option can also be set at a server level, and in this case it applies only to this specific server.
+The `access.server` option can also be set at a server level, and in this case it applies only to that specific server.
 
 ```php
     'app' => [
@@ -145,7 +145,7 @@ The `access.server` option can also be set at a server level, and in this case i
 In the above configuration, the user will be able to access server information only on the `second_server`.
 
 The `access.databases` option defines the set of databases the user can access.
-This option can only be defined at server level, and will apply to this specific server.
+This option can only be defined at server level, and will apply to that specific server.
 
 ```php
     'app' => [
@@ -178,7 +178,7 @@ This option can only be defined at server level, and will apply to this specific
         ],
     ],
 ```
-In the above configuration, the user will be able to get access only to three databases on the `second_server`.
+In the above configuration, the user will be able to get access only to three databases on the `second_server`, while he will have full access to the `first_server`.
 
 Notes
 -----
