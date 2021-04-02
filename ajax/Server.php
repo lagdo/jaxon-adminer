@@ -44,9 +44,6 @@ class Server extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
         $content = $this->render('info/user');
         $this->response->html($this->package->getUserInfoId(), $content);
 
@@ -61,6 +58,31 @@ class Server extends AdminerCallable
         $this->jq('#adminer-dbname-select-btn')
             ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
 
+        if($this->checkServerAccess($server, false))
+        {
+            // Show the server
+            return $this->showServer($server);
+        }
+
+        // Access to servers is forbidden. Show the first database.
+        if(\count($serverInfo['databases']) > 0)
+        {
+            $database = $serverInfo['databases'][0];
+            $this->cl(Database::class)->select($server, $database);
+        }
+
+        return $this->response;
+    }
+
+    /**
+     * Show a db server.
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    protected function showServer($server)
+    {
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
 
@@ -91,6 +113,12 @@ class Server extends AdminerCallable
      */
     public function showDatabases($server)
     {
+        if(!$this->checkServerAccess($server))
+        {
+            $this->response->dialog->warning('Access to server data is forbidden');
+            return $this->response;
+        }
+
         $options = $this->package->getServerOptions($server);
 
         $databasesInfo = $this->dbProxy->getDatabases($options);
@@ -165,6 +193,12 @@ class Server extends AdminerCallable
      */
     public function showPrivileges($server)
     {
+        if(!$this->checkServerAccess($server))
+        {
+            $this->response->dialog->warning('Access to server data is forbidden');
+            return $this->response;
+        }
+
         $options = $this->package->getServerOptions($server);
 
         $privilegesInfo = $this->dbProxy->getPrivileges($options);
@@ -221,6 +255,12 @@ class Server extends AdminerCallable
      */
     public function showProcesses($server)
     {
+        if(!$this->checkServerAccess($server))
+        {
+            $this->response->dialog->warning('Access to server data is forbidden');
+            return $this->response;
+        }
+
         $options = $this->package->getServerOptions($server);
 
         $processesInfo = $this->dbProxy->getProcesses($options);
@@ -252,6 +292,12 @@ class Server extends AdminerCallable
      */
     public function showVariables($server)
     {
+        if(!$this->checkServerAccess($server))
+        {
+            $this->response->dialog->warning('Access to server data is forbidden');
+            return $this->response;
+        }
+
         $options = $this->package->getServerOptions($server);
 
         $variablesInfo = $this->dbProxy->getVariables($options);
@@ -283,6 +329,12 @@ class Server extends AdminerCallable
      */
     public function showStatus($server)
     {
+        if(!$this->checkServerAccess($server))
+        {
+            $this->response->dialog->warning('Access to server data is forbidden');
+            return $this->response;
+        }
+
         $options = $this->package->getServerOptions($server);
 
         $statusInfo = $this->dbProxy->getStatus($options);
