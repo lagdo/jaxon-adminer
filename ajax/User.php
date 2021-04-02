@@ -45,7 +45,10 @@ class User extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/content');
+        $content = $this->render('main/user', [
+            'formId' => '',
+            'content' => $content = $this->render('main/content'),
+        ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;
@@ -73,7 +76,10 @@ class User extends AdminerCallable
             $this->view()->share($name, $value);
         }
 
-        $content = $this->render('main/content');
+        $content = $this->render('main/user', [
+            'formId' => '',
+            'content' => $content = $this->render('main/content'),
+        ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
         return $this->response;

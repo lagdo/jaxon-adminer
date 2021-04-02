@@ -4,7 +4,7 @@
                         <div class="form-group">
                             <label for="name" class="col-md-3 control-label">Name</label>
                             <div class="col-md-8">
-                                <input type="text" name="name" class="form-control" placeholder="Name">
+                                <input type="text" name="name" class="form-control" placeholder="Name" />
                             </div>
                         </div>
                         <div class="form-group">

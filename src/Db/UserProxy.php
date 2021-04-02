@@ -10,6 +10,13 @@ use Exception;
 class UserProxy
 {
     /**
+     * The user password
+     *
+     * @var string
+     */
+    protected $password = '';
+
+    /**
      * Get the privilege list
      * This feature is available only for MySQL
      *
@@ -67,7 +74,6 @@ class UserProxy
 
         // From user.inc.php
         $grants = [];
-        $old_pass = "";
 
         //! use information_schema for MySQL 5 - column names in column privileges are not escaped
         if(($result = $connection->query("SHOW GRANTS FOR " .
@@ -94,7 +100,7 @@ class UserProxy
                 }
                 if(\preg_match("~ IDENTIFIED BY PASSWORD '([^']+)~", $row[0], $match))
                 {
-                    $old_pass = $match[1];
+                    $this->password = $match[1];
                 }
             }
         }
@@ -217,7 +223,7 @@ class UserProxy
     {
         $grants = $this->fetchUserGrants($database);
         $headers = [
-            "",
+            \adminer\lang('Contexts'),
             \adminer\lang('Privileges'),
         ];
         $i = 0;
@@ -233,10 +239,22 @@ class UserProxy
         $actions = [];
 
         $user = [
-            'host' => [\adminer\lang('Server'), ''],
-            'name' => [\adminer\lang('Username'), ''],
-            'pass' => [\adminer\lang('Password'), ''],
-            'hashed' => [\adminer\lang('Hashed'), false],
+            'host' => [
+                'label' => \adminer\lang('Server'),
+                'value' => '',
+            ],
+            'name' => [
+                'label' => \adminer\lang('Username'),
+                'value' => '',
+            ],
+            'pass' => [
+                'label' => \adminer\lang('Password'),
+                'value' => '',
+            ],
+            'hashed' => [
+                'label' => \adminer\lang('Hashed'),
+                'value' => false,
+            ],
         ];
 
         $details = $this->fetchUserPrivileges($grants);
@@ -257,7 +275,7 @@ class UserProxy
     {
         $grants = $this->fetchUserGrants($database, $user, $host);
         $headers = [
-            "",
+            \adminer\lang('Contexts'),
             \adminer\lang('Privileges'),
         ];
         $i = 0;
@@ -273,10 +291,22 @@ class UserProxy
         $actions = [];
 
         $user = [
-            'host' => [\adminer\lang('Server'), ''],
-            'name' => [\adminer\lang('Username'), ''],
-            'pass' => [\adminer\lang('Password'), ''],
-            'hashed' => [\adminer\lang('Hashed'), false],
+            'host' => [
+                'label' => \adminer\lang('Server'),
+                'value' => $host,
+            ],
+            'name' => [
+                'label' => \adminer\lang('Username'),
+                'value' => $user,
+            ],
+            'pass' => [
+                'label' => \adminer\lang('Password'),
+                'value' => $this->password,
+            ],
+            'hashed' => [
+                'label' => \adminer\lang('Hashed'),
+                'value' => ($this->password != ''),
+            ],
         ];
 
         $details = $this->fetchUserPrivileges($grants);
