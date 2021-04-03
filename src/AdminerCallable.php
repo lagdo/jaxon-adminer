@@ -25,6 +25,18 @@ class AdminerCallable extends CallableClass
     protected $dbProxy;
 
     /**
+     * The constructor
+     *
+     * @param Package $package    The Adminer package
+     * @param DbProxy $dbProxy    The proxy to Adminer
+     */
+    public function __construct(Package $package, Db\Proxy $dbProxy)
+    {
+        $this->package = $package;
+        $this->dbProxy = $dbProxy;
+    }
+
+    /**
      * Render a view
      *
      * @param string        $sViewName        The view name

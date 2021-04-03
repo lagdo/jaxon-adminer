@@ -2,9 +2,7 @@
 
 namespace Lagdo\Adminer\Ajax;
 
-use Lagdo\Adminer\Package;
 use Lagdo\Adminer\AdminerCallable;
-use Lagdo\Adminer\Db\Proxy as DbProxy;
 
 use Exception;
 
@@ -13,18 +11,6 @@ use Exception;
  */
 class User extends AdminerCallable
 {
-    /**
-     * The constructor
-     *
-     * @param Package $package    The Adminer package
-     * @param DbProxy $dbProxy    The proxy to Adminer
-     */
-    public function __construct(Package $package, DbProxy $dbProxy)
-    {
-        $this->package = $package;
-        $this->dbProxy = $dbProxy;
-    }
-
     /**
      * Show the new user form
      *
