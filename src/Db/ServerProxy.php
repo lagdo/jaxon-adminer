@@ -24,6 +24,23 @@ class ServerProxy
     protected $userDatabases = null;
 
     /**
+     * The constructor
+     *
+     * @param array $options    The server config options
+     */
+    public function __construct(array $options)
+    {
+        // Set the user databases, if defined.
+        if(\array_key_exists('access', $options) &&
+            \is_array($options['access']) &&
+            \array_key_exists('databases', $options['access']) &&
+            \is_array($options['access']['databases']))
+        {
+            $this->userDatabases = $options['access']['databases'];
+        }
+    }
+
+    /**
      * Fetch and return the database from the connected server
      *
      * @return array
@@ -43,98 +60,6 @@ class ServerProxy
             }
         }
         return $this->finalDatabases;
-    }
-
-    /**
-     * Copied from auth.inc.php
-     *
-     * @return void
-     */
-    protected function check_invalid_login() {
-        global $adminer;
-        $invalids = \unserialize(@\file_get_contents(\adminer\get_temp_dir() . "/adminer.invalid")); // @ - may not exist
-        $invalid = ($invalids ? $invalids[$adminer->bruteForceKey()] : []);
-        $next_attempt = ($invalid[1] > 29 ? $invalid[0] - time() : 0); // allow 30 invalid attempts
-        if($next_attempt > 0) { //! do the same with permanent login
-            throw new Exception(\adminer\lang('Too many unsuccessful logins, try again in %d minute(s).', ceil($next_attempt / 60)));
-        }
-    }
-
-    /**
-     * Connect to a database server
-     *
-     * @param array $options    The corresponding config options
-     * @param string $db        The database name
-     *
-     * @return void
-     */
-    public function connect(array $options, string $db = '')
-    {
-        global $adminer, $host, $port, $connection, $driver;
-
-        // Prevent multiple calls.
-        if(($connection))
-        {
-            return;
-        }
-
-        // Set the user databases, if defined.
-        if(\array_key_exists('access', $options) &&
-            \is_array($options['access']) &&
-            \array_key_exists('databases', $options['access']) &&
-            \is_array($options['access']['databases']))
-        {
-            $this->userDatabases = $options['access']['databases'];
-        }
-
-        // Fixes
-        define("SID", \session_id());
-
-        $host = $options['host'];
-        $port = $options['port'];
-        $username = $options["username"];
-        $password = $options["password"];
-
-        // Simulate an actual request to Adminer
-        $vendor = $options['driver'];
-        $server = $host;
-        $_GET[$vendor] = $server;
-        $_GET['username'] = $username;
-
-        // Load the adminer code, and discard the outputs
-        \ob_start();
-        include __DIR__ . '/../../adminer/jaxon.php';
-        \ob_end_clean();
-
-        // From bootstrap.inc.php
-        define("SERVER", $server); // read from pgsql=localhost
-        define("DB", $db); // for the sake of speed and size
-        define("ME", '');
-        // define("ME", preg_replace('~\?.*~', '', relative_uri()) . '?'
-        //  . (sid() ? SID . '&' : '')
-        //  . (DRIVER . "=" . urlencode($server) . '&')
-        //  . ("username=" . urlencode($username) . '&')
-        //  . ('db=' . urlencode(DB) . '&')
-        // );
-
-        // Run the authentication code, from auth.inc.php.
-        \adminer\set_password($vendor, $server, $username, $password);
-        // $_SESSION["db"][$vendor][$server][$username][$db] = true;
-        if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) {
-            // is_numeric('80#') would still connect to port 80
-            throw new Exception(\adminer\lang('Connecting to privileged ports is not allowed.'));
-        }
-
-        // $this->check_invalid_login();
-        $adminer->credentials = ["$host:$port", $username, $password];
-        $connection = \adminer\connect();
-        $driver = new \adminer\Min_Driver($connection);
-
-        // From adminer.inc.php
-        if(($db))
-        {
-            $connection->select_db($db);
-        }
     }
 
     /**
@@ -204,56 +129,6 @@ class ServerProxy
     public function dropDatabase(string $database)
     {
         return \adminer\drop_databases([$database]);
-    }
-
-    /**
-     * Connect to a database server
-     *
-     * @return void
-     */
-    public function getDatabaseInfo()
-    {
-        $actions = [
-            // 'db_sql_command' => \adminer\lang('SQL command'),
-            // 'db_import' => \adminer\lang('Import'),
-            // 'db_export' => \adminer\lang('Export'),
-            // 'db_create_table' => \adminer\lang('Create table'),
-        ];
-
-        $menu_actions = [
-            'table' => \adminer\lang('Tables and views'),
-            // 'routine' => \adminer\lang('Routines'),
-            // 'sequence' => \adminer\lang('Sequences'),
-            // 'type' => \adminer\lang('User types'),
-            // 'event' => \adminer\lang('Events'),
-        ];
-        if(\adminer\support('routine'))
-        {
-            $menu_actions['routine'] = \adminer\lang('Routines');
-        }
-        if(\adminer\support('sequence'))
-        {
-            $menu_actions['sequence'] = \adminer\lang('Sequences');
-        }
-        if(\adminer\support('type'))
-        {
-            $menu_actions['type'] = \adminer\lang('User types');
-        }
-        if(\adminer\support('event'))
-        {
-            $menu_actions['event'] = \adminer\lang('Events');
-        }
-
-        // From db.inc.php
-        // $tables_list = \adminer\tables_list();
-
-        // $tables = [];
-        // foreach($table_status as $table)
-        // {
-        //     $tables[] = \adminer\h($table);
-        // }
-
-        return \compact(/*'tables', */'actions', 'menu_actions');
     }
 
     /**

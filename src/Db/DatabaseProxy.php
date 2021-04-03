@@ -10,6 +10,56 @@ use Exception;
 class DatabaseProxy
 {
     /**
+     * Connect to a database server
+     *
+     * @return void
+     */
+    public function getDatabaseInfo()
+    {
+        $actions = [
+            // 'db_sql_command' => \adminer\lang('SQL command'),
+            // 'db_import' => \adminer\lang('Import'),
+            // 'db_export' => \adminer\lang('Export'),
+            // 'db_create_table' => \adminer\lang('Create table'),
+        ];
+
+        $menu_actions = [
+            'table' => \adminer\lang('Tables and views'),
+            // 'routine' => \adminer\lang('Routines'),
+            // 'sequence' => \adminer\lang('Sequences'),
+            // 'type' => \adminer\lang('User types'),
+            // 'event' => \adminer\lang('Events'),
+        ];
+        if(\adminer\support('routine'))
+        {
+            $menu_actions['routine'] = \adminer\lang('Routines');
+        }
+        if(\adminer\support('sequence'))
+        {
+            $menu_actions['sequence'] = \adminer\lang('Sequences');
+        }
+        if(\adminer\support('type'))
+        {
+            $menu_actions['type'] = \adminer\lang('User types');
+        }
+        if(\adminer\support('event'))
+        {
+            $menu_actions['event'] = \adminer\lang('Events');
+        }
+
+        // From db.inc.php
+        // $tables_list = \adminer\tables_list();
+
+        // $tables = [];
+        // foreach($table_status as $table)
+        // {
+        //     $tables[] = \adminer\h($table);
+        // }
+
+        return \compact(/*'tables', */'actions', 'menu_actions');
+    }
+
+    /**
      * Get the tables from a database server
      *
      * @return void

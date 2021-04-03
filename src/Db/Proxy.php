@@ -9,97 +9,18 @@ use Exception;
  */
 class Proxy
 {
+    use ServerTrait;
+    use UserTrait;
+    use DatabaseTrait;
+    use TableTrait;
+    use CommandTrait;
+
     /**
      * The breadcrumbs items
      *
      * @var array
      */
     protected $breadcrumbs = [];
-
-    /**
-     * The proxy to server features
-     *
-     * @var ServerProxy
-     */
-    protected $serverProxy = null;
-
-    /**
-     * The proxy to user features
-     *
-     * @var UserProxy
-     */
-    protected $userProxy = null;
-
-    /**
-     * The proxy to database features
-     *
-     * @var DatabaseProxy
-     */
-    protected $databaseProxy = null;
-
-    /**
-     * The proxy to table features
-     *
-     * @var TableProxy
-     */
-    protected $tableProxy = null;
-
-    /**
-     * The proxy to command features
-     *
-     * @var CommandProxy
-     */
-    protected $commandProxy = null;
-
-    /**
-     * Get the proxy to server features
-     *
-     * @return ServerProxy
-     */
-    protected function server()
-    {
-        return $this->serverProxy ?: ($this->serverProxy = new ServerProxy());
-    }
-
-    /**
-     * Get the proxy to user features
-     *
-     * @return UserProxy
-     */
-    protected function user()
-    {
-        return $this->userProxy ?: ($this->userProxy = new UserProxy());
-    }
-
-    /**
-     * Get the proxy to database features
-     *
-     * @return DatabaseProxy
-     */
-    protected function database()
-    {
-        return $this->databaseProxy ?: ($this->databaseProxy = new DatabaseProxy());
-    }
-
-    /**
-     * Get the proxy to table features
-     *
-     * @return TableProxy
-     */
-    protected function table()
-    {
-        return $this->tableProxy ?: ($this->tableProxy = new TableProxy());
-    }
-
-    /**
-     * Get the proxy to command features
-     *
-     * @return CommandProxy
-     */
-    protected function command()
-    {
-        return $this->commandProxy ?: ($this->commandProxy = new CommandProxy());
-    }
 
     /**
      * Get the breadcrumbs items
@@ -112,384 +33,97 @@ class Proxy
     }
 
     /**
-     * Connect to a database server
+     * Set the breadcrumbs items
      *
-     * @param array $options    The corresponding config options
+     * @param array $breadcrumbs
      *
-     * @return array
+     * @return void
      */
-    public function getServerInfo(array $options)
+    protected function setBreadcrumbs(array $breadcrumbs)
     {
-        $this->server()->connect($options);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name']];
-
-        return $this->server()->getServerInfo();
+        $this->breadcrumbs = $breadcrumbs;
     }
 
     /**
-     * Get the collation list
+     * Copied from auth.inc.php
      *
-     * @param array $options    The corresponding config options
-     *
-     * @return array
+     * @return void
      */
-    public function getCollations(array $options)
-    {
-        $this->server()->connect($options);
-        return $this->server()->getCollations();
-    }
-
-    /**
-     * Get the privilege list
-     * This feature is available only for MySQL
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getPrivileges(array $options, $database = '')
-    {
-        $this->server()->connect($options);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], \adminer\lang('Privileges')];
-
-        return $this->user()->getPrivileges($database);
-    }
-
-    /**
-     * Get the privileges for a new user
-     *
-     * @param array $options    The corresponding config options
-     *
-     * @return array
-     */
-    public function newUserPrivileges(array $options)
-    {
-        $this->server()->connect($options);
-        return $this->user()->newUserPrivileges();
-    }
-
-    /**
-     * Get the privileges for a new user
-     *
-     * @param array $options    The corresponding config options
-     * @param string $user      The user name
-     * @param string $host      The host name
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getUserPrivileges(array $options, $user, $host, $database)
-    {
-        $this->server()->connect($options);
-        return $this->user()->getUserPrivileges($user, $host, $database);
-    }
-
-    /**
-     * Get the database list
-     *
-     * @param array $options    The corresponding config options
-     *
-     * @return array
-     */
-    public function getDatabases(array $options)
-    {
-        $this->server()->connect($options);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], \adminer\lang('Databases')];
-
-        return $this->server()->getDatabases();
-    }
-
-    /**
-     * Get the processes
-     *
-     * @param array $options    The corresponding config options
-     *
-     * @return array
-     */
-    public function getProcesses(array $options)
-    {
-        $this->server()->connect($options);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], \adminer\lang('Process list')];
-
-        return $this->server()->getProcesses();
-    }
-
-    /**
-     * Get the variables
-     *
-     * @param array $options    The corresponding config options
-     *
-     * @return array
-     */
-    public function getVariables(array $options)
-    {
-        $this->server()->connect($options);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], \adminer\lang('Variables')];
-
-        return $this->server()->getVariables();
-    }
-
-    /**
-     * Get the server status
-     *
-     * @param array $options    The corresponding config options
-     *
-     * @return array|null
-     */
-    public function getStatus(array $options)
-    {
-        $this->server()->connect($options);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], \adminer\lang('Status')];
-
-        return $this->server()->getStatus();
-    }
-
-    /**
-     * Create a database
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     * @param string $collation The database collation
-     *
-     * @return bool
-     */
-    public function createDatabase(array $options, string $database, string $collation = '')
-    {
-        $this->server()->connect($options);
-        return $this->server()->createDatabase($database, $collation);
-    }
-
-    /**
-     * Drop a database
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return bool
-     */
-    public function dropDatabase(array $options, string $database)
-    {
-        $this->server()->connect($options);
-        return $this->server()->dropDatabase($database);
-    }
+    // protected function check_invalid_login() {
+    //     global $adminer;
+    //     $invalids = \unserialize(@\file_get_contents(\adminer\get_temp_dir() . "/adminer.invalid")); // @ - may not exist
+    //     $invalid = ($invalids ? $invalids[$adminer->bruteForceKey()] : []);
+    //     $next_attempt = ($invalid[1] > 29 ? $invalid[0] - time() : 0); // allow 30 invalid attempts
+    //     if($next_attempt > 0) { //! do the same with permanent login
+    //         throw new Exception(\adminer\lang('Too many unsuccessful logins, try again in %d minute(s).', ceil($next_attempt / 60)));
+    //     }
+    // }
 
     /**
      * Connect to a database server
      *
-     * @param array $options    The corresponding config options
+     * @param array  $options   The corresponding config options
      * @param string $database  The database name
      *
-     * @return array
+     * @return void
      */
-    public function getDatabaseInfo(array $options, string $database)
+    protected function connect(array $options, string $database = '')
     {
-        $this->server()->connect($options, $database);
+        global $adminer, $host, $port, $connection, $driver;
 
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database];
+        // Prevent multiple calls.
+        if(($connection))
+        {
+            return;
+        }
 
-        return $this->server()->getDatabaseInfo();
-    }
+        // Fixes
+        define("SID", \session_id());
 
-    /**
-     * Get the tables from a database server
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getTables(array $options, string $database)
-    {
-        $this->server()->connect($options, $database);
+        $host = $options['host'];
+        $port = $options['port'];
+        $username = $options["username"];
+        $password = $options["password"];
 
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Tables and views')];
+        // Simulate an actual request to Adminer
+        $vendor = $options['driver'];
+        $server = $host;
+        $_GET[$vendor] = $server;
+        $_GET['username'] = $username;
 
-        return $this->database()->getTables();
-    }
+        // Load the adminer code, and discard the outputs
+        \ob_start();
+        include __DIR__ . '/../../adminer/jaxon.php';
+        \ob_end_clean();
 
-    /**
-     * Get the routines from a given database
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getRoutines(array $options, string $database)
-    {
-        $this->server()->connect($options, $database);
+        // From bootstrap.inc.php
+        define("SERVER", $server); // read from pgsql=localhost
+        define("DB", $database); // for the sake of speed and size
+        define("ME", '');
+        // define("ME", preg_replace('~\?.*~', '', relative_uri()) . '?'
+        //  . (sid() ? SID . '&' : '')
+        //  . (DRIVER . "=" . urlencode($server) . '&')
+        //  . ("username=" . urlencode($username) . '&')
+        //  . ('db=' . urlencode(DB) . '&')
+        // );
 
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Routines')];
+        // Run the authentication code, from auth.inc.php.
+        \adminer\set_password($vendor, $server, $username, $password);
+        // $_SESSION["db"][$vendor][$server][$username][$database] = true;
+        if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) {
+            // is_numeric('80#') would still connect to port 80
+            throw new Exception(\adminer\lang('Connecting to privileged ports is not allowed.'));
+        }
 
-        return $this->database()->getRoutines();
-    }
+        // $this->check_invalid_login();
+        $adminer->credentials = ["$host:$port", $username, $password];
+        $connection = \adminer\connect();
+        $driver = new \adminer\Min_Driver($connection);
 
-    /**
-     * Get the routines from a given database
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getSequences(array $options, string $database)
-    {
-        $this->server()->connect($options, $database);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Sequences')];
-
-        return $this->database()->getSequences();
-    }
-
-    /**
-     * Get the routines from a given database
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getUserTypes(array $options, string $database)
-    {
-        $this->server()->connect($options, $database);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('User types')];
-
-        return $this->database()->getUserTypes();
-    }
-
-    /**
-     * Get the routines from a given database
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     *
-     * @return array
-     */
-    public function getEvents(array $options, string $database)
-    {
-        $this->server()->connect($options, $database);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database, \adminer\lang('Events')];
-
-        return $this->database()->getEvents();
-    }
-
-    /**
-     * Get details about a table or a view
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     * @param string $table     The table name
-     *
-     * @return array
-     */
-    public function getTableInfo(array $options, string $database, string $table)
-    {
-        $this->server()->connect($options, $database);
-
-        // Set breadcrumbs
-        $this->breadcrumbs = [$options['name'], $database, $table];
-
-        return $this->table()->getTableInfo($table);
-    }
-
-    /**
-     * Get details about a table or a view
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     * @param string $table     The table name
-     *
-     * @return array
-     */
-    public function getTableFields(array $options, string $database, string $table)
-    {
-        $this->server()->connect($options, $database);
-        return $this->table()->getTableFields($table);
-    }
-
-    /**
-     * Get the indexes of a table
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     * @param string $table     The table name
-     *
-     * @return array|null
-     */
-    public function getTableIndexes(array $options, string $database, string $table)
-    {
-        $this->server()->connect($options, $database);
-        return $this->table()->getTableIndexes($table);
-    }
-
-    /**
-     * Get the foreign keys of a table
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     * @param string $table     The table name
-     *
-     * @return array|null
-     */
-    public function getTableForeignKeys(array $options, string $database, string $table)
-    {
-        $this->server()->connect($options, $database);
-        return $this->table()->getTableForeignKeys($table);
-    }
-
-    /**
-     * Get the triggers of a table
-     *
-     * @param array $options    The corresponding config options
-     * @param string $database  The database name
-     * @param string $table     The table name
-     *
-     * @return array|null
-     */
-    public function getTableTriggers(array $options, string $database, string $table)
-    {
-        $this->server()->connect($options, $database);
-        return $this->table()->getTableTriggers($table);
-    }
-
-    /**
-     * Execute a query
-     *
-     * @param array  $options       The corresponding config options
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     * @param string $query         The query to be executed
-     * @param int    $limit         The max number of rows to return
-     * @param bool   $errorStops    Stop executing the requests in case of error
-     * @param bool   $onlyErrors    Return only errors
-     *
-     * @return array
-     */
-    public function execute(array $options, string $database, string $schema,
-        string $query, int $limit, bool $errorStops, bool $onlyErrors)
-    {
-        $this->server()->connect($options, $database);
-        return $this->command()->execute($query, $limit, $errorStops, $onlyErrors, $database, $schema);
+        // From adminer.inc.php
+        if(($database))
+        {
+            $connection->select_db($database);
+        }
     }
 }
