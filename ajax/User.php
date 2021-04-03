@@ -59,9 +59,28 @@ class User extends AdminerCallable
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, pr()->form($formId)),
+            'click' => $this->rq()->create($server, \pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
+
+        return $this->response;
+    }
+
+    /**
+     * Save new user privileges
+     *
+     * @param string $server      The database server
+     * @param array  $formValues  The form values
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function create(string $server, array $formValues)
+    {
+        // $this->logger()->debug('Form values', $formValues);
+
+        $this->response->dialog->hide();
+        $this->response->dialog->warning("This feature is not yet implemented.");
+        // $this->response->dialog->info("User privileges created.");
 
         return $this->response;
     }
@@ -103,9 +122,28 @@ class User extends AdminerCallable
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, pr()->form($formId)),
+            'click' => $this->rq()->update($server, \pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
+
+        return $this->response;
+    }
+
+    /**
+     * Update user privileges
+     *
+     * @param string $server      The database server
+     * @param array  $formValues  The form values
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function update(string $server, array $formValues)
+    {
+        // $this->logger()->debug('Form values', $formValues);
+
+        $this->response->dialog->hide();
+        $this->response->dialog->warning("This feature is not yet implemented.");
+        // $this->response->dialog->info("User privileges updated.");
 
         return $this->response;
     }

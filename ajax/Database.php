@@ -50,7 +50,7 @@ class Database extends AdminerCallable
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, pr()->form($formId)),
+            'click' => $this->rq()->create($server, \pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
         return $this->response;
