@@ -279,10 +279,9 @@ class ServerProxy
 
         $actions = [
             'add-database' => \adminer\lang('Create database'),
-            // 'privileges' => \adminer\lang('Privileges'),
-            // 'host-sql-command' => \adminer\lang('SQL command'),
-            // 'host-export' => \adminer\lang('Export'),
-            // 'host-create-table' => \adminer\lang('Create table'),
+            'host-command' => \adminer\lang('SQL command'),
+            'host-import' => \adminer\lang('Import'),
+            'host-export' => \adminer\lang('Export'),
         ];
 
         $headers = [

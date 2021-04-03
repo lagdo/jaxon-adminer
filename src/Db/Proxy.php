@@ -45,6 +45,13 @@ class Proxy
     protected $tableProxy = null;
 
     /**
+     * The proxy to command features
+     *
+     * @var CommandProxy
+     */
+    protected $commandProxy = null;
+
+    /**
      * Get the proxy to server features
      *
      * @return ServerProxy
@@ -82,6 +89,16 @@ class Proxy
     protected function table()
     {
         return $this->tableProxy ?: ($this->tableProxy = new TableProxy());
+    }
+
+    /**
+     * Get the proxy to command features
+     *
+     * @return CommandProxy
+     */
+    protected function command()
+    {
+        return $this->commandProxy ?: ($this->commandProxy = new CommandProxy());
     }
 
     /**
@@ -454,5 +471,25 @@ class Proxy
     {
         $this->server()->connect($options, $database);
         return $this->table()->getTableTriggers($table);
+    }
+
+    /**
+     * Execute a query
+     *
+     * @param array  $options       The corresponding config options
+     * @param string $database      The database name
+     * @param string $schema        The database schema
+     * @param string $query         The query to be executed
+     * @param int    $limit         The max number of rows to return
+     * @param bool   $errorStops    Stop executing the requests in case of error
+     * @param bool   $onlyErrors    Return only errors
+     *
+     * @return array
+     */
+    public function execute(array $options, string $database, string $schema,
+        string $query, int $limit, bool $errorStops, bool $onlyErrors)
+    {
+        $this->server()->connect($options, $database);
+        return $this->command()->execute($query, $limit, $errorStops, $onlyErrors, $database, $schema);
     }
 }

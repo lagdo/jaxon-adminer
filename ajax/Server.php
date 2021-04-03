@@ -151,6 +151,12 @@ class Server extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-database')
             ->click($this->cl(Database::class)->rq()->add($server));
+        $this->jq('#adminer-main-action-host-command')
+            ->click($this->cl(Command::class)->rq()->showCommandForm($server));
+        $this->jq('#adminer-main-action-host-import')
+            ->click($this->cl(Command::class)->rq()->showImportForm($server));
+        $this->jq('#adminer-main-action-host-export')
+            ->click($this->cl(Command::class)->rq()->showExportForm($server));
 
         // Set onclick handlers on database names
         $database = \jq()->parent()->attr('data-name');
