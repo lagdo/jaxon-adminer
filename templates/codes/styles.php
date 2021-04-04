@@ -2,6 +2,15 @@
 #<?php echo $this->containerId ?> {
     margin: 20px 0 0 0;
 }
+#<?php echo $this->containerId ?> .row>[class*=col-] {
+    margin-bottom: 10px;
+}
+#<?php echo $this->containerId ?> .panel-heading {
+    padding: 10px 15px;
+    border-bottom: 1px solid transparent;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+}
 #<?php echo $this->containerId ?> .btn-select {
     margin-top: 0;
     margin-bottom: 0;
@@ -14,6 +23,9 @@
 }
 #<?php echo $this->userInfoId ?> .panel, #<?php echo $this->serverInfoId ?> .panel {
     margin-bottom: 0;
+}
+#<?php echo $this->dbActionsId ?>, #<?php echo $this->serverActionsId ?> {
+    margin-bottom: 10px;
 }
 .adminer-table-checkbox {
     width: 20px;
