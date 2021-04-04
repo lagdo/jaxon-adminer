@@ -18,8 +18,8 @@ Features
 - [x] Show detailed info about the connected database.
 - [x] Connect to PostgreSQL databases.
 - [x] Restrict access to server info and databases.
+- [x] Execute requests and display results.
 - [ ] Connect to other database types.
-- [ ] Execute requests and display results.
 - [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one.
 - [ ] Improve the Adminer code integration.
 - [ ] Add tests
