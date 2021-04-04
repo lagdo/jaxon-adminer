@@ -16,7 +16,7 @@ class DatabaseProxy
      */
     public function getDatabaseInfo()
     {
-        $actions = [
+        $sql_actions = [
             'database-command' => \adminer\lang('SQL command'),
             'database-import' => \adminer\lang('Import'),
             'database-export' => \adminer\lang('Export'),
@@ -55,7 +55,7 @@ class DatabaseProxy
         //     $tables[] = \adminer\h($table);
         // }
 
-        return \compact(/*'tables', */'actions', 'menu_actions');
+        return \compact(/*'tables', */'sql_actions', 'menu_actions');
     }
 
     /**
@@ -68,11 +68,8 @@ class DatabaseProxy
         global $adminer;
 
         $main_actions = [
-            // 'database' => \adminer\lang('Alter database'),
-            // 'c_scheme' => \adminer\lang('Create schema'),
-            // 'a_scheme' => \adminer\lang('Alter schema'),
-            // 'd_scheme' => \adminer\lang('Database schema'),
-            // 'privileges' => \adminer\lang('Privileges'),
+            'create-table' => \adminer\lang('Create table'),
+            'create-view' => \adminer\lang('Create view'),
         ];
 
         $headers = [

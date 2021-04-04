@@ -179,7 +179,7 @@ class UserProxy
     {
         global $connection;
 
-        $actions = [
+        $main_actions = [
             'add-user' => \adminer\lang('Create user'),
         ];
 
@@ -215,7 +215,7 @@ class UserProxy
             $detail['grants'] = \array_keys($grants);
         }
 
-        return \compact('headers', 'details', 'actions');
+        return \compact('headers', 'details', 'main_actions');
     }
 
     /**
@@ -241,7 +241,7 @@ class UserProxy
             $i++;
         }
 
-        $actions = [];
+        $main_actions = [];
 
         $user = [
             'host' => [
@@ -264,7 +264,7 @@ class UserProxy
 
         $details = $this->fetchUserPrivileges($grants);
 
-        return \compact('user', 'headers', 'details', 'actions');
+        return \compact('user', 'headers', 'details', 'main_actions');
     }
 
     /**
@@ -298,7 +298,7 @@ class UserProxy
             $i++;
         }
 
-        $actions = [];
+        $main_actions = [];
 
         $user = [
             'host' => [
@@ -321,6 +321,6 @@ class UserProxy
 
         $details = $this->fetchUserPrivileges($grants);
 
-        return \compact('user', 'headers', 'details', 'actions');
+        return \compact('user', 'headers', 'details', 'main_actions');
     }
 }

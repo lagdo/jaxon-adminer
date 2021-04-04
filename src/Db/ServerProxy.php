@@ -75,7 +75,7 @@ class ServerProxy
             "<b>" . \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>");
         $user = \adminer\lang('Logged as: %s.', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>");
 
-        $actions = [
+        $sql_actions = [
             'server-command' => \adminer\lang('SQL command'),
             'server-import' => \adminer\lang('Import'),
             'server-export' => \adminer\lang('Export'),
@@ -109,7 +109,7 @@ class ServerProxy
         // Get the database list
         $databases = $this->databases();
 
-        return \compact('server', 'user', 'databases', 'actions', 'menu_actions');
+        return \compact('server', 'user', 'databases', 'sql_actions', 'menu_actions');
     }
 
     /**
@@ -158,7 +158,7 @@ class ServerProxy
         $databases = $this->databases();
         $tables = \adminer\count_tables($databases);
 
-        $actions = [
+        $main_actions = [
             'add-database' => \adminer\lang('Create database'),
         ];
 
@@ -182,7 +182,7 @@ class ServerProxy
             ];
         }
 
-        return \compact('headers', 'details', 'actions');
+        return \compact('headers', 'details', 'main_actions');
     }
 
     /**
