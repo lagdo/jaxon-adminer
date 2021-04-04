@@ -9,7 +9,7 @@
         <div class="form-group">
             <label class="col-md-2 control-label">Limit rows: </label>
             <div class="col-md-2">
-                <input type="number" name="limit" class="form-control" value="0" />
+                <input type="number" name="limit" class="form-control" value="<?php echo $this->defaultLimit ?>" />
             </div>
             <div class="col-md-3">
                 <div class="checkbox">

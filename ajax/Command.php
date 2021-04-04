@@ -39,6 +39,7 @@ class Command extends AdminerCallable
             'btnId' => $btnId,
             'formId' => $formId,
             'queryId' => $queryId,
+            'defaultLimit' => 20,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
