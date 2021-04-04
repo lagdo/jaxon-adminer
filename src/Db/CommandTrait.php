@@ -27,6 +27,29 @@ trait CommandTrait
     }
 
     /**
+     * Prepare a query
+     *
+     * @param array  $options       The corresponding config options
+     * @param string $database      The database name
+     *
+     * @return array
+     */
+    public function prepareCommand(array $options, string $database = '')
+    {
+        $this->connect($options, $database);
+
+        $breadcrumbs = [$options['name']];
+        if(($database))
+        {
+            $breadcrumbs[] = $database;
+        }
+        $breadcrumbs[] = \adminer\lang('SQL command');
+        $this->setBreadcrumbs($breadcrumbs);
+
+        return [];
+    }
+
+    /**
      * Execute a query
      *
      * @param array  $options       The corresponding config options
@@ -39,10 +62,11 @@ trait CommandTrait
      *
      * @return array
      */
-    public function execute(array $options, string $database, string $schema,
+    public function executeCommand(array $options, string $database, string $schema,
         string $query, int $limit, bool $errorStops, bool $onlyErrors)
     {
         $this->connect($options, $database);
-        return $this->command()->execute($query, $limit, $errorStops, $onlyErrors, $database, $schema);
+        return $this->command()->executeCommand($query, $limit,
+            $errorStops, $onlyErrors, $database, $schema);
     }
 }

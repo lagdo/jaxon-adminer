@@ -15,11 +15,22 @@ class Command extends AdminerCallable
      * Display the SQL command form
      *
      * @param string $server      The database server
+     * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
      */
-    public function showCommandForm(string $server)
+    public function showCommandForm(string $server, string $database = '')
     {
+        $options = $this->package->getServerOptions($server);
+
+        $this->dbProxy->prepareCommand($options, $database);
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
+
+        // De-activate the sidebar menu items
+        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';
 
@@ -29,7 +40,7 @@ class Command extends AdminerCallable
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
-        $this->jq("#$btnId")->click($this->rq()->execute($server, \pm()->form($formId)));
+        $this->jq("#$btnId")->click($this->rq()->execute($server, $database, \pm()->form($formId)));
 
         return $this->response;
     }
@@ -38,11 +49,12 @@ class Command extends AdminerCallable
      * Execute an SQL query and display the results
      *
      * @param string $server      The database server
+     * @param string $database    The database name
      * @param array $formValues
      *
      * @return \Jaxon\Response\Response
      */
-    public function execute(string $server, array $formValues)
+    public function execute(string $server, string $database, array $formValues)
     {
         $query = \trim($formValues['query'] ?? '');
         $limit = \intval($formValues['limit'] ?? 0);
@@ -57,8 +69,8 @@ class Command extends AdminerCallable
 
         $options = $this->package->getServerOptions($server);
 
-        $queryResults = $this->dbProxy->execute($options,
-            '', '', $query, $limit, $errorStops, $onlyErrors);
+        $queryResults = $this->dbProxy->executeCommand($options,
+            $database, '', $query, $limit, $errorStops, $onlyErrors);
         // $this->logger()->debug(\json_encode($queryResults));
 
         $content = '';
@@ -75,13 +87,15 @@ class Command extends AdminerCallable
      * Display the file import form
      *
      * @param string $server      The database server
+     * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
      */
-    public function showImportForm(string $server)
+    public function showImportForm(string $server, string $database = '')
     {
         $content = $this->render('sql/import');
         $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->dialog->warning("This feature is not yet implemented.");
 
         return $this->response;
     }
@@ -90,13 +104,15 @@ class Command extends AdminerCallable
      * Display the export form
      *
      * @param string $server      The database server
+     * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
      */
-    public function showExportForm(string $server)
+    public function showExportForm(string $server, string $database = '')
     {
         $content = $this->render('sql/export');
         $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->dialog->warning("This feature is not yet implemented.");
 
         return $this->response;
     }

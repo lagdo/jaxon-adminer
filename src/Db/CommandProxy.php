@@ -166,8 +166,8 @@ class CommandProxy
      *
      * @return array
      */
-    public function execute(string $query, int $limit, bool $errorStops,
-        bool $onlyErrors, string $database = '', string $schema = '')
+    public function executeCommand(string $query, int $limit,
+        bool $errorStops, bool $onlyErrors, string $database, string $schema)
     {
         global $jush, $connection;
 

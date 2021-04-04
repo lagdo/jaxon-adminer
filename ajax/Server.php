@@ -69,6 +69,18 @@ class Server extends AdminerCallable
      */
     protected function showServer($server)
     {
+        $content = $this->render('menu/commands');
+        $this->response->html($this->package->getServerActionsId(), $content);
+        $this->response->html($this->package->getDbActionsId(), '');
+
+        // Set the click handlers
+        $this->jq('#adminer-menu-action-server-command')
+            ->click($this->cl(Command::class)->rq()->showCommandForm($server));
+        $this->jq('#adminer-menu-action-server-import')
+            ->click($this->cl(Command::class)->rq()->showImportForm($server));
+        $this->jq('#adminer-menu-action-server-export')
+            ->click($this->cl(Command::class)->rq()->showExportForm($server));
+
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
 
@@ -151,12 +163,6 @@ class Server extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-database')
             ->click($this->cl(Database::class)->rq()->add($server));
-        $this->jq('#adminer-main-action-host-command')
-            ->click($this->cl(Command::class)->rq()->showCommandForm($server));
-        $this->jq('#adminer-main-action-host-import')
-            ->click($this->cl(Command::class)->rq()->showImportForm($server));
-        $this->jq('#adminer-main-action-host-export')
-            ->click($this->cl(Command::class)->rq()->showExportForm($server));
 
         // Set onclick handlers on database names
         $database = \jq()->parent()->attr('data-name');

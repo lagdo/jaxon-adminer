@@ -60,7 +60,7 @@ class AdminerCallable extends CallableClass
             'breadcrumbs' => $this->dbProxy->getBreadcrumbs(),
         ]);
         $this->response->html($this->package->getBreadcrumbsId(), $content);
-        $this->response->html($this->package->getDbActionsId(), $this->render('main/actions'));
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
     }
 
     /**

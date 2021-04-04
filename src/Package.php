@@ -55,6 +55,16 @@ class Package extends JaxonPackage
      *
      * @return string
      */
+    public function getMainActionsId()
+    {
+        return 'adminer-main-actions';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
     public function getServerActionsId()
     {
         return 'adminer-server-actions';
@@ -154,6 +164,7 @@ class Package extends JaxonPackage
             'userInfoId' => $this->getUserInfoId(),
             'serverInfoId' => $this->getServerInfoId(),
             'breadcrumbsId' => $this->getBreadcrumbsId(),
+            'mainActionsId' => $this->getMainActionsId(),
             'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
             'dbMenuId' => $this->getDbMenuId(),
@@ -209,6 +220,7 @@ class Package extends JaxonPackage
             'userInfoId' => $this->getUserInfoId(),
             'serverInfoId' => $this->getServerInfoId(),
             'breadcrumbsId' => $this->getBreadcrumbsId(),
+            'mainActionsId' => $this->getMainActionsId(),
             'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
             'dbMenuId' => $this->getDbMenuId(),

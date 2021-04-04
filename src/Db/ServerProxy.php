@@ -75,6 +75,12 @@ class ServerProxy
             "<b>" . \adminer\h($connection->server_info) . "</b>", "<b>$connection->extension</b>");
         $user = \adminer\lang('Logged as: %s.', "<b>" . \adminer\h(\adminer\logged_user()) . "</b>");
 
+        $actions = [
+            'server-command' => \adminer\lang('SQL command'),
+            'server-import' => \adminer\lang('Import'),
+            'server-export' => \adminer\lang('Export'),
+        ];
+
         // Content from the connect_error() function in connect.inc.php
         $menu_actions = [
             'databases' => \adminer\lang('Databases'),
@@ -103,7 +109,7 @@ class ServerProxy
         // Get the database list
         $databases = $this->databases();
 
-        return \compact('server', 'user', 'databases', 'menu_actions');
+        return \compact('server', 'user', 'databases', 'actions', 'menu_actions');
     }
 
     /**
@@ -154,9 +160,6 @@ class ServerProxy
 
         $actions = [
             'add-database' => \adminer\lang('Create database'),
-            'host-command' => \adminer\lang('SQL command'),
-            'host-import' => \adminer\lang('Import'),
-            'host-export' => \adminer\lang('Export'),
         ];
 
         $headers = [

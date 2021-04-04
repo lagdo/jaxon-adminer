@@ -17,10 +17,9 @@ class DatabaseProxy
     public function getDatabaseInfo()
     {
         $actions = [
-            // 'db_sql_command' => \adminer\lang('SQL command'),
-            // 'db_import' => \adminer\lang('Import'),
-            // 'db_export' => \adminer\lang('Export'),
-            // 'db_create_table' => \adminer\lang('Create table'),
+            'database-command' => \adminer\lang('SQL command'),
+            'database-import' => \adminer\lang('Import'),
+            'database-export' => \adminer\lang('Export'),
         ];
 
         $menu_actions = [

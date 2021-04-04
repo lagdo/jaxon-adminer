@@ -115,9 +115,17 @@ class Database extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        // $content = $this->render('menu/actions');
-        // $this->response->html($this->package->getDbActionsId(), $content);
-        // $this->response->clear($this->package->getServerActionsId());
+        $content = $this->render('menu/commands');
+        $this->response->html($this->package->getServerActionsId(), '');
+        $this->response->html($this->package->getDbActionsId(), $content);
+
+        // Set the click handlers
+        $this->jq('#adminer-menu-action-database-command')
+            ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database));
+        $this->jq('#adminer-menu-action-database-import')
+            ->click($this->cl(Command::class)->rq()->showImportForm($server, $database));
+        $this->jq('#adminer-menu-action-database-export')
+            ->click($this->cl(Command::class)->rq()->showExportForm($server, $database));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);

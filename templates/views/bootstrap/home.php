@@ -16,12 +16,12 @@
                     </div>
                 </div>
             </div>
-            <!--<div class="col-md-12" id="<?php echo $this->serverActionsId ?>">
-            </div>-->
+            <div class="col-md-12" id="<?php echo $this->serverActionsId ?>">
+            </div>
             <div class="col-md-12" id="<?php echo $this->dbListId ?>">
             </div>
-            <!--<div class="col-md-12" id="<?php echo $this->dbActionsId ?>">
-            </div>-->
+            <div class="col-md-12" id="<?php echo $this->dbActionsId ?>">
+            </div>
             <div class="col-md-12" id="<?php echo $this->dbMenuId ?>">
             </div>
         </div>
@@ -36,7 +36,7 @@
             <div class="col-md-12">
                 <span id="<?php echo $this->breadcrumbsId ?>">
                 </span>
-                <span id="<?php echo $this->dbActionsId ?>">
+                <span id="<?php echo $this->mainActionsId ?>">
                 </span>
             </div>
         </row>
