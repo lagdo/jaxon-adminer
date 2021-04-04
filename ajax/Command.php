@@ -33,14 +33,18 @@ class Command extends AdminerCallable
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';
+        $queryId = 'adminer-main-command-query';
 
         $content = $this->render('sql/command', [
             'btnId' => $btnId,
             'formId' => $formId,
+            'queryId' => $queryId,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
-        $this->jq("#$btnId")->click($this->rq()->execute($server, $database, \pm()->form($formId)));
+        $this->jq("#$btnId")
+            ->click($this->rq()->execute($server, $database, \pm()->form($formId))
+                ->when(\pm()->input($queryId)));
 
         return $this->response;
     }
@@ -93,8 +97,11 @@ class Command extends AdminerCallable
      */
     public function showImportForm(string $server, string $database = '')
     {
-        $content = $this->render('sql/import');
-        $this->response->html($this->package->getDbContentId(), $content);
+        // De-activate the sidebar menu items
+        // $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+
+        // $content = $this->render('sql/import');
+        // $this->response->html($this->package->getDbContentId(), $content);
         $this->response->dialog->warning("This feature is not yet implemented.");
 
         return $this->response;
@@ -110,8 +117,11 @@ class Command extends AdminerCallable
      */
     public function showExportForm(string $server, string $database = '')
     {
-        $content = $this->render('sql/export');
-        $this->response->html($this->package->getDbContentId(), $content);
+        // De-activate the sidebar menu items
+        // $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+
+        // $content = $this->render('sql/export');
+        // $this->response->html($this->package->getDbContentId(), $content);
         $this->response->dialog->warning("This feature is not yet implemented.");
 
         return $this->response;

@@ -3,7 +3,8 @@
 <div class="col-md-12">
     <form class="form-horizontal" role="form" id="<?php echo $this->formId ?>">
         <div class="form-group">
-            <textarea name="query" class="form-control" rows="10" spellcheck="false" wrap="off"></textarea>
+            <textarea name="query" class="form-control" id="<?php echo
+                $this->queryId ?>" rows="10" spellcheck="false" wrap="off"></textarea>
         </div>
         <div class="form-group">
             <label class="col-md-2 control-label">Limit rows: </label>

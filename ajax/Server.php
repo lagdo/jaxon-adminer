@@ -42,7 +42,8 @@ class Server extends AdminerCallable
         // Set onclick handlers on database dropdown select
         $database = \pm()->select('adminer-dbname-select');
         $this->jq('#adminer-dbname-select-btn')
-            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
+            ->click($this->cl(Database::class)->rq()
+                ->select($server, $database)->when($database));
 
         if($this->checkServerAccess($server, false))
         {
