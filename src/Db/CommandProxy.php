@@ -10,18 +10,50 @@ use Exception;
 class CommandProxy
 {
     /**
+     * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
+     * //! PDO - silent error
+     *
+     * @var \adminer\Min_DB
+     */
+    protected $connection = null;
+
+    /**
+     * The constructor
+     *
+     * @param string $database      The database name
+     * @param string $schema        The database schema
+     */
+    public function __construct(string $database = '', string $schema = '')
+    {
+        if($database != "")
+        {
+            // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
+            //! PDO - silent error
+            $connection = \adminer\connect();
+            if(\is_object($connection))
+            {
+                $connection->select_db($database);
+                if($schema != "")
+                {
+                    \adminer\set_schema($schema, $connection);
+                }
+                $this->connection = $connection;
+            }
+        }
+    }
+
+    /**
      * Print select result
      * From editing.inc.php
      *
      * @param string $query         The executed query
-     * @param Min_Result
-     * @param Min_DB connection to examine indexes
+     * @param \adminer\Min_Result
      * @param array
      * @param int
      *
      * @return array
     */
-    protected function select(string $query, $result, $connection2 = null, $orgtables = [], $limit = 0)
+    protected function select(string $query, $result, $orgtables = [], $limit = 0)
     {
         global $jush;
 
@@ -111,7 +143,7 @@ class CommandProxy
                 {
                     // find primary key in each table
                     $indexes[$orgtable] = [];
-                    foreach(\adminer\indexes($orgtable, $connection2) as $index)
+                    foreach(\adminer\indexes($orgtable, $this->connection) as $index)
                     {
                         if($index["type"] == "PRIMARY")
                         {
@@ -166,8 +198,7 @@ class CommandProxy
      *
      * @return array
      */
-    public function executeCommand(string $query, int $limit,
-        bool $errorStops, bool $onlyErrors, string $database, string $schema)
+    public function executeCommands(string $query, int $limit, bool $errorStops, bool $onlyErrors)
     {
         global $jush, $connection;
 
@@ -194,16 +225,6 @@ class CommandProxy
         $empty = true;
         $fp = null; // no file in this function
 
-        // connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS()) //! PDO - silent error
-        $connection2 = \adminer\connect();
-        if(\is_object($connection2) && $database != "")
-        {
-			$connection2->select_db($database);
-            if($schema != "")
-            {
-				\adminer\set_schema($schema, $connection2);
-			}
-		}
 		$commands = 0;
 		$errors = [];
         $messages = [];
@@ -295,9 +316,9 @@ class CommandProxy
                 // }
                 $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
-                if($connection->multi_query($q) && \is_object($connection2) && \preg_match("~^$space*+USE\\b~i", $q))
+                if($connection->multi_query($q) && \is_object($this->connection) && \preg_match("~^$space*+USE\\b~i", $q))
                 {
-                    $connection2->query($q);
+                    $this->connection->query($q);
                 }
 
                 do
@@ -334,8 +355,8 @@ class CommandProxy
                         // $explain_id = "explain-$commands";
                         if(\is_object($result))
                         {
-                            $results[] = $this->select($q, $result, $connection2, [], $limit);
-                            // $orgtables = $this->select($result, $connection2, [], $limit);
+                            $results[] = $this->select($q, $result, [], $limit);
+                            // $orgtables = $this->select($result, [], $limit);
                             // if(!$onlyErrors)
                             // {
                             //     echo "<form action='' method='post'>\n";
@@ -343,8 +364,8 @@ class CommandProxy
                             //     echo "<p>" . ($num_rows ? ($limit && $num_rows > $limit ?
                             //         \adminer\lang('%d / ', $limit) : "") . \adminer\lang('%d row(s)', $num_rows) : "");
                             //     echo $time;
-                            //     if($connection2 && \preg_match("~^($space|\\()*+SELECT\\b~i", $q) &&
-                            //         ($explain = \adminer\explain($connection2, $q))) {
+                            //     if($this->connection && \preg_match("~^($space|\\()*+SELECT\\b~i", $q) &&
+                            //         ($explain = \adminer\explain($this->connection, $q))) {
                             //         echo ", <a href='#$explain_id'>Explain</a>" .
                             //             \adminer\script("qsl('a').onclick = partial(toggle, '$explain_id');", "");
                             //     }
@@ -379,7 +400,7 @@ class CommandProxy
                         // if($explain)
                         // {
                         //     echo "<div id='$explain_id' class='hidden'>\n";
-                        //     $this->select($explain, $connection2, $orgtables);
+                        //     $this->select($explain, $orgtables);
                         //     echo "</div>\n";
                         // }
                     }

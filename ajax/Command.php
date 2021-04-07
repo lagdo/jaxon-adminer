@@ -80,8 +80,8 @@ class Command extends AdminerCallable
 
         $options = $this->package->getServerOptions($server);
 
-        $queryResults = $this->dbProxy->executeCommand($options,
-            $database, '', $query, $limit, $errorStops, $onlyErrors);
+        $queryResults = $this->dbProxy->executeCommands($options,
+            $query, $limit, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 
         $content = '';
@@ -90,46 +90,6 @@ class Command extends AdminerCallable
             $content .= $this->render('sql/results', $results);
         }
         $this->response->html('adminer-command-results', $content);
-
-        return $this->response;
-    }
-
-    /**
-     * Display the file import form
-     *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     *
-     * @return \Jaxon\Response\Response
-     */
-    public function showImportForm(string $server, string $database = '')
-    {
-        // De-activate the sidebar menu items
-        // $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-
-        // $content = $this->render('sql/import');
-        // $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->dialog->warning("This feature is not yet implemented.");
-
-        return $this->response;
-    }
-
-    /**
-     * Display the export form
-     *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     *
-     * @return \Jaxon\Response\Response
-     */
-    public function showExportForm(string $server, string $database = '')
-    {
-        // De-activate the sidebar menu items
-        // $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-
-        // $content = $this->render('sql/export');
-        // $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->dialog->warning("This feature is not yet implemented.");
 
         return $this->response;
     }
