@@ -25,6 +25,10 @@
                         echo $this->labels['only_errors'] ?></label>
                 </div>
             </div>
+            <label class="col-md-2 control-label"><?php echo $this->labels['limit_rows'] ?>: </label>
+            <div class="col-md-2">
+                <input type="number" name="limit" class="form-control" value="<?php echo $this->defaultLimit ?>" />
+            </div>
             <div class="col-md-2">
                 <button class="btn btn-primary btn-block" type="button" id="<?php
                     echo $this->btnId ?>" href="javascript:void(0)"><?php
