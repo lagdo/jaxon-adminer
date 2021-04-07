@@ -78,9 +78,9 @@ class Server extends AdminerCallable
         $this->jq('#adminer-menu-action-server-command')
             ->click($this->cl(Command::class)->rq()->showCommandForm($server));
         $this->jq('#adminer-menu-action-server-import')
-            ->click($this->cl(Command::class)->rq()->showImportForm($server));
+            ->click($this->cl(Import::class)->rq()->showImportForm($server));
         $this->jq('#adminer-menu-action-server-export')
-            ->click($this->cl(Command::class)->rq()->showExportForm($server));
+            ->click($this->cl(Export::class)->rq()->showExportForm($server));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
