@@ -9,7 +9,7 @@ use Exception;
 /**
  * Adminer Ajax client
  */
-class Command extends AdminerCallable
+class Export extends AdminerCallable
 {
     /**
      * Display the SQL command form
@@ -19,14 +19,14 @@ class Command extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showCommandForm(string $server, string $database = '')
+    public function showExportForm(string $server, string $database = '')
     {
         $options = $this->package->getServerOptions($server);
 
-        $commandOptions = $this->dbProxy->prepareCommand($options, $database);
+        $exportOptions = $this->dbProxy->getExportOptions($options, $database);
 
         // Make data available to views
-        foreach($commandOptions as $name => $value)
+        foreach($exportOptions as $name => $value)
         {
             $this->view()->share($name, $value);
         }
@@ -41,13 +41,16 @@ class Command extends AdminerCallable
         $formId = 'adminer-main-command-form';
         $queryId = 'adminer-main-command-query';
 
-        $content = $this->render('sql/command', [
+        $content = $this->render('sql/export', [
             'btnId' => $btnId,
             'formId' => $formId,
             'queryId' => $queryId,
             'defaultLimit' => 20,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('adminer-export-database')");
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('adminer-export-table-name')");
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('adminer-export-table-data')");
 
         $this->jq("#$btnId")
             ->click($this->rq()->execute($server, $database, \pm()->form($formId))
@@ -80,7 +83,7 @@ class Command extends AdminerCallable
 
         $options = $this->package->getServerOptions($server);
 
-        $queryResults = $this->dbProxy->executeCommand($options,
+        $queryResults = $this->dbProxy->executeExport($options,
             $database, '', $query, $limit, $errorStops, $onlyErrors);
         // $this->logger()->debug(\json_encode($queryResults));
 
@@ -90,46 +93,6 @@ class Command extends AdminerCallable
             $content .= $this->render('sql/results', $results);
         }
         $this->response->html('adminer-command-results', $content);
-
-        return $this->response;
-    }
-
-    /**
-     * Display the file import form
-     *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     *
-     * @return \Jaxon\Response\Response
-     */
-    public function showImportForm(string $server, string $database = '')
-    {
-        // De-activate the sidebar menu items
-        // $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-
-        // $content = $this->render('sql/import');
-        // $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->dialog->warning("This feature is not yet implemented.");
-
-        return $this->response;
-    }
-
-    /**
-     * Display the export form
-     *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     *
-     * @return \Jaxon\Response\Response
-     */
-    public function showExportForm(string $server, string $database = '')
-    {
-        // De-activate the sidebar menu items
-        // $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-
-        // $content = $this->render('sql/export');
-        // $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->dialog->warning("This feature is not yet implemented.");
 
         return $this->response;
     }

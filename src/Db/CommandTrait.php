@@ -46,7 +46,14 @@ trait CommandTrait
         $breadcrumbs[] = \adminer\lang('SQL command');
         $this->setBreadcrumbs($breadcrumbs);
 
-        return [];
+        $labels = [
+            'execute' => \adminer\lang('Execute'),
+            'limit_rows' => \adminer\lang('Limit rows'),
+            'error_stops' => \adminer\lang('Stop on error'),
+            'only_errors' => \adminer\lang('Show only errors'),
+        ];
+
+        return ['labels' => $labels];
     }
 
     /**

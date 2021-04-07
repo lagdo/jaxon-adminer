@@ -111,6 +111,27 @@ class Package extends JaxonPackage
     }
 
     /**
+     * Get all the ids
+     *
+     * @return array
+     */
+    public function getIds()
+    {
+        return [
+            'containerId' => $this->getContainerId(),
+            'userInfoId' => $this->getUserInfoId(),
+            'serverInfoId' => $this->getServerInfoId(),
+            'breadcrumbsId' => $this->getBreadcrumbsId(),
+            'mainActionsId' => $this->getMainActionsId(),
+            'serverActionsId' => $this->getServerActionsId(),
+            'dbListId' => $this->getDbListId(),
+            'dbMenuId' => $this->getDbMenuId(),
+            'dbActionsId' => $this->getDbActionsId(),
+            'dbContentId' => $this->getDbContentId(),
+        ];
+    }
+
+    /**
      * Get the path to the config file
      *
      * @return string
@@ -159,18 +180,7 @@ class Package extends JaxonPackage
      */
     public function getCss()
     {
-        return $this->view()->render('adminer::codes::styles', [
-            'containerId' => $this->getContainerId(),
-            'userInfoId' => $this->getUserInfoId(),
-            'serverInfoId' => $this->getServerInfoId(),
-            'breadcrumbsId' => $this->getBreadcrumbsId(),
-            'mainActionsId' => $this->getMainActionsId(),
-            'serverActionsId' => $this->getServerActionsId(),
-            'dbListId' => $this->getDbListId(),
-            'dbMenuId' => $this->getDbMenuId(),
-            'dbActionsId' => $this->getDbActionsId(),
-            'dbContentId' => $this->getDbContentId(),
-        ]);
+        return $this->view()->render('adminer::codes::styles', $this->getIds());
     }
 
     /**
@@ -180,7 +190,7 @@ class Package extends JaxonPackage
      */
     public function getScript()
     {
-        return $this->view()->render('adminer::codes::script');
+        return $this->view()->render('adminer::codes::script', $this->getIds());
     }
 
     /**
@@ -212,20 +222,9 @@ class Package extends JaxonPackage
 
         $connect = \jaxon()->request(Server::class)->connect(\pm()->select('adminer-dbhost-select'));
 
-        return $this->view()->render('adminer::views::home', [
-            'connect' => $connect,
-            'servers' => $servers,
-            'default' => $this->getConfig()->getOption('default', ''),
-            'containerId' => $this->getContainerId(),
-            'userInfoId' => $this->getUserInfoId(),
-            'serverInfoId' => $this->getServerInfoId(),
-            'breadcrumbsId' => $this->getBreadcrumbsId(),
-            'mainActionsId' => $this->getMainActionsId(),
-            'serverActionsId' => $this->getServerActionsId(),
-            'dbListId' => $this->getDbListId(),
-            'dbMenuId' => $this->getDbMenuId(),
-            'dbActionsId' => $this->getDbActionsId(),
-            'dbContentId' => $this->getDbContentId(),
-        ]);
+        return $this->view()->render('adminer::views::home', $this->getIds())
+            ->with('connect', $connect)
+            ->with('servers', $servers)
+            ->with('default', $this->getConfig()->getOption('default', ''));
     }
 }

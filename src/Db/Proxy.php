@@ -14,6 +14,8 @@ class Proxy
     use DatabaseTrait;
     use TableTrait;
     use CommandTrait;
+    use ExportTrait;
+    use ImportTrait;
 
     /**
      * The breadcrumbs items

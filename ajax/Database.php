@@ -123,9 +123,9 @@ class Database extends AdminerCallable
         $this->jq('#adminer-menu-action-database-command')
             ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database));
         $this->jq('#adminer-menu-action-database-import')
-            ->click($this->cl(Command::class)->rq()->showImportForm($server, $database));
+            ->click($this->cl(Import::class)->rq()->showImportForm($server, $database));
         $this->jq('#adminer-menu-action-database-export')
-            ->click($this->cl(Command::class)->rq()->showExportForm($server, $database));
+            ->click($this->cl(Export::class)->rq()->showExportForm($server, $database));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
