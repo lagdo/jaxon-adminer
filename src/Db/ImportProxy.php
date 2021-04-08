@@ -7,7 +7,7 @@ use Exception;
 /**
  * Proxy to calls to the Adminer functions
  */
-class ImportProxy
+class ImportProxy extends CommandProxy
 {
     /**
      * Get data for import
@@ -53,5 +53,62 @@ class ImportProxy
         ];
 
         return \compact('contents', 'labels');
+    }
+
+    /** Get file contents from $_FILES
+     *  From the get_file() function in functions.inc.php
+     *
+     * @param array $files
+     * @param bool $decompress
+     *
+     * @return mixed int for error, string otherwise
+     */
+    protected function readFiles(array $files, $decompress = false)
+    {
+        $return = '';
+        foreach($files as $name)
+        {
+            $compressed = \preg_match('~\.gz$~', $name);
+            $content = \file_get_contents($decompress && $compressed
+                ? "compress.zlib://$name"
+                : $name
+            ); //! may not be reachable because of open_basedir
+            if($decompress && $compressed)
+            {
+                $start = \substr($content, 0, 3);
+                if(\function_exists("iconv") && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs))
+                {
+                    // not ternary operator to save memory
+                    $content = \iconv("utf-16", "utf-8", $content);
+                }
+                elseif($start == "\xEF\xBB\xBF")
+                {
+                    // UTF-8 BOM
+                    $content = \substr($content, 3);
+                }
+                $return .= $content . "\n\n";
+            }
+            else
+            {
+                $return .= $content;
+            }
+        }
+        //! support SQL files not ending with semicolon
+        return $return;
+    }
+
+    /**
+     * Run queries from uploaded files
+     *
+     * @param array  $files         The uploaded files
+     * @param bool   $errorStops    Stop executing the requests in case of error
+     * @param bool   $onlyErrors    Return only errors
+     *
+     * @return array
+     */
+    public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors)
+    {
+        $query = $this->readFiles($files);
+        return $this->executeCommands($query, 0, $errorStops, $onlyErrors);
     }
 }

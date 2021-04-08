@@ -19,11 +19,14 @@ trait ImportTrait
     /**
      * Get the proxy
      *
+     * @param string $database      The database name
+     * @param string $schema        The database schema
+     *
      * @return ImportProxy
      */
-    protected function import()
+    protected function import(string $database = '', string $schema = '')
     {
-        return $this->importProxy ?: ($this->importProxy = new ImportProxy());
+        return $this->importProxy ?: ($this->importProxy = new ImportProxy($database, $schema));
     }
 
     /**
@@ -47,5 +50,25 @@ trait ImportTrait
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->import()->getImportOptions($database);
+    }
+
+    /**
+     * Run queries from uploaded files
+     *
+     * @param array  $options       The corresponding config options
+     * @param array  $files         The uploaded files
+     * @param bool   $errorStops    Stop executing the requests in case of error
+     * @param bool   $onlyErrors    Return only errors
+     * @param string $database      The database name
+     * @param string $schema        The database schema
+     *
+     * @return array
+     */
+    public function executeSqlFiles(array $options, array $files,
+        bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
+    {
+        $this->connect($options, $database);
+        return $this->import($database, $schema)
+            ->executeSqlFiles($files, $errorStops, $onlyErrors);
     }
 }

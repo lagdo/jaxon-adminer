@@ -5,6 +5,11 @@ return [
         __DIR__ . '/../ajax' => [
             'namespace' => 'Lagdo\\Adminer\\Ajax',
             'autoload' => false,
+            \Lagdo\Adminer\Ajax\Import::class => [
+                'executeSqlFiles' => [
+                    'upload' => "'adminer-import-sql-files-input'",
+                ]
+            ],
         ],
     ],
     'views' => [
