@@ -581,6 +581,7 @@ function set_utf8mb4($create) {
 	static $set = false;
 	if (!$set && preg_match('~\butf8mb4~i', $create)) { // possible false positive
 		$set = true;
-		echo "SET NAMES " . charset($connection) . ";\n\n";
+		return "SET NAMES " . charset($connection) . ";\n";
 	}
+	return '';
 }

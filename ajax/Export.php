@@ -35,24 +35,29 @@ class Export extends AdminerCallable
         // De-activate the sidebar menu items
         $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
 
-        $btnId = 'adminer-main-command-execute';
-        $formId = 'adminer-main-command-form';
-        $queryId = 'adminer-main-command-query';
+        $btnId = 'adminer-main-export-submit';
+        $formId = 'adminer-main-export-form';
+        $databaseNameId = 'adminer-export-database-name';
+        $databaseDataId = 'adminer-export-database-data';
+        $tableNameId = 'adminer-export-table-name';
+        $tableDataId = 'adminer-export-table-data';
 
         $content = $this->render('sql/export', [
             'btnId' => $btnId,
             'formId' => $formId,
-            'queryId' => $queryId,
-            'defaultLimit' => 20,
+            'databaseNameId' => $databaseNameId,
+            'databaseDataId' => $databaseDataId,
+            'tableNameId' => $tableNameId,
+            'tableDataId' => $tableDataId,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('adminer-export-database')");
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('adminer-export-table-name')");
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('adminer-export-table-data')");
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('$databaseNameId')");
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('$databaseDataId')");
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableNameId')");
+        $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableDataId')");
 
         $this->jq("#$btnId")
-            ->click($this->rq()->execute($server, $database, \pm()->form($formId))
-                ->when(\pm()->input($queryId)));
+            ->click($this->rq()->export($server, $database, \pm()->form($formId)));
 
         return $this->response;
     }
@@ -66,30 +71,32 @@ class Export extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function execute(string $server, string $database, array $formValues)
+    public function export(string $server, string $database, array $formValues)
     {
-        $query = \trim($formValues['query'] ?? '');
-        $limit = \intval($formValues['limit'] ?? 0);
-        $errorStops = $formValues['error_stops'] ?? false;
-        $onlyErrors = $formValues['only_errors'] ?? false;
+        $databases = \array_key_exists('database_names', $formValues) ?
+            $formValues['database_names'] : [$database];
+        $tables = [];
 
-        if(!$query)
+        $formValues['routines'] = \array_key_exists('routines', $formValues);
+        $formValues['events'] = \array_key_exists('events', $formValues);
+        $formValues['auto_increment'] = \array_key_exists('auto_increment', $formValues);
+        $formValues['triggers'] = \array_key_exists('triggers', $formValues);
+
+        $results = $this->dbProxy->exportDatabases($server, $databases, $tables, $formValues);
+        // $this->logger()->debug('Form values', $formValues);
+
+        $content = $this->render('sql/dump.sql', $results);
+        // Dump file
+        $name = '/' . \uniqid() . '.txt';
+        $path = \rtrim(\jaxon()->getOption('adminer.export.dir'), '/') . $name;
+        if(!@\file_put_contents($path, $content))
         {
-            $this->response->dialog->error('The query string is empty!', 'Error');
+            $this->response->dialog->error('Unable to write dump to file ' . $path, 'Error');
             return $this->response;
         }
 
-        $queryResults = $this->dbProxy->executeExport($server,
-            $database, '', $query, $limit, $errorStops, $onlyErrors);
-        // $this->logger()->debug(\json_encode($queryResults));
-
-        $content = '';
-        foreach($queryResults['results'] as $results)
-        {
-            $content .= $this->render('sql/results', $results);
-        }
-        $this->response->html('adminer-command-results', $content);
-
+        $link = \rtrim(\jaxon()->getOption('adminer.export.url'), '/') . $name;
+        $this->response->script("window.open('$link', '_blank').focus()");
         return $this->response;
     }
 }
