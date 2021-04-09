@@ -29,14 +29,14 @@ trait ExportTrait
     /**
      * Get data for export
      *
-     * @param array  $options       The corresponding config options
+     * @param string $server        The selected server
      * @param string $database      The database name
      *
      * @return array
      */
-    public function getExportOptions(array $options, string $database = '')
+    public function getExportOptions(string $server, string $database = '')
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $breadcrumbs = [$options['name']];
         if(($database))

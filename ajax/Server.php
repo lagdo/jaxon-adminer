@@ -21,9 +21,7 @@ class Server extends AdminerCallable
      */
     public function connect($server)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $serverInfo = $this->dbProxy->getServerInfo($options);
+        $serverInfo = $this->dbProxy->getServerInfo($server);
         // Make server info available to views
         foreach($serverInfo as $name => $value)
         {
@@ -118,9 +116,7 @@ class Server extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $databasesInfo = $this->dbProxy->getDatabases($options);
+        $databasesInfo = $this->dbProxy->getDatabases($server);
 
         $dbNameClass = 'adminer-database-name';
         $dbDropClass = 'adminer-database-drop';
@@ -198,9 +194,7 @@ class Server extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $privilegesInfo = $this->dbProxy->getPrivileges($options);
+        $privilegesInfo = $this->dbProxy->getPrivileges($server);
 
         $editClass = 'adminer-privilege-name';
         $optionClass = 'jaxon-adminer-grant';
@@ -268,9 +262,7 @@ class Server extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $processesInfo = $this->dbProxy->getProcesses($options);
+        $processesInfo = $this->dbProxy->getProcesses($server);
         // Make processes info available to views
         foreach($processesInfo as $name => $value)
         {
@@ -305,9 +297,7 @@ class Server extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $variablesInfo = $this->dbProxy->getVariables($options);
+        $variablesInfo = $this->dbProxy->getVariables($server);
         // Make variables info available to views
         foreach($variablesInfo as $name => $value)
         {
@@ -342,9 +332,7 @@ class Server extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $statusInfo = $this->dbProxy->getStatus($options);
+        $statusInfo = $this->dbProxy->getStatus($server);
         // Make status info available to views
         foreach($statusInfo as $name => $value)
         {

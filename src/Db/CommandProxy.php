@@ -223,13 +223,11 @@ class CommandProxy
 		$delimiter = ";";
 		$offset = 0;
         $empty = true;
-        $fp = null; // no file in this function
 
 		$commands = 0;
 		$errors = [];
         $messages = [];
         $timestamps = [];
-        $details = [];
         $parse = '[\'"' .
             ($jush == "sql" ? '`#' :
             ($jush == "sqlite" ? '`[' :
@@ -254,11 +252,6 @@ class CommandProxy
             \preg_match('(' . \preg_quote($delimiter) . "\\s*|$parse)",
                 $query, $match, PREG_OFFSET_CAPTURE, $offset);
             list($found, $pos) = $match[0];
-            if(!$found && $fp && !\feof($fp))
-            {
-                $query .= \fread($fp, 1e5);
-                continue;
-            }
 
             if(!$found && \rtrim($query) == "")
             {
@@ -273,17 +266,10 @@ class CommandProxy
                     '|$)s', $query, $match, PREG_OFFSET_CAPTURE, $offset))
                 { //! respect sql_mode NO_BACKSLASH_ESCAPES
                     $s = $match[0][0];
-                    if(!$s && $fp && !\feof($fp))
+                    $offset = $match[0][1] + \strlen($s);
+                    if($s[0] != "\\")
                     {
-                        $query .= \fread($fp, 1e5);
-                    }
-                    else
-                    {
-                        $offset = $match[0][1] + \strlen($s);
-                        if($s[0] != "\\")
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
                 continue;

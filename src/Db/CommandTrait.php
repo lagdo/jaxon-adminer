@@ -32,14 +32,14 @@ trait CommandTrait
     /**
      * Prepare a query
      *
-     * @param array  $options       The corresponding config options
+     * @param string $server        The selected server
      * @param string $database      The database name
      *
      * @return array
      */
-    public function prepareCommand(array $options, string $database = '')
+    public function prepareCommand(string $server, string $database = '')
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $breadcrumbs = [$options['name']];
         if(($database))
@@ -62,7 +62,7 @@ trait CommandTrait
     /**
      * Execute a query
      *
-     * @param array  $options       The corresponding config options
+     * @param string $server        The selected server
      * @param string $query         The query to be executed
      * @param int    $limit         The max number of rows to return
      * @param bool   $errorStops    Stop executing the requests in case of error
@@ -72,10 +72,10 @@ trait CommandTrait
      *
      * @return array
      */
-    public function executeCommands(array $options, string $query, int $limit,
+    public function executeCommands(string $server, string $query, int $limit,
         bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
     {
-        $this->connect($options, $database);
+        $this->connect($server, $database);
         return $this->command($database, $schema)
             ->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }

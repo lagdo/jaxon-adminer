@@ -29,15 +29,15 @@ trait TableTrait
     /**
      * Get details about a table or a view
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableInfo(array $options, string $database, string $table)
+    public function getTableInfo(string $server, string $database, string $table)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database, $table]);
 
@@ -47,60 +47,60 @@ trait TableTrait
     /**
      * Get details about a table or a view
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableFields(array $options, string $database, string $table)
+    public function getTableFields(string $server, string $database, string $table)
     {
-        $this->connect($options, $database);
+        $this->connect($server, $database);
         return $this->table()->getTableFields($table);
     }
 
     /**
      * Get the indexes of a table
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableIndexes(array $options, string $database, string $table)
+    public function getTableIndexes(string $server, string $database, string $table)
     {
-        $this->connect($options, $database);
+        $this->connect($server, $database);
         return $this->table()->getTableIndexes($table);
     }
 
     /**
      * Get the foreign keys of a table
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableForeignKeys(array $options, string $database, string $table)
+    public function getTableForeignKeys(string $server, string $database, string $table)
     {
-        $this->connect($options, $database);
+        $this->connect($server, $database);
         return $this->table()->getTableForeignKeys($table);
     }
 
     /**
      * Get the triggers of a table
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableTriggers(array $options, string $database, string $table)
+    public function getTableTriggers(string $server, string $database, string $table)
     {
-        $this->connect($options, $database);
+        $this->connect($server, $database);
         return $this->table()->getTableTriggers($table);
     }
 }

@@ -21,9 +21,7 @@ class Import extends AdminerCallable
      */
     public function showImportForm(string $server, string $database = '')
     {
-        $options = $this->package->getServerOptions($server);
-
-        $importOptions = $this->dbProxy->getImportOptions($options, $database);
+        $importOptions = $this->dbProxy->getImportOptions($server, $database);
 
         // Make data available to views
         foreach($importOptions as $name => $value)
@@ -91,9 +89,7 @@ class Import extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $queryResults = $this->dbProxy->executeSqlFiles($options,
+        $queryResults = $this->dbProxy->executeSqlFiles($server,
             $files, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 

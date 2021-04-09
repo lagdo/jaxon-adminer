@@ -42,11 +42,7 @@ class Table extends AdminerCallable
      */
     public function showTable($server, $database, $table)
     {
-        // $this->response->dialog->info("server $server, db $database, table $table", "Info");
-
-        $options = $this->package->getServerOptions($server);
-
-        $tableInfo = $this->dbProxy->getTableInfo($options, $database, $table);
+        $tableInfo = $this->dbProxy->getTableInfo($server, $database, $table);
         // Make table info available to views
         foreach($tableInfo as $name => $value)
         {
@@ -60,25 +56,25 @@ class Table extends AdminerCallable
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbProxy->getTableFields($options, $database, $table);
+        $fieldsInfo = $this->dbProxy->getTableFields($server, $database, $table);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->dbProxy->getTableIndexes($options, $database, $table);
+        $indexesInfo = $this->dbProxy->getTableIndexes($server, $database, $table);
         if(\is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->dbProxy->getTableForeignKeys($options, $database, $table);
+        $foreignKeysInfo = $this->dbProxy->getTableForeignKeys($server, $database, $table);
         if(\is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->dbProxy->getTableTriggers($options, $database, $table);
+        $triggersInfo = $this->dbProxy->getTableTriggers($server, $database, $table);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');

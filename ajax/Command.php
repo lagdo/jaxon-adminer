@@ -21,9 +21,7 @@ class Command extends AdminerCallable
      */
     public function showCommandForm(string $server, string $database = '')
     {
-        $options = $this->package->getServerOptions($server);
-
-        $commandOptions = $this->dbProxy->prepareCommand($options, $database);
+        $commandOptions = $this->dbProxy->prepareCommand($server, $database);
 
         // Make data available to views
         foreach($commandOptions as $name => $value)
@@ -78,9 +76,7 @@ class Command extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $queryResults = $this->dbProxy->executeCommands($options,
+        $queryResults = $this->dbProxy->executeCommands($server,
             $query, $limit, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 

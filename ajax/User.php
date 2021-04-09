@@ -20,9 +20,7 @@ class User extends AdminerCallable
      */
     public function add(string $server)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $userInfo = $this->dbProxy->newUserPrivileges($options);
+        $userInfo = $this->dbProxy->newUserPrivileges($server);
 
         // Make user info available to views
         foreach($userInfo as $name => $value)
@@ -83,9 +81,7 @@ class User extends AdminerCallable
      */
     public function edit(string $server, string $username, string $hostname, string $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $userInfo = $this->dbProxy->getUserPrivileges($options, $username, $hostname, $database);
+        $userInfo = $this->dbProxy->getUserPrivileges($server, $username, $hostname, $database);
 
         // Make user info available to views
         foreach($userInfo as $name => $value)

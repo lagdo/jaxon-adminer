@@ -34,8 +34,9 @@ return [
         // ],
     ],
     'container' => [
-        Lagdo\Adminer\Db\Proxy::class => function() {
-            return new Lagdo\Adminer\Db\Proxy();
+        Lagdo\Adminer\Db\Proxy::class => function($di) {
+            $package = $di->get(Lagdo\Adminer\Package::class);
+            return new Lagdo\Adminer\Db\Proxy($package);
         },
     ],
 ];

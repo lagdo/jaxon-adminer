@@ -21,9 +21,7 @@ class Export extends AdminerCallable
      */
     public function showExportForm(string $server, string $database = '')
     {
-        $options = $this->package->getServerOptions($server);
-
-        $exportOptions = $this->dbProxy->getExportOptions($options, $database);
+        $exportOptions = $this->dbProxy->getExportOptions($server, $database);
 
         // Make data available to views
         foreach($exportOptions as $name => $value)
@@ -81,9 +79,7 @@ class Export extends AdminerCallable
             return $this->response;
         }
 
-        $options = $this->package->getServerOptions($server);
-
-        $queryResults = $this->dbProxy->executeExport($options,
+        $queryResults = $this->dbProxy->executeExport($server,
             $database, '', $query, $limit, $errorStops, $onlyErrors);
         // $this->logger()->debug(\json_encode($queryResults));
 

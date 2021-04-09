@@ -2,6 +2,7 @@
 
 namespace Lagdo\Adminer\Db;
 
+use Lagdo\Adminer\Package;
 use Exception;
 
 /**
@@ -23,6 +24,23 @@ class Proxy
      * @var array
      */
     protected $breadcrumbs = [];
+
+    /**
+     * The Jaxon Adminer package
+     *
+     * @var Package
+     */
+    protected $package;
+
+    /**
+     * The constructor
+     *
+     * @param Package $package    The Adminer package
+     */
+    public function __construct(Package $package)
+    {
+        $this->package = $package;
+    }
 
     /**
      * Get the breadcrumbs items
@@ -64,19 +82,20 @@ class Proxy
     /**
      * Connect to a database server
      *
-     * @param array  $options   The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return void
      */
-    protected function connect(array $options, string $database = '')
+    protected function connect(string $server, string $database = '')
     {
         global $adminer, $host, $port, $connection, $driver;
 
+        $options = $this->package->getServerOptions($server);
         // Prevent multiple calls.
         if(($connection))
         {
-            return;
+            return $options;
         }
 
         // Fixes
@@ -127,5 +146,7 @@ class Proxy
         {
             $connection->select_db($database);
         }
+
+        return $options;
     }
 }

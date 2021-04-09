@@ -20,8 +20,7 @@ class Database extends AdminerCallable
      */
     public function add($server)
     {
-        $options = $this->package->getServerOptions($server);
-        $collations = $this->dbProxy->getCollations($options);
+        $collations = $this->dbProxy->getCollations($server);
 
         $formId = 'database-form';
         $title = 'Create a database';
@@ -52,12 +51,10 @@ class Database extends AdminerCallable
      */
     public function create($server, array $formValues)
     {
-        $options = $this->package->getServerOptions($server);
-
         $database = $formValues['name'];
         $collation = $formValues['collation'];
 
-        if(!$this->dbProxy->createDatabase($options, $database, $collation))
+        if(!$this->dbProxy->createDatabase($server, $database, $collation))
         {
             $this->response->dialog->error("Cannot create database $database.");
             return $this->response;
@@ -80,9 +77,7 @@ class Database extends AdminerCallable
      */
     public function drop($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        if(!$this->dbProxy->dropDatabase($options, $database))
+        if(!$this->dbProxy->dropDatabase($server, $database))
         {
             $this->response->dialog->error("Cannot delete database $database.");
             return $this->response;
@@ -103,9 +98,7 @@ class Database extends AdminerCallable
      */
     public function select($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $databaseInfo = $this->dbProxy->getDatabaseInfo($options, $database);
+        $databaseInfo = $this->dbProxy->getDatabaseInfo($server, $database);
         // Make database info available to views
         foreach($databaseInfo as $name => $value)
         {
@@ -188,9 +181,7 @@ class Database extends AdminerCallable
      */
     public function showTables($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $tablesInfo = $this->dbProxy->getTables($options, $database);
+        $tablesInfo = $this->dbProxy->getTables($server, $database);
 
         $tableNameClass = 'adminer-table-name';
         // Add links, classes and data values to table names.
@@ -237,9 +228,7 @@ class Database extends AdminerCallable
      */
     public function showRoutines($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $routinesInfo = $this->dbProxy->getRoutines($options, $database);
+        $routinesInfo = $this->dbProxy->getRoutines($server, $database);
         $this->showSection('routine', $routinesInfo);
 
         return $this->response;
@@ -255,9 +244,7 @@ class Database extends AdminerCallable
      */
     public function showSequences($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $sequencesInfo = $this->dbProxy->getSequences($options, $database);
+        $sequencesInfo = $this->dbProxy->getSequences($server, $database);
         $this->showSection('sequence', $sequencesInfo);
 
         return $this->response;
@@ -273,9 +260,7 @@ class Database extends AdminerCallable
      */
     public function showUserTypes($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $userTypesInfo = $this->dbProxy->getUserTypes($options, $database);
+        $userTypesInfo = $this->dbProxy->getUserTypes($server, $database);
         $this->showSection('type', $userTypesInfo);
 
         return $this->response;
@@ -291,9 +276,7 @@ class Database extends AdminerCallable
      */
     public function showEvents($server, $database)
     {
-        $options = $this->package->getServerOptions($server);
-
-        $eventsInfo = $this->dbProxy->getEvents($options, $database);
+        $eventsInfo = $this->dbProxy->getEvents($server, $database);
         $this->showSection('event', $eventsInfo);
 
         return $this->response;

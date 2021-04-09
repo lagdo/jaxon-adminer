@@ -32,14 +32,14 @@ trait ImportTrait
     /**
      * Get data for import
      *
-     * @param array  $options       The corresponding config options
+     * @param string $server        The selected server
      * @param string $database      The database name
      *
      * @return array
      */
-    public function getImportOptions(array $options, string $database = '')
+    public function getImportOptions(string $server, string $database = '')
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $breadcrumbs = [$options['name']];
         if(($database))
@@ -55,7 +55,7 @@ trait ImportTrait
     /**
      * Run queries from uploaded files
      *
-     * @param array  $options       The corresponding config options
+     * @param string $server        The selected server
      * @param array  $files         The uploaded files
      * @param bool   $errorStops    Stop executing the requests in case of error
      * @param bool   $onlyErrors    Return only errors
@@ -64,10 +64,10 @@ trait ImportTrait
      *
      * @return array
      */
-    public function executeSqlFiles(array $options, array $files,
+    public function executeSqlFiles(string $server, array $files,
         bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
     {
-        $this->connect($options, $database);
+        $this->connect($server, $database);
         return $this->import($database, $schema)
             ->executeSqlFiles($files, $errorStops, $onlyErrors);
     }

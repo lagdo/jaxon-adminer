@@ -30,14 +30,14 @@ trait UserTrait
      * Get the privilege list
      * This feature is available only for MySQL
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getPrivileges(array $options, $database = '')
+    public function getPrivileges(string $server, string $database = '')
     {
-        $this->connect($options);
+        $options = $this->connect($server);
 
         $this->setBreadcrumbs([$options['name'], \adminer\lang('Privileges')]);
 
@@ -47,29 +47,29 @@ trait UserTrait
     /**
      * Get the privileges for a new user
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      *
      * @return array
      */
-    public function newUserPrivileges(array $options)
+    public function newUserPrivileges(string $server)
     {
-        $this->connect($options);
+        $this->connect($server);
         return $this->user()->newUserPrivileges();
     }
 
     /**
      * Get the privileges for a new user
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $user      The user name
      * @param string $host      The host name
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getUserPrivileges(array $options, $user, $host, $database)
+    public function getUserPrivileges(string $server, string $user, string $host, string $database)
     {
-        $this->connect($options);
+        $this->connect($server);
         return $this->user()->getUserPrivileges($user, $host, $database);
     }
 }

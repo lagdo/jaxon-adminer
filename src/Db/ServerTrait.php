@@ -31,13 +31,13 @@ trait ServerTrait
     /**
      * Connect to a database server
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      *
      * @return array
      */
-    public function getServerInfo(array $options)
+    public function getServerInfo(string $server)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
 
         $this->setBreadcrumbs([$options['name']]);
 
@@ -47,26 +47,26 @@ trait ServerTrait
     /**
      * Get the collation list
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      *
      * @return array
      */
-    public function getCollations(array $options)
+    public function getCollations(string $server)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
         return $this->server($options)->getCollations();
     }
 
     /**
      * Get the database list
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      *
      * @return array
      */
-    public function getDatabases(array $options)
+    public function getDatabases(string $server)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
 
         $this->setBreadcrumbs([$options['name'], \adminer\lang('Databases')]);
 
@@ -76,13 +76,13 @@ trait ServerTrait
     /**
      * Get the processes
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      *
      * @return array
      */
-    public function getProcesses(array $options)
+    public function getProcesses(string $server)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
 
         $this->setBreadcrumbs([$options['name'], \adminer\lang('Process list')]);
 
@@ -92,13 +92,13 @@ trait ServerTrait
     /**
      * Get the variables
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      *
      * @return array
      */
-    public function getVariables(array $options)
+    public function getVariables(string $server)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
 
         $this->setBreadcrumbs([$options['name'], \adminer\lang('Variables')]);
 
@@ -108,13 +108,13 @@ trait ServerTrait
     /**
      * Get the server status
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      *
      * @return array|null
      */
-    public function getStatus(array $options)
+    public function getStatus(string $server)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
 
         $this->setBreadcrumbs([$options['name'], \adminer\lang('Status')]);
 
@@ -124,29 +124,29 @@ trait ServerTrait
     /**
      * Create a database
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      * @param string $collation The database collation
      *
      * @return bool
      */
-    public function createDatabase(array $options, string $database, string $collation = '')
+    public function createDatabase(string $server, string $database, string $collation = '')
     {
-        $this->connect($options);
+        $options = $this->connect($server);
         return $this->server($options)->createDatabase($database, $collation);
     }
 
     /**
      * Drop a database
      *
-     * @param array $options    The server config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return bool
      */
-    public function dropDatabase(array $options, string $database)
+    public function dropDatabase(string $server, string $database)
     {
-        $this->connect($options);
+        $options = $this->connect($server);
         return $this->server($options)->dropDatabase($database);
     }
 }

@@ -29,14 +29,14 @@ trait DatabaseTrait
     /**
      * Connect to a database server
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getDatabaseInfo(array $options, string $database)
+    public function getDatabaseInfo(string $server, string $database)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database]);
 
@@ -46,14 +46,14 @@ trait DatabaseTrait
     /**
      * Get the tables from a database server
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getTables(array $options, string $database)
+    public function getTables(string $server, string $database)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables and views')]);
 
@@ -63,14 +63,14 @@ trait DatabaseTrait
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getRoutines(array $options, string $database)
+    public function getRoutines(string $server, string $database)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Routines')]);
 
@@ -80,14 +80,14 @@ trait DatabaseTrait
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getSequences(array $options, string $database)
+    public function getSequences(string $server, string $database)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Sequences')]);
 
@@ -97,14 +97,14 @@ trait DatabaseTrait
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getUserTypes(array $options, string $database)
+    public function getUserTypes(string $server, string $database)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('User types')]);
 
@@ -114,14 +114,14 @@ trait DatabaseTrait
     /**
      * Get the routines from a given database
      *
-     * @param array $options    The corresponding config options
+     * @param string $server    The selected server
      * @param string $database  The database name
      *
      * @return array
      */
-    public function getEvents(array $options, string $database)
+    public function getEvents(string $server, string $database)
     {
-        $this->connect($options, $database);
+        $options = $this->connect($server, $database);
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Events')]);
 
