@@ -292,18 +292,23 @@ class CommandProxy
             $commands++;
             // $print = "<pre id='sql-$commands'><code class='jush-$jush'>" .
             //     $adminer->sqlCommandQuery($q) . "</code></pre>\n";
-            // if($jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
-            // {
-            //     // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
-            //     echo $print;
-            //     echo "<p class='error'>" . \adminer\lang('ATTACH queries are not supported.') . "\n";
-            //     $errors[] = " <a href='#sql-$commands'>$commands</a>";
-            //     if($errorStops)
-            //     {
-            //         break;
-            //     }
-            // }
-            // else
+            if($jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
+            {
+                // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
+                // $errors[] = " <a href='#sql-$commands'>$commands</a>";
+                $errors[] = \adminer\lang('ATTACH queries are not supported.');
+                $results[] = [
+                    'query' => $q,
+                    'errors' => $errors,
+                    'messages' => $messages,
+                    'select' => $select,
+                ];
+                if($errorStops)
+                {
+                    break;
+                }
+            }
+            else
             {
                 // if(!$onlyErrors)
                 // {
