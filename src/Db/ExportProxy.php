@@ -10,6 +10,20 @@ use Exception;
 class ExportProxy
 {
     /**
+     * The databases to dump
+     *
+     * @var array
+     */
+    protected $databases;
+
+    /**
+     * The tables to dump
+     *
+     * @var array
+     */
+    protected $tables;
+
+    /**
      * The dump options
      *
      * @var array
@@ -34,6 +48,7 @@ class ExportProxy
     {
         global $adminer, $jush;
 
+        // From dump.inc.php
         $db_style = ['', 'USE', 'DROP+CREATE', 'CREATE'];
         $table_style = ['', 'DROP+CREATE', 'CREATE'];
         $data_style = ['', 'TRUNCATE+INSERT', 'INSERT'];
@@ -115,7 +130,6 @@ class ExportProxy
             ];
         }
 
-        $TABLE = '';
         $results = [
             'options' => $options,
             'prefixes' => [],
@@ -131,17 +145,17 @@ class ExportProxy
             {
                 $prefix = \preg_replace('~_.*~', '', $name);
                 //! % may be part of table name
-                $checked = ($TABLE == "" || $TABLE == (\substr($TABLE, -1) == "%" ? "$prefix%" : $name));
+                // $checked = ($TABLE == "" || $TABLE == (\substr($TABLE, -1) == "%" ? "$prefix%" : $name));
                 // $results['prefixes'][$prefix]++;
 
-                $tables['details'][] = \compact('name', 'type', 'prefix', 'checked');
+                $tables['details'][] = \compact('prefix', 'name', 'type'/*, 'checked'*/);
             }
             $results['tables'] = $tables;
         }
         else
         {
             $databases = [
-                'headers' => [\adminer\lang('Database')],
+                'headers' => [\adminer\lang('Database'), \adminer\lang('Data')],
                 'details' => [],
             ];
             $databases_list = $adminer->databases(false) ?? [];
@@ -248,10 +262,32 @@ class ExportProxy
         {
             if(\preg_match('~["\n,;\t]|^0|\.\d*0$~', $val) || $val === "")
             {
-                $this->queries[] = '"' . \str_replace('"', '""', $val) . '"';
+                $row[$key] = '"' . \str_replace('"', '""', $val) . '"';
             }
         }
-        // echo implode(($this->options["format"] == "csv" ? "," : ($this->options["format"] == "tsv" ? "\t" : ";")), $row) . "\r\n";
+        $separator = $this->options["format"] == "csv" ? "," :
+            ($this->options["format"] == "tsv" ? "\t" : ";");
+        $this->queries[] = \implode($separator, $row);
+    }
+
+    /**
+     * Convert a value to string
+     *
+     * @param mixed  $val
+     * @param array  $field
+     *
+     * @return string
+     */
+    protected function convertToString($val, array $field)
+    {
+        // From functions.inc.php
+        if($val === null)
+        {
+            return "NULL";
+        }
+        return \adminer\unconvert_field($field, \preg_match(\adminer\number_type(),
+            $field["type"]) && !\preg_match('~\[~', $field["full_type"]) &&
+            \is_numeric($val) ? $val : \adminer\q(($val === false ? 0 : $val)));
     }
 
     /**
@@ -305,30 +341,131 @@ class ExportProxy
         }
     }
 
+    /** Export table data
+     *
+     * @param string
+     * @param string
+     * @param string
+     *
+     * @return null prints data
+     */
+    protected function dumpData($table, $style, $query)
+    {
+        global $connection, $jush;
+
+        $fields = [];
+        $max_packet = ($jush == "sqlite" ? 0 : 1048576); // default, minimum is 1024
+        if($style)
+        {
+            if($this->options["format"] == "sql")
+            {
+                if($style == "TRUNCATE+INSERT")
+                {
+                    $this->queries[] = \adminer\truncate_sql($table) . ";\n";
+                }
+                $fields = \adminer\fields($table);
+            }
+            $result = $connection->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+            if($result)
+            {
+                $insert = "";
+                $buffer = "";
+                $keys = [];
+                $suffix = "";
+                $fetch_function = ($table != '' ? 'fetch_assoc' : 'fetch_row');
+                while($row = $result->$fetch_function())
+                {
+                    if(!$keys)
+                    {
+                        $values = [];
+                        foreach($row as $val)
+                        {
+                            $field = $result->fetch_field();
+                            $keys[] = $field->name;
+                            $key = \adminer\idf_escape($field->name);
+                            $values[] = "$key = VALUES($key)";
+                        }
+                        $suffix = ";\n";
+                        if($style == "INSERT+UPDATE")
+                        {
+                            $suffix = "\nON DUPLICATE KEY UPDATE " . \implode(", ", $values) . ";\n";
+                        }
+                    }
+                    if($this->options["format"] != "sql")
+                    {
+                        if($style == "table")
+                        {
+                            $this->dumpCsv($keys);
+                            $style = "INSERT";
+                        }
+                        $this->dumpCsv($row);
+                    }
+                    else
+                    {
+                        if(!$insert)
+                        {
+                            $insert = "INSERT INTO " . \adminer\table($table) . " (" .
+                                \implode(", ", \array_map('\\adminer\\idf_escape', $keys)) . ") VALUES";
+                        }
+                        foreach ($row as $key => $val)
+                        {
+                            $field = $fields[$key];
+                            $row[$key] = $this->convertToString($val, $field);
+                        }
+                        $s = ($max_packet ? "\n" : " ") . "(" . \implode(",\t", $row) . ")";
+                        if(!$buffer)
+                        {
+                            $buffer = $insert . $s;
+                        }
+                        elseif(\strlen($buffer) + 4 + \strlen($s) + \strlen($suffix) < $max_packet)
+                        { // 4 - length specification
+                            $buffer .= ",$s";
+                        }
+                        else
+                        {
+                            $this->queries[] = $buffer . $suffix;
+                            $buffer = $insert . $s;
+                        }
+                    }
+                }
+                if($buffer)
+                {
+                    $this->queries[] = $buffer . $suffix;
+                }
+            }
+            elseif($this->options["format"] == "sql")
+            {
+                $this->queries[] = "-- " . \str_replace("\n", " ", $connection->error) . "\n";
+            }
+        }
+    }
+
     /**
      * Dump tables and views in the connected database
      *
      * @param string $database      The database name
-     * @param array  $tables        The tables to dump
      *
      * @return array
      */
-    protected function dumpTablesAndViews(string $database, array $tables)
+    protected function dumpTablesAndViews(string $database)
     {
-        global $adminer;
+        // global $adminer;
 
         if(!$this->options["table_style"] && !$this->options["data_style"])
         {
             return [];
         }
 
+        $dbDumpTable = $this->tables['list'] === '*' &&
+            \in_array($database, $this->databases["list"]);
+        $dbDumpData = \in_array($database, $this->databases["data"]);
         $views = [];
         $dbTables = \adminer\table_status('', true);
-        foreach($dbTables as $name => $table_status)
+        foreach($dbTables as $table => $table_status)
         {
-            $table = true; // ($tables[0] === '*' || \in_array($name, $this->options["tables"]));
-            $data = false; // ($tables[0] === '*' || \in_array($name, $this->options["data"]));
-            if($table || $data)
+            $dumpTable = $dbDumpTable || \in_array($table, $this->tables['list']);
+            $dumpData = $dbDumpData || \in_array($table, $this->tables["data"]);
+            if($dumpTable || $dumpData)
             {
                 // if($ext == "tar")
                 // {
@@ -336,19 +473,21 @@ class ExportProxy
                 //     ob_start([$tmp_file, 'write'], 1e5);
                 // }
 
-                $this->dumpTable($name, ($table ? $this->options["table_style"] : ""),
+                $this->dumpTable($table, ($dumpTable ? $this->options["table_style"] : ""),
                     (\adminer\is_view($table_status) ? 2 : 0));
                 if(\adminer\is_view($table_status))
                 {
-                    $views[] = $name;
+                    $views[] = $table;
                 }
-                // elseif($data)
-                // {
-                //     $fields = \adminer\fields($name);
-                //     $adminer->dumpData($name, $this->options["data_style"], "SELECT *" . convert_fields($fields, $fields) . " FROM " . table($name));
-                // }
-                if($this->options['is_sql'] && $this->options["triggers"] && $table &&
-                    ($triggers = \adminer\trigger_sql($name)))
+                elseif($dumpData)
+                {
+                    $fields = \adminer\fields($table);
+                    $query = "SELECT *" . \adminer\convert_fields($fields, $fields) .
+                        " FROM " . \adminer\table($table);
+                    $this->dumpData($table, $this->options["data_style"], $query);
+                }
+                if($this->options['is_sql'] && $this->options["triggers"] && $dumpTable &&
+                    ($triggers = \adminer\trigger_sql($table)))
                 {
                     $this->queries[] = "DELIMITER ;";
                     $this->queries[] = $triggers;
@@ -358,7 +497,7 @@ class ExportProxy
                 // if($ext == "tar")
                 // {
                 //     ob_end_flush();
-                //     tar_file((DB != "" ? "" : "$db/") . "$name.csv", $tmp_file);
+                //     tar_file((DB != "" ? "" : "$db/") . "$table.csv", $tmp_file);
                 // } else
                 if($this->options['is_sql'])
                 {
@@ -370,12 +509,12 @@ class ExportProxy
         // add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
         if(\function_exists('foreign_keys_sql'))
         {
-            foreach($dbTables as $name => $table_status)
+            foreach($dbTables as $table => $table_status)
             {
-                $table = true; // (DB == "" || \in_array($name, $this->options["tables"]));
-                if($table && !\adminer\is_view($table_status))
+                $dumpTable = true; // (DB == "" || \in_array($table, $this->options["tables"]));
+                if($dumpTable && !\adminer\is_view($table_status))
                 {
-                    $this->queries[] = \adminer\foreign_keys_sql($name);
+                    $this->queries[] = \adminer\foreign_keys_sql($table);
                 }
             }
         }
@@ -395,19 +534,21 @@ class ExportProxy
      *
      * @param array  $databases     The databases to dump
      * @param array  $tables        The tables to dump
-     * @param array  $dumpOptions   The export options
+     * @param array  $options       The export options
      *
      * @return array
      */
-    public function exportDatabases(array $databases, array $tables, array $dumpOptions)
+    public function exportDatabases(array $databases, array $tables, array $options)
     {
         global $adminer, $connection, $drivers, $jush;
 
         // From dump.inc.php
-        // $tables = array_flip($dumpOptions["tables"]) + array_flip($dumpOptions["data"]);
+        // $tables = array_flip($options["tables"]) + array_flip($options["data"]);
         // $ext = dump_headers((count($tables) == 1 ? key($tables) : DB), (DB == "" || count($tables) > 1));
-        $dumpOptions['is_sql'] = \preg_match('~sql~', $dumpOptions["format"]);
-        $this->options = $dumpOptions;
+        $options['is_sql'] = \preg_match('~sql~', $options["format"]);
+        $this->databases = $databases;
+        $this->tables = $tables;
+        $this->options = $options;
 
         $headers = null;
         if($this->options['is_sql'])
@@ -422,7 +563,7 @@ class ExportProxy
             if($jush == "sql")
             {
                 $headers['sql'] = true;
-                if(isset($dumpOptions["data_style"]))
+                if(isset($options["data_style"]))
                 {
                     $headers['data_style'] = true;
                 }
@@ -432,9 +573,9 @@ class ExportProxy
             }
         }
 
-        $style = $dumpOptions["db_style"];
+        $style = $options["db_style"];
 
-        foreach($databases as $db)
+        foreach(\array_unique(\array_merge($databases['list'], $databases['data'])) as $db)
         {
             // $adminer->dumpDatabase($db);
             if($connection->select_db($db))
@@ -448,7 +589,7 @@ class ExportProxy
                     {
                         $this->queries[] = "DROP DATABASE IF EXISTS " . \adminer\idf_escape($db) . ";";
                     }
-                    $this->queries[] = "$create;";
+                    $this->queries[] = $create . ";\n";
                 }
                 if($this->options['is_sql'])
                 {
@@ -464,7 +605,7 @@ class ExportProxy
                     $this->dumpRoutinesAndEvents($db);
                 }
 
-                $this->dumpTablesAndViews($db, $tables);
+                $this->dumpTablesAndViews($db);
             }
         }
 

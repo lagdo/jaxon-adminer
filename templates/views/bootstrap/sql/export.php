@@ -10,6 +10,8 @@
                         <label class="radio-inline">
                             <input type="radio" name="output" value="<?php echo $value ?>" <?php
                                 if($this->options['output']['value'] === $value): ?>checked <?php
+                                endif ?><?php
+                                if($value !== 'text'): ?>disabled <?php
                                 endif ?>/><?php echo $label ?>
                         </label>
 <?php endforeach ?>
@@ -134,16 +136,26 @@
                                         echo $this->databaseNameId ?>-all" checked />
                                     <?php echo $this->databases['headers'][0] ?>
                                 </th>
+                                <th>
+                                    <input type="checkbox" id="<?php
+                                        echo $this->databaseDataId ?>-all" checked />
+                                    <?php echo $this->databases['headers'][1] ?>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
 <?php foreach($this->databases['details'] as $database): ?>
                             <tr>
                                 <td>
-                                    <input type="checkbox" name="database_names[]" class="<?php
+                                    <input type="checkbox" name="database_list[]" class="<?php
                                         echo $this->databaseNameId ?>" value="<?php
                                         echo $database['name'] ?>" checked />
                                     <?php echo $database['name'] ?>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="database_data[]" class="<?php
+                                        echo $this->databaseDataId ?>" value="<?php
+                                        echo $database['name'] ?>" checked />
                                 </td>
                             </tr>
 <?php endforeach ?>
@@ -170,7 +182,7 @@
 <?php foreach($this->tables['details'] as $table): ?>
                             <tr>
                                 <td>
-                                    <input type="checkbox" name="table_names[]" class="<?php
+                                    <input type="checkbox" name="table_list[]" class="<?php
                                         echo $this->tableNameId ?>" value="<?php
                                         echo $table['name'] ?>" checked />
                                     <?php echo $table['name'] ?>

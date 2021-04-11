@@ -51,32 +51,36 @@ class Export extends AdminerCallable
             'tableDataId' => $tableDataId,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
+
+        if(($database))
+        {
+            $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableNameId')");
+            $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableDataId')");
+            $this->jq("#$btnId")
+                 ->click($this->rq()->exportOne($server, $database, \pm()->form($formId)));
+            return $this->response;
+        }
+
         $this->response->script("jaxon.adminer.selectAllCheckboxes('$databaseNameId')");
         $this->response->script("jaxon.adminer.selectAllCheckboxes('$databaseDataId')");
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableNameId')");
-        $this->response->script("jaxon.adminer.selectAllCheckboxes('$tableDataId')");
-
         $this->jq("#$btnId")
-            ->click($this->rq()->export($server, $database, \pm()->form($formId)));
-
+             ->click($this->rq()->exportSet($server, \pm()->form($formId)));
         return $this->response;
     }
 
     /**
      * Execute an SQL query and display the results
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param array $formValues
+     * @param string $server        The database server
+     * @param array  $databases     The databases to dump
+     * @param array  $tables        The tables to dump
+     * @param array  $formValues
      *
      * @return \Jaxon\Response\Response
      */
-    public function export(string $server, string $database, array $formValues)
+    protected function export(string $server, array $databases, array $tables, array $formValues)
     {
-        $databases = \array_key_exists('database_names', $formValues) ?
-            $formValues['database_names'] : [$database];
-        $tables = [];
-
+        // Convert checkbox values to boolean
         $formValues['routines'] = \array_key_exists('routines', $formValues);
         $formValues['events'] = \array_key_exists('events', $formValues);
         $formValues['auto_increment'] = \array_key_exists('auto_increment', $formValues);
@@ -98,5 +102,52 @@ class Export extends AdminerCallable
         $link = \rtrim(\jaxon()->getOption('adminer.export.url'), '/') . $name;
         $this->response->script("window.open('$link', '_blank').focus()");
         return $this->response;
+    }
+
+    /**
+     * Export a set of databases on a server
+     *
+     * @param string $server      The database server
+     * @param array $formValues
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function exportSet(string $server, array $formValues)
+    {
+        $databases = [
+            'list' => $formValues['database_list'] ?? [],
+            'data' => $formValues['database_data'] ?? [],
+        ];
+        $tables = [
+            'list' => '*',
+            'data' => [],
+        ];
+        // $this->logger()->debug('exportServer', \compact('databases', 'tables'));
+
+        return $this->export($server, $databases, $tables, $formValues);
+    }
+
+    /**
+     * Export one database on a server
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param array $formValues
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function exportOne(string $server, string $database, array $formValues)
+    {
+        $databases = [
+            'list' => [$database],
+            'data' => [],
+        ];
+        $tables = [
+            'list' => $formValues['table_list'] ?? [],
+            'data' => $formValues['table_data'] ?? [],
+        ];
+        // $this->logger()->debug('exportDatabase', \compact('databases', 'tables'));
+
+        return $this->export($server, $databases, $tables, $formValues);
     }
 }

@@ -36,7 +36,7 @@ trait ExportTrait
      */
     public function getExportOptions(string $server, string $database = '')
     {
-        $options = $this->connect($server);
+        $options = $this->connect($server, $database);
 
         $breadcrumbs = [$options['name']];
         if(($database))
