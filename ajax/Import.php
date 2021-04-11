@@ -93,11 +93,7 @@ class Import extends AdminerCallable
             $files, $errorStops, $onlyErrors, $database);
         // $this->logger()->debug(\json_encode($queryResults));
 
-        $content = '';
-        foreach($queryResults['results'] as $results)
-        {
-            $content .= $this->render('sql/results', $results);
-        }
+        $content = $this->render('sql/results', $queryResults);
         $this->response->html('adminer-command-results', $content);
 
         return $this->response;

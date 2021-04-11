@@ -46,14 +46,13 @@ class CommandProxy
      * Print select result
      * From editing.inc.php
      *
-     * @param string $query         The executed query
      * @param \adminer\Min_Result
      * @param array
      * @param int
      *
      * @return array
     */
-    protected function select(string $query, $result, $orgtables = [], $limit = 0)
+    protected function select($result, $orgtables = [], $limit = 0)
     {
         global $jush;
 
@@ -103,7 +102,8 @@ class CommandProxy
                 }
                 elseif(isset($blobs[$key]) && $blobs[$key] && !\adminer\is_utf8($val))
                 {
-                    $val = "<i>" . \adminer\lang('%d byte(s)', \strlen($val)) . "</i>"; //! link to download
+                    //! link to download
+                    $val = "<i>" . \adminer\lang('%d byte(s)', \strlen($val)) . "</i>";
                 }
                 else
                 {
@@ -122,7 +122,14 @@ class CommandProxy
             }
             $details[] = $detail;
         }
-        $message = $rowCount > 0 ? '' : \adminer\lang('No rows.');
+        $message = \adminer\lang('No rows.');
+        if($rowCount > 0)
+        {
+            $num_rows = $result->num_rows;
+            $message = ($num_rows ? ($limit && $num_rows > $limit ?
+                \adminer\lang('%d / ', $limit) :
+                "") . \adminer\lang('%d row(s)', $num_rows) : "");
+        }
 
         // Table header
         $headers = [];
@@ -185,20 +192,20 @@ class CommandProxy
             // $headers[] = $header;
         }
 
-        return \compact('tables', 'query', 'headers', 'details', 'message');
+        return \compact('tables', 'headers', 'details', 'message');
     }
 
     /**
-     * Execute a query
+     * Execute a set of queries
      *
-     * @param string $query         The query to execute
+     * @param string $queries       The queries to execute
      * @param int    $limit         The max number of rows to return
      * @param bool   $errorStops    Stop executing the requests in case of error
      * @param bool   $onlyErrors    Return only errors
      *
      * @return array
      */
-    public function executeCommands(string $query, int $limit, bool $errorStops, bool $onlyErrors)
+    public function executeCommands(string $queries, int $limit, bool $errorStops, bool $onlyErrors)
     {
         global $jush, $connection;
 
@@ -206,11 +213,11 @@ class CommandProxy
         {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             @\ini_set("memory_limit", \max(\adminer\ini_bytes("memory_limit"),
-                2 * \strlen($query) + \memory_get_usage() + 8e6));
+                2 * \strlen($queries) + \memory_get_usage() + 8e6));
 		}
 
-		// if($query != "" && \strlen($query) < 1e6) { // don't add big queries
-		// 	$q = $query . (\preg_match("~;[ \t\r\n]*\$~", $query) ? "" : ";"); //! doesn't work with DELIMITER |
+		// if($queries != "" && \strlen($queries) < 1e6) { // don't add big queries
+		// 	$q = $queries . (\preg_match("~;[ \t\r\n]*\$~", $queries) ? "" : ";"); //! doesn't work with DELIMITER |
 		// 	if(!$history || \reset(\end($history)) != $q) { // no repeated queries
 		// 		\restart_session();
 		// 		$history[] = [$q, \time()]; //! add elapsed time
@@ -225,8 +232,6 @@ class CommandProxy
         $empty = true;
 
 		$commands = 0;
-		$errors = [];
-        $messages = [];
         $timestamps = [];
         $parse = '[\'"' .
             ($jush == "sql" ? '`#' :
@@ -239,32 +244,34 @@ class CommandProxy
 		// unset($dump_format["sql"]);
 
         $results = [];
-        while($query != "")
+        while($queries != "")
         {
-            if(!$offset && \preg_match("~^$space*+DELIMITER\\s+(\\S+)~i", $query, $match))
+            if($offset == 0 && \preg_match("~^$space*+DELIMITER\\s+(\\S+)~i", $queries, $match))
             {
 				$delimiter = $match[1];
-                $query = \substr($query, \strlen($match[0]));
+                $queries = \substr($queries, \strlen($match[0]));
                 continue;
 			}
 
             // should always match
             \preg_match('(' . \preg_quote($delimiter) . "\\s*|$parse)",
-                $query, $match, PREG_OFFSET_CAPTURE, $offset);
+                $queries, $match, PREG_OFFSET_CAPTURE, $offset);
             list($found, $pos) = $match[0];
 
-            if(!$found && \rtrim($query) == "")
+            if(!$found && \rtrim($queries) == "")
             {
                 break;
             }
             $offset = $pos + \strlen($found);
 
             if($found && \rtrim($found) != $delimiter)
-            { // find matching quote or comment end
+            {
+                // find matching quote or comment end
                 while(\preg_match('(' . ($found == '/*' ? '\*/' : ($found == '[' ? ']' :
-                    (\preg_match('~^-- |^#~', $found) ? "\n" : \preg_quote($found) . "|\\\\."))) .
-                    '|$)s', $query, $match, PREG_OFFSET_CAPTURE, $offset))
-                { //! respect sql_mode NO_BACKSLASH_ESCAPES
+                    (\preg_match('~^-- |^#~', $found) ? "\n" : \preg_quote($found) .
+                    "|\\\\."))) . '|$)s', $queries, $match, PREG_OFFSET_CAPTURE, $offset))
+                {
+                    //! respect sql_mode NO_BACKSLASH_ESCAPES
                     $s = $match[0][0];
                     $offset = $match[0][1] + \strlen($s);
                     if($s[0] != "\\")
@@ -276,8 +283,12 @@ class CommandProxy
             }
 
             // end of a query
+            $errors = [];
+            $messages = [];
+            $select = null;
+
             $empty = false;
-            $q = \substr($query, 0, $pos);
+            $q = \substr($queries, 0, $pos);
             $commands++;
             // $print = "<pre id='sql-$commands'><code class='jush-$jush'>" .
             //     $adminer->sqlCommandQuery($q) . "</code></pre>\n";
@@ -316,17 +327,19 @@ class CommandProxy
                         // echo ($onlyErrors ? $print : "");
                         // echo "<p class='error'>" . \adminer\lang('Error in query') . ($connection->errno ?
                         //     " ($connection->errno)" : "") . ": " . \adminer\error() . "\n";
-                        $errors[] = " <a href='#sql-$commands'>$commands</a>";
-                        if($errorStops)
+                        // $errors[] = " <a href='#sql-$commands'>$commands</a>";
+                        $error = \adminer\error();
+                        if(($connection->errno))
                         {
-                            break 2;
+                            $error = "($connection->errno): $error";
                         }
+                        $errors[] = $error;
                     }
                     else
                     {
                         // $time = " <span class='time'>(" . \adminer\format_time($start) . ")</span>"
                         //     . (\strlen($q) < 1000 ? " <a href='" . \adminer\h(ME) .
-                        //     "sql=" . \urlencode(\trim($q)) . "'>" . lang('Edit') . "</a>" : "")
+                        //     "sql=" . \urlencode(\trim($q)) . "'>" . \adminer\lang('Edit') . "</a>" : "")
                         //     // 1000 - maximum length of encoded URL in IE is 2083 characters
                         // ;
                         $affected = $connection->affected_rows; // getting warnigns overwrites this
@@ -341,7 +354,11 @@ class CommandProxy
                         // $explain_id = "explain-$commands";
                         if(\is_object($result))
                         {
-                            $results[] = $this->select($q, $result, [], $limit);
+                            if(!$onlyErrors)
+                            {
+                                $select = $this->select($result, [], $limit);
+                                $messages[] = $select['message'];
+                            }
                             // $orgtables = $this->select($result, [], $limit);
                             // if(!$onlyErrors)
                             // {
@@ -391,12 +408,24 @@ class CommandProxy
                         // }
                     }
 
+                    $results[] = [
+                        'query' => $q,
+                        'errors' => $errors,
+                        'messages' => $messages,
+                        'select' => $select,
+                    ];
+
+                    if($connection->error && $errorStops)
+                    {
+                        break 2;
+                    }
+
                     $start = \microtime(true);
                 }
                 while($connection->next_result());
             }
 
-            $query = \substr($query, $offset);
+            $queries = \substr($queries, $offset);
             $offset = 0;
         }
 

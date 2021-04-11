@@ -108,7 +108,7 @@ class ImportProxy extends CommandProxy
      */
     public function executeSqlFiles(array $files, bool $errorStops, bool $onlyErrors)
     {
-        $query = $this->readFiles($files);
-        return $this->executeCommands($query, 0, $errorStops, $onlyErrors);
+        $queries = $this->readFiles($files);
+        return $this->executeCommands($queries, 0, $errorStops, $onlyErrors);
     }
 }
