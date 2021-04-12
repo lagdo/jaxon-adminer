@@ -19,10 +19,17 @@ Features
 - [x] Connect to PostgreSQL databases.
 - [x] Restrict access to server info and databases.
 - [x] Execute requests and display results.
+- [x] Export databases to an sql file.
+- [x] Import databases from one or more sql files.
 - [ ] Connect to other database types.
 - [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one.
 - [ ] Improve the Adminer code integration.
 - [ ] Add tests
+
+Howtos
+------
+
+This blog post on the `Jaxon` website explains how to install `Jaxon Adminer` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the  `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
 
 Documentation
 -------------
@@ -179,6 +186,42 @@ This option can only be defined at server level, and will apply to that specific
     ],
 ```
 In the above configuration, the user will be able to get access only to three databases on the `second_server`, while he will have full access to the `first_server`.
+
+Data import
+-----------
+
+SQL files can be uploaded and executed on a server. This feature is implemented using the [Jaxon ajax upload](https://www.jaxon-php.org/docs/v3x/registrations/upload.html) feature, which then needs to be configured in the `lib` section of the `Jaxon` config file.
+
+```php
+    'lib' => [
+        'upload' => [
+            'files' => [
+                'sql_files' => [
+                    'dir' => '/path/to/the/upload/dir',
+                ],
+            ],
+        ],
+    ],
+```
+As stated in the [Jaxon ajax upload documentation](https://www.jaxon-php.org/docs/v3x/registrations/upload.html), `sql_files` is the `name` attribute of the file upload field, and of course `/path/to/the/upload/dir` needs to be writable.
+Other parameters can also be defined to limit the size of the uploaded files or retrict their extensions or mime types.
+
+Data export
+-----------
+
+Databases can also be exported to various types of files: SQL, CSV, and more.
+A directory where the exported files are going to be saved must then be defined in the configuration, as well as an url where they can be downloaded.
+
+```php
+    'lib' => [
+        'adminer' => [
+            'export' => [
+                'dir' => '/path/to/the/export/dir',
+                'url' => 'http://www.domain.com/exports',
+            ],
+        ],
+    ],
+```
 
 Notes
 -----
