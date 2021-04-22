@@ -27,18 +27,18 @@
 #<?php echo $this->dbActionsId ?>, #<?php echo $this->serverActionsId ?> {
     margin-bottom: 10px;
 }
-.adminer-table-checkbox {
+#<?php echo $this->containerId ?> .adminer-table-checkbox {
     width: 20px;
 }
-.breadcrumb {
+#<?php echo $this->containerId ?> .breadcrumb {
     float: left;
     padding: 5px 10px 5px 10px;
     margin-bottom: 10px;
     margin-top: 11px;
 }
 /* Disable spinners on inputs with type number */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+#<?php echo $this->containerId ?> input[type=number]::-webkit-inner-spin-button,
+#<?php echo $this->containerId ?> input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
