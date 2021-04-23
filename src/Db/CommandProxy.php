@@ -334,7 +334,7 @@ class CommandProxy
                         //     " ($connection->errno)" : "") . ": " . \adminer\error() . "\n";
                         // $errors[] = " <a href='#sql-$commands'>$commands</a>";
                         $error = \adminer\error();
-                        if(($connection->errno))
+                        if(isset($connection->errno))
                         {
                             $error = "($connection->errno): $error";
                         }
