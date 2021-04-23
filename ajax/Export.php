@@ -92,14 +92,14 @@ class Export extends AdminerCallable
         $content = $this->render('sql/dump.sql', $results);
         // Dump file
         $name = '/' . \uniqid() . '.txt';
-        $path = \rtrim(\jaxon()->getOption('adminer.export.dir'), '/') . $name;
+        $path = \rtrim($this->package->getOption('export.dir'), '/') . $name;
         if(!@\file_put_contents($path, $content))
         {
             $this->response->dialog->error('Unable to write dump to file ' . $path, 'Error');
             return $this->response;
         }
 
-        $link = \rtrim(\jaxon()->getOption('adminer.export.url'), '/') . $name;
+        $link = \rtrim($this->package->getOption('export.url'), '/') . $name;
         $this->response->script("window.open('$link', '_blank').focus()");
         return $this->response;
     }

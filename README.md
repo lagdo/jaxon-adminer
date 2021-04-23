@@ -213,15 +213,43 @@ Databases can also be exported to various types of files: SQL, CSV, and more.
 A directory where the exported files are going to be saved must then be defined in the configuration, as well as an url where they can be downloaded.
 
 ```php
-    'lib' => [
-        'adminer' => [
-            'export' => [
-                'dir' => '/path/to/the/export/dir',
-                'url' => 'http://www.domain.com/exports',
+    'app' => [
+        'packages' => [
+            Lagdo\Adminer\Package::class => [
+                'servers' => [
+                    'first_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                    'second_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                        'access' => [
+                            'server' => true,
+                        ],
+                    ],
+                ],
+                'default' => 'second_server',
+                'access' => [
+                    'server' => false,
+                ],
+                'export' => [
+                    'dir' => '/path/to/the/export/dir',
+                    'url' => 'http://www.domain.com/exports',
+                ],
             ],
         ],
     ],
 ```
+The web server needs to be setup to serve the files in the `dir` from `url`.
 
 Notes
 -----

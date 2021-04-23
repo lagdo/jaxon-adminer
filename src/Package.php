@@ -154,6 +154,19 @@ class Package extends JaxonPackage
     }
 
     /**
+     * Get the value of a given package option
+     *
+     * @param string $option    The option name
+     * @param mixed  $default   The default value
+     *
+     * @return mixed
+     */
+    public function getOption($option, $default = null)
+    {
+        return $this->getConfig()->getOption($option, $default);
+    }
+
+    /**
      * Get the default server to connect to
      *
      * @return string
