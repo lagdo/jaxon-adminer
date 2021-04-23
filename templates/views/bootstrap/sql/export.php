@@ -10,8 +10,6 @@
                         <label class="radio-inline">
                             <input type="radio" name="output" value="<?php echo $value ?>" <?php
                                 if($this->options['output']['value'] === $value): ?>checked <?php
-                                endif ?><?php
-                                if($value !== 'text'): ?>disabled <?php
                                 endif ?>/><?php echo $label ?>
                         </label>
 <?php endforeach ?>

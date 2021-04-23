@@ -91,11 +91,23 @@ class Export extends AdminerCallable
 
         $content = $this->render('sql/dump.sql', $results);
         // Dump file
-        $name = '/' . \uniqid() . '.txt';
+        $output = $formValues['output'] ?? 'text';
+        $extension = $output === 'gz' ? '.gz' : ($output === 'file' ? '.sql' : '.txt');
+        if($output === 'gz')
+        {
+            // Zip content
+            $content = \gzencode($content);
+            if(!$content)
+            {
+                $this->response->dialog->error('Unable to gzip dump.', 'Error');
+                return $this->response;
+            }
+        }
+        $name = '/' . \uniqid() . $extension;
         $path = \rtrim($this->package->getOption('export.dir'), '/') . $name;
         if(!@\file_put_contents($path, $content))
         {
-            $this->response->dialog->error('Unable to write dump to file ' . $path, 'Error');
+            $this->response->dialog->error('Unable to write dump to file.', 'Error');
             return $this->response;
         }
 
