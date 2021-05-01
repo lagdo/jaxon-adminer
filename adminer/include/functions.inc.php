@@ -652,7 +652,8 @@ function redirect($location, $message = null) {
 * @param string
 * @return bool
 */
-function query_redirect($query, $location, $message, $redirect = true, $execute = true, $failed = false, $time = "") {
+function query_redirect($query, $location = null, $message = null,
+	$redirect = false, $execute = true, $failed = false, $time = "") {
 	global $connection, $error, $adminer;
 	if ($execute) {
 		$start = microtime(true);
@@ -667,9 +668,9 @@ function query_redirect($query, $location, $message, $redirect = true, $execute 
 		$error = error() . $sql . script("messagesPrint();");
 		return false;
 	}
-	if ($redirect) {
-		redirect($location, $message . $sql);
-	}
+	// if ($redirect) {
+	// 	redirect($location, $message . $sql);
+	// }
 	return true;
 }
 
