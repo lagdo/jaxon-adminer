@@ -9,7 +9,7 @@ use Exception;
 /**
  * Adminer Ajax client
  */
-class Table extends AdminerCallable
+class View extends AdminerCallable
 {
     /**
      * Display the content of a tab
@@ -29,19 +29,19 @@ class Table extends AdminerCallable
     }
 
     /**
-     * Show detailed info of a given table
+     * Show detailed info of a given view
      *
      * @param string $server      The database server
      * @param string $database    The database name
-     * @param string $table       The table name
+     * @param string $view        The view name
      *
      * @return \Jaxon\Response\Response
      */
-    public function show($server, $database, $table)
+    public function show($server, $database, $view)
     {
-        $tableInfo = $this->dbProxy->getTableInfo($server, $database, $table);
-        // Make table info available to views
-        foreach($tableInfo as $name => $value)
+        $viewInfo = $this->dbProxy->getViewInfo($server, $database, $view);
+        // Make view info available to views
+        foreach($viewInfo as $name => $value)
         {
             $this->view()->share($name, $value);
         }
@@ -53,25 +53,11 @@ class Table extends AdminerCallable
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbProxy->getTableFields($server, $database, $table);
+        $fieldsInfo = $this->dbProxy->getViewFields($server, $database, $view);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
-        // Show indexes
-        $indexesInfo = $this->dbProxy->getTableIndexes($server, $database, $table);
-        if(\is_array($indexesInfo))
-        {
-            $this->showTab($indexesInfo, 'tab-content-indexes');
-        }
-
-        // Show foreign keys
-        $foreignKeysInfo = $this->dbProxy->getTableForeignKeys($server, $database, $table);
-        if(\is_array($foreignKeysInfo))
-        {
-            $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
-        }
-
         // Show triggers
-        $triggersInfo = $this->dbProxy->getTableTriggers($server, $database, $table);
+        $triggersInfo = $this->dbProxy->getViewTriggers($server, $database, $view);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');

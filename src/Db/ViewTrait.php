@@ -39,7 +39,7 @@ trait ViewTrait
     {
         $options = $this->connect($server, $database);
 
-        $this->setBreadcrumbs([$options['name'], $database, $view]);
+        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Views'), $view]);
 
         return $this->view()->getViewInfo($view);
     }

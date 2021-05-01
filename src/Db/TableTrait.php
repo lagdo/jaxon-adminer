@@ -39,7 +39,7 @@ trait TableTrait
     {
         $options = $this->connect($server, $database);
 
-        $this->setBreadcrumbs([$options['name'], $database, $table]);
+        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables'), $table]);
 
         return $this->table()->getTableInfo($table);
     }

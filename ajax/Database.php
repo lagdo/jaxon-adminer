@@ -206,7 +206,7 @@ class Database extends AdminerCallable
         // Set onclick handlers on table names
         $table = \jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Table::class)->rq()->showTable($server, $database, $table));
+            ->click($this->cl(Table::class)->rq()->show($server, $database, $table));
 
         return $this->response;
     }
@@ -244,7 +244,7 @@ class Database extends AdminerCallable
         // Set onclick handlers on view names
         $view = \jq()->parent()->attr('data-name');
         $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Table::class)->rq()->showView($server, $database, $view));
+            ->click($this->cl(View::class)->rq()->show($server, $database, $view));
 
         return $this->response;
     }
