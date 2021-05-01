@@ -24,12 +24,16 @@ class DatabaseProxy
 
         $menu_actions = [
             'table' => \adminer\lang('Tables'),
-            'view' => \adminer\lang('Views'),
+            // 'view' => \adminer\lang('Views'),
             // 'routine' => \adminer\lang('Routines'),
             // 'sequence' => \adminer\lang('Sequences'),
             // 'type' => \adminer\lang('User types'),
             // 'event' => \adminer\lang('Events'),
         ];
+        if(\adminer\support('view'))
+        {
+            $menu_actions['view'] = \adminer\lang('Views');
+        }
         if(\adminer\support('routine'))
         {
             $menu_actions['routine'] = \adminer\lang('Routines');
@@ -69,7 +73,7 @@ class DatabaseProxy
         global $adminer;
 
         $main_actions = [
-            'create-table' => \adminer\lang('Create table'),
+            'add-table' => \adminer\lang('Create table'),
         ];
 
         $headers = [
@@ -116,7 +120,7 @@ class DatabaseProxy
         global $adminer;
 
         $main_actions = [
-            'create-view' => \adminer\lang('Create view'),
+            'add-view' => \adminer\lang('Create view'),
         ];
 
         $headers = [

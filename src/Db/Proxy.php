@@ -86,7 +86,7 @@ class Proxy
      * @param string $server    The selected server
      * @param string $database  The database name
      *
-     * @return void
+     * @return array
      */
     protected function connect(string $server, string $database = '')
     {
@@ -149,5 +149,19 @@ class Proxy
         }
 
         return $options;
+    }
+
+    /**
+     * Check if a database server supports a given feature
+     *
+     * @param string $server    The selected server
+     * @param string $feature   The feature to check
+     *
+     * @return bool
+     */
+    public function support(string $server, string $feature)
+    {
+        $this->connect($server);
+        return \adminer\support($feature);
     }
 }

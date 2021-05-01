@@ -239,6 +239,10 @@ class Database extends AdminerCallable
         $checkbox = 'view';
         $this->showSection('view', $viewsInfo, ['checkbox' => $checkbox]);
 
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-main-action-add-view')
+            ->click($this->cl(View::class)->rq()->add($server, $database));
+
         // Set onclick handlers on view checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on view names

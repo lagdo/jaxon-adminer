@@ -14,15 +14,15 @@ class Table extends AdminerCallable
     /**
      * Display the content of a tab
      *
-     * @param array  $viewData  The data to be displayed in the view
+     * @param array  $tableData The data to be displayed in the view
      * @param string $tabId     The tab container id
      *
      * @return void
      */
-    protected function showTab(array $viewData, string $tabId)
+    protected function showTab(array $tableData, string $tabId)
     {
         // Make data available to views
-        $this->view()->shareValues($viewData);
+        $this->view()->shareValues($tableData);
 
         $content = $this->render('main/content');
         $this->response->html($tabId, $content);
@@ -41,10 +41,7 @@ class Table extends AdminerCallable
     {
         $tableInfo = $this->dbProxy->getTableInfo($server, $database, $table);
         // Make table info available to views
-        foreach($tableInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($tableInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -76,6 +73,103 @@ class Table extends AdminerCallable
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
         }
+
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-main-action-edit-table')
+            ->click($this->rq()->edit($server, $database, $table));
+        $this->jq('#adminer-main-action-drop-table')
+            ->click($this->rq()->drop($server, $database, $table)
+            ->confirm("Drop table $table?"));
+
+        return $this->response;
+    }
+
+    /**
+     * Show the new table form
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function add($server, $database)
+    {
+        $formId = 'table-form';
+        $title = 'Create a table';
+        $content = $this->render('table/add', [
+            'formId' => $formId,
+        ]);
+        $buttons = [[
+            'title' => 'Cancel',
+            'class' => 'btn btn-tertiary',
+            'click' => 'close',
+        ],[
+            'title' => 'Save',
+            'class' => 'btn btn-primary',
+            'click' => $this->rq()->create($server, $database, \pm()->form($formId)),
+        ]];
+        $this->response->dialog->show($title, $content, $buttons);
+
+        return $this->response;
+    }
+
+    /**
+     * Show edit form for a given table
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param string $table       The table name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function edit($server, $database, $table)
+    {
+
+        return $this->response;
+    }
+
+    /**
+     * Create a new table
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param string $values      The table values
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function create($server, $database, array $values)
+    {
+
+        return $this->response;
+    }
+
+    /**
+     * Update a given table
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param string $table       The table name
+     * @param string $values      The table values
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function update($server, $database, $table, array $values)
+    {
+
+        return $this->response;
+    }
+
+    /**
+     * Drop a given table
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param string $table       The table name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function drop($server, $database, $table)
+    {
 
         return $this->response;
     }

@@ -67,13 +67,18 @@ class ViewProxy
     /**
      * Get details about a view
      *
-     * @param string $table     The table name
+     * @param string $view      The view name
      *
      * @return array
      */
     public function getViewInfo(string $table)
     {
         global $adminer;
+
+        $main_actions = [
+            'edit-view' => \adminer\lang('Edit view'),
+            'drop-view' => \adminer\lang('Drop view'),
+        ];
 
         // From table.inc.php
         $status = $this->status($table);
@@ -95,13 +100,13 @@ class ViewProxy
             $tabs['triggers'] = \adminer\lang('Triggers');
         }
 
-        return \compact('title', 'comment', 'tabs');
+        return \compact('main_actions', 'title', 'comment', 'tabs');
     }
 
     /**
      * Get the fields of a table or a view
      *
-     * @param string $table     The table name
+     * @param string $view      The view name
      *
      * @return array
      */
@@ -171,7 +176,7 @@ class ViewProxy
     /**
      * Get the triggers of a table
      *
-     * @param string $table     The table name
+     * @param string $view      The view name
      *
      * @return array|null
      */
@@ -213,5 +218,133 @@ class ViewProxy
         }
 
         return \compact('main_actions', 'headers', 'details');
+    }
+
+    /**
+     * Get a view
+     *
+     * @param string $view      The view name
+     *
+     * @return array
+     */
+    public function getView(string $view)
+    {
+        global $jush, $error;
+
+        // From view.inc.php
+        $orig_type = "VIEW";
+        if($jush == "pgsql")
+        {
+            $status = \adminer\table_status($view);
+            $orig_type = \strtoupper($status["Engine"]);
+        }
+        $values = \adminer\view($view);
+        $values["name"] = $view;
+        $values["materialized"] = ($orig_type != "VIEW");
+        if(!$error)
+        {
+            $error = \adminer\error();
+        }
+        if(($error))
+        {
+            throw new Exception($error);
+        }
+
+        return ['view' => $values, 'orig_type' => $orig_type];
+    }
+
+    /**
+     * Create a view
+     *
+     * @param array  $values    The view values
+     *
+     * @return array
+     */
+    public function createView(array $values)
+    {
+        global $jush, $error;
+
+        // From view.inc.php
+        $name = \trim($values["name"]);
+        $location = null; // ME . "table=" . urlencode($name);
+        $message = \adminer\lang('View has been created.');
+        $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
+
+        $sql = ($jush == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
+            " $type " . \adminer\table($name) . " AS\n" . $values['select'];
+        $success = \adminer\query_redirect($sql, $location, $message);
+
+        return \compact('success', 'message', 'error');
+    }
+
+    /**
+     * Update a view
+     *
+     * @param string $view      The view name
+     * @param array  $values    The view values
+     *
+     * @return array
+     */
+    public function updateView(string $view, array $values)
+    {
+        global $jush, $error;
+
+        // From view.inc.php
+        $orig_type = "VIEW";
+        if($jush == "pgsql")
+        {
+            $status = \adminer\table_status($view);
+            $orig_type = \strtoupper($status["Engine"]);
+        }
+
+        $name = \trim($values["name"]);
+        $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
+        $message = \adminer\lang('View has been altered.');
+        $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
+        $temp_name = $name . "_adminer_" . \uniqid();
+
+        \adminer\drop_create(
+            "DROP $orig_type " . \adminer\table($view),
+            "CREATE $type " . \adminer\table($name) . " AS\n" . $values['select'],
+            "DROP $type " . \adminer\table($name),
+            "CREATE $type " . \adminer\table($temp_name) . " AS\n" . $values['select'],
+            "DROP $type " . \adminer\table($temp_name),
+            $location,
+            \adminer\lang('View has been dropped.'),
+            $message,
+            \adminer\lang('View has been created.'),
+            $view,
+            $name
+        );
+
+        $success = !$error;
+        return \compact('success', 'message', 'error');
+    }
+
+    /**
+     * Drop a view
+     *
+     * @param string $view      The view name
+     *
+     * @return array
+     */
+    public function dropView(string $view)
+    {
+        global $jush, $error;
+
+        // From view.inc.php
+        $orig_type = "VIEW";
+        if($jush == "pgsql")
+        {
+            $status = \adminer\table_status($view);
+            $orig_type = \strtoupper($status["Engine"]);
+        }
+
+        $sql = "DROP $orig_type " . \adminer\table($view);
+        $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
+        $message = \adminer\lang('View has been dropped.');
+        $success = \adminer\drop_only($sql, $location, $message);
+
+        return \compact('success', 'message', 'error');
     }
 }
