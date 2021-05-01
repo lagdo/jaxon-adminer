@@ -23,7 +23,8 @@ class DatabaseProxy
         ];
 
         $menu_actions = [
-            'table' => \adminer\lang('Tables and views'),
+            'table' => \adminer\lang('Tables'),
+            'view' => \adminer\lang('Views'),
             // 'routine' => \adminer\lang('Routines'),
             // 'sequence' => \adminer\lang('Sequences'),
             // 'type' => \adminer\lang('User types'),
@@ -69,7 +70,6 @@ class DatabaseProxy
 
         $main_actions = [
             'create-table' => \adminer\lang('Create table'),
-            'create-view' => \adminer\lang('Create view'),
         ];
 
         $headers = [
@@ -91,12 +91,60 @@ class DatabaseProxy
         $details = [];
         foreach($table_status as $table => $status)
         {
-            $details[] = [
-                'name' => $adminer->tableName($status),
-                'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
-                'collation' => '',
-                'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
-            ];
+            if(!\adminer\is_view($status))
+            {
+                $details[] = [
+                    'name' => $adminer->tableName($status),
+                    'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
+                    'collation' => '',
+                    'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
+                ];
+            }
+        }
+
+        return \compact('main_actions', 'headers', 'details');
+    }
+
+    /**
+     * Get the views from a database server
+     * Almost the same as getTables()
+     *
+     * @return void
+     */
+    public function getViews()
+    {
+        global $adminer;
+
+        $main_actions = [
+            'create-view' => \adminer\lang('Create view'),
+        ];
+
+        $headers = [
+            \adminer\lang('View'),
+            \adminer\lang('Engine'),
+            // \adminer\lang('Data Length'),
+            // \adminer\lang('Index Length'),
+            // \adminer\lang('Data Free'),
+            // \adminer\lang('Auto Increment'),
+            // \adminer\lang('Rows'),
+            \adminer\lang('Comment'),
+        ];
+
+        // From db.inc.php
+        // $table_status = \adminer\table_status('', true); // Tables details
+        $table_status = \adminer\table_status(); // Tables details
+
+        $details = [];
+        foreach($table_status as $table => $status)
+        {
+            if(\adminer\is_view($status))
+            {
+                $details[] = [
+                    'name' => $adminer->tableName($status),
+                    'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
+                    'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
+                ];
+            }
         }
 
         return \compact('main_actions', 'headers', 'details');

@@ -126,6 +126,8 @@ class Database extends AdminerCallable
         // Set the click handlers
         $this->jq('#adminer-menu-action-table')
             ->click($this->rq()->showTables($server, $database));
+        $this->jq('#adminer-menu-action-view')
+            ->click($this->rq()->showViews($server, $database));
         $this->jq('#adminer-menu-action-routine')
             ->click($this->rq()->showRoutines($server, $database));
         $this->jq('#adminer-menu-action-sequence')
@@ -195,15 +197,6 @@ class Database extends AdminerCallable
             ];
             return $detail;
         }, $tablesInfo['details']);
-        // \array_walk($tablesInfo['details'], function(&$detail) use($tableNameClass) {
-        //     $detail['name'] = [
-        //         'label' => '<a href="javascript:void(0)">' . $detail['name'] . '</a>',
-        //         'props' => [
-        //             'class' => $tableNameClass,
-        //             'data-name' => $detail['name'],
-        //         ],
-        //     ];
-        // });
 
         $checkbox = 'table';
         $this->showSection('table', $tablesInfo, ['checkbox' => $checkbox]);
@@ -214,6 +207,44 @@ class Database extends AdminerCallable
         $table = \jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Table::class)->rq()->showTable($server, $database, $table));
+
+        return $this->response;
+    }
+
+    /**
+     * Show the views of a given database
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showViews($server, $database)
+    {
+        $viewsInfo = $this->dbProxy->getViews($server, $database);
+
+        $viewNameClass = 'adminer-view-name';
+        // Add links, classes and data values to view names.
+        $viewsInfo['details'] = \array_map(function($detail) use($viewNameClass) {
+            $detail['name'] = [
+                'label' => '<a href="javascript:void(0)">' . $detail['name'] . '</a>',
+                'props' => [
+                    'class' => $viewNameClass,
+                    'data-name' => $detail['name'],
+                ],
+            ];
+            return $detail;
+        }, $viewsInfo['details']);
+
+        $checkbox = 'view';
+        $this->showSection('view', $viewsInfo, ['checkbox' => $checkbox]);
+
+        // Set onclick handlers on view checkbox
+        $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
+        // Set onclick handlers on view names
+        $view = \jq()->parent()->attr('data-name');
+        $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
+            ->click($this->cl(Table::class)->rq()->showView($server, $database, $view));
 
         return $this->response;
     }

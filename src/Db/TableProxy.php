@@ -36,12 +36,11 @@ class TableProxy
      * Print links after select heading
      * Copied from selectLinks() in adminer.inc.php
      *
-     * @param array result of SHOW TABLE STATUS
      * @param string new item options, NULL for no new item
      *
      * @return array
      */
-    protected function getTableLinks($tableStatus, $set = "")
+    protected function getTableLinks($set = null)
     {
         global $jush, $driver;
 
@@ -54,20 +53,12 @@ class TableProxy
         }
         if(\adminer\support("table"))
         {
-            if(\adminer\is_view($tableStatus))
-            {
-                $links["view"] = \adminer\lang('Alter view');
-            }
-            else
-            {
-                $links["create"] = \adminer\lang('Alter table');
-            }
+            $links["alter"] = \adminer\lang('Alter table');
         }
         if($set !== null)
         {
             $links["edit"] = \adminer\lang('New item');
         }
-        // $name = $tableStatus["Name"];
         // $links['docs'] = \doc_link([$jush => $driver->tableHelp($name)], "?");
 
         return $links;
@@ -85,14 +76,11 @@ class TableProxy
         global $adminer;
 
         // From table.inc.php
-        $table_status = $this->status($table);
-        $name = $adminer->tableName($table_status);
-        $title = (\adminer\is_view($table_status) ?
-            ($table_status['Engine'] == 'materialized view' ?
-            \adminer\lang('Materialized view') : \adminer\lang('View')) :
-            \adminer\lang('Table')) . ": " . ($name != "" ? $name : \adminer\h($table));
+        $status = $this->status($table);
+        $name = $adminer->tableName($status);
+        $title = \adminer\lang('Table') . ": " . ($name != "" ? $name : \adminer\h($table));
 
-        $comment = $table_status["Comment"] ?? '';
+        $comment = $status["Comment"] ?? '';
 
         $tabs = [
             'fields' => \adminer\lang('Columns'),
@@ -100,7 +88,7 @@ class TableProxy
             // 'foreign-keys' => \adminer\lang('Foreign keys'),
             // 'triggers' => \adminer\lang('Triggers'),
         ];
-        if(\adminer\is_view($table_status))
+        if(\adminer\is_view($status))
         {
             if(\adminer\support("view_trigger"))
             {
@@ -113,7 +101,7 @@ class TableProxy
             {
                 $tabs['indexes'] = \adminer\lang('Indexes');
             }
-            if(\adminer\fk_support($table_status))
+            if(\adminer\fk_support($status))
             {
                 $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
             }
@@ -142,8 +130,7 @@ class TableProxy
             throw new Exception(\adminer\error());
         }
 
-        $table_status = $this->status($table);
-        $main_actions = $this->getTableLinks($table_status);
+        $main_actions = $this->getTableLinks();
 
         $tabs = [
             'fields' => \adminer\lang('Columns'),
@@ -151,36 +138,25 @@ class TableProxy
             // 'foreign-keys' => \adminer\lang('Foreign keys'),
             // 'triggers' => \adminer\lang('Triggers'),
         ];
-        if(\adminer\is_view($table_status))
+        if(\adminer\support("indexes"))
         {
-            if(\adminer\support("view_trigger"))
-            {
-                $tabs['triggers'] = \adminer\lang('Triggers');
-            }
+            $tabs['indexes'] = \adminer\lang('Indexes');
         }
-        else
+        if(\adminer\fk_support($this->status($table)))
         {
-            if(\adminer\support("indexes"))
-            {
-                $tabs['indexes'] = \adminer\lang('Indexes');
-            }
-            if(\adminer\fk_support($table_status))
-            {
-                $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
-            }
-            if(\adminer\support("trigger"))
-            {
-                $tabs['triggers'] = \adminer\lang('Triggers');
-            }
+            $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
         }
-
-        $hasComment = \adminer\support('comment');
+        if(\adminer\support("trigger"))
+        {
+            $tabs['triggers'] = \adminer\lang('Triggers');
+        }
 
         $headers = [
             \adminer\lang('Name'),
             \adminer\lang('Type'),
             \adminer\lang('Collation'),
         ];
+        $hasComment = \adminer\support('comment');
         if($hasComment)
         {
             $headers[] = \adminer\lang('Comment');
@@ -227,8 +203,7 @@ class TableProxy
      */
     public function getTableIndexes(string $table)
     {
-        $table_status = $this->status($table);
-        if(\adminer\is_view($table_status) || !\adminer\support("indexes"))
+        if(!\adminer\support("indexes"))
         {
             return null;
         }
@@ -290,8 +265,8 @@ class TableProxy
      */
     public function getTableForeignKeys(string $table)
     {
-        $table_status = $this->status($table);
-        if(\adminer\is_view($table_status) || !\adminer\fk_support($table_status))
+        $status = $this->status($table);
+        if(!\adminer\fk_support($status))
         {
             return null;
         }
@@ -351,8 +326,8 @@ class TableProxy
      */
     public function getTableTriggers(string $table)
     {
-        $table_status = $this->status($table);
-        if(!\adminer\support(\adminer\is_view($table_status) ? "view_trigger" : "trigger"))
+        $status = $this->status($table);
+        if(!\adminer\support("trigger"))
         {
             return null;
         }

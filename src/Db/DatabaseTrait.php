@@ -55,9 +55,26 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables and views')]);
+        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables')]);
 
         return $this->database()->getTables();
+    }
+
+    /**
+     * Get the views from a database server
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getViews(string $server, string $database)
+    {
+        $options = $this->connect($server, $database);
+
+        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Views')]);
+
+        return $this->database()->getViews();
     }
 
     /**
