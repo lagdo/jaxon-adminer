@@ -18,20 +18,28 @@ if ($_POST && !$error) {
 	if (!$_POST["drop"] && $TABLE == $name && $jush != "sqlite" && $type == "VIEW" && $orig_type == "VIEW") {
 		query_redirect(($jush == "mssql" ? "ALTER" : "CREATE OR REPLACE") . " VIEW " . table($name) . $as, $location, $message);
 	} else {
-		$temp_name = $name . "_adminer_" . uniqid();
-		drop_create(
-			"DROP $orig_type " . table($TABLE),
-			"CREATE $type " . table($name) . $as,
-			"DROP $type " . table($name),
-			"CREATE $type " . table($temp_name) . $as,
-			"DROP $type " . table($temp_name),
-			($_POST["drop"] ? substr(ME, 0, -1) : $location),
-			lang('View has been dropped.'),
-			$message,
-			lang('View has been created.'),
-			$TABLE,
-			$name
-		);
+		if ($_POST["drop"]) {
+			drop_only(
+				"DROP $orig_type " . table($TABLE),
+				substr(ME, 0, -1),
+				lang('View has been dropped.'),
+			);
+		} else {
+			$temp_name = $name . "_adminer_" . uniqid();
+			drop_create(
+				"DROP $orig_type " . table($TABLE),
+				"CREATE $type " . table($name) . $as,
+				"DROP $type " . table($name),
+				"CREATE $type " . table($temp_name) . $as,
+				"DROP $type " . table($temp_name),
+				$location,
+				lang('View has been dropped.'),
+				$message,
+				lang('View has been created.'),
+				$TABLE,
+				$name
+			);
+		}
 	}
 }
 

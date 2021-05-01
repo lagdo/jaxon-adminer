@@ -393,6 +393,16 @@ function grant($grant, $privileges, $columns, $on) {
 
 /** Drop old object and create a new one
 * @param string drop old object query
+* @param string
+* @param string
+* @return null redirect in success
+*/
+function drop_only($drop, $location, $message_drop) {
+	return query_redirect($drop, $location, $message_drop);
+}
+
+/** Drop old object and create a new one
+* @param string drop old object query
 * @param string create new object query
 * @param string drop new object query
 * @param string create test object query
@@ -405,10 +415,9 @@ function grant($grant, $privileges, $columns, $on) {
 * @param string
 * @return null redirect in success
 */
-function drop_create($drop, $create, $drop_created, $test, $drop_test, $location, $message_drop, $message_alter, $message_create, $old_name, $new_name) {
-	if ($_POST["drop"]) {
-		query_redirect($drop, $location, $message_drop);
-	} elseif ($old_name == "") {
+function drop_create($drop, $create, $drop_created, $test, $drop_test, $location,
+	$message_drop, $message_alter, $message_create, $old_name, $new_name) {
+	if ($old_name == "") {
 		query_redirect($create, $location, $message_create);
 	} elseif ($old_name != $new_name) {
 		$created = queries($create);
