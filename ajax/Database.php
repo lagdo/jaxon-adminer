@@ -201,6 +201,10 @@ class Database extends AdminerCallable
         $checkbox = 'table';
         $this->showSection('table', $tablesInfo, ['checkbox' => $checkbox]);
 
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-main-action-add-table')
+            ->click($this->cl(Table::class)->rq()->add($server, $database));
+
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names

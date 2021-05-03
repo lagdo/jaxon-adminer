@@ -65,7 +65,7 @@ class TableProxy
     }
 
     /**
-     * Get details about a table or a view
+     * Get details about a table
      *
      * @param string $table     The table name
      *
@@ -74,6 +74,11 @@ class TableProxy
     public function getTableInfo(string $table)
     {
         global $adminer;
+
+        $main_actions = [
+            'edit-table' => \adminer\lang('Edit table'),
+            'drop-table' => \adminer\lang('Drop table'),
+        ];
 
         // From table.inc.php
         $status = $this->status($table);
@@ -111,11 +116,11 @@ class TableProxy
             }
         }
 
-        return \compact('title', 'comment', 'tabs');
+        return \compact('main_actions', 'title', 'comment', 'tabs');
     }
 
     /**
-     * Get the fields of a table or a view
+     * Get the fields of a table
      *
      * @param string $table     The table name
      *
@@ -362,5 +367,93 @@ class TableProxy
         }
 
         return \compact('main_actions', 'headers', 'details');
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string     The table name
+     *
+     * @return array
+     */
+    public function getTableData(string $table = '')
+    {
+        // From create.inc.php
+        $status = [];
+        $fields = [];
+        if($table !== '')
+        {
+            $status = \adminer\table_status($table);
+            if(!$status)
+            {
+                throw new Exception(\adminer\lang('No tables.'));
+            }
+            $fields = \adminer\fields($table);
+        }
+
+        $collations = \adminer\collations();
+        $engines = \adminer\engines();
+        $support = [
+            'columns' => \adminer\support('columns'),
+            'comment' => \adminer\support('comment'),
+            'partitioning' => \adminer\support('partitioning'),
+        ];
+
+        // Give the var a better name
+        $table = $status;
+        return \compact('table', 'fields', 'collations', 'engines', 'support');
+    }
+
+    /**
+     * Get a table
+     *
+     * @param string $table     The table name
+     *
+     * @return array
+     */
+    public function getTable(string $table)
+    {
+        global $jush, $error;
+
+    }
+
+    /**
+     * Create a table
+     *
+     * @param array  $values    The table values
+     *
+     * @return array
+     */
+    public function createTable(array $values)
+    {
+        global $jush, $error;
+
+    }
+
+    /**
+     * Update a table
+     *
+     * @param string $table     The table name
+     * @param array  $values    The table values
+     *
+     * @return array
+     */
+    public function updateTable(string $table, array $values)
+    {
+        global $jush, $error;
+
+    }
+
+    /**
+     * Drop a table
+     *
+     * @param string $table     The table name
+     *
+     * @return array
+     */
+    public function dropTable(string $table)
+    {
+        global $jush, $error;
+
     }
 }

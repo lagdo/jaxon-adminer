@@ -103,4 +103,19 @@ trait TableTrait
         $this->connect($server, $database);
         return $this->table()->getTableTriggers($table);
     }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array
+     */
+    public function getTableData(string $server, string $database, string $table = '')
+    {
+        $this->connect($server, $database);
+        return $this->table()->getTableData($table);
+    }
 }

@@ -84,8 +84,9 @@ class Table extends AdminerCallable
         return $this->response;
     }
 
+
     /**
-     * Show the new table form
+     * Create a new table
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -94,27 +95,26 @@ class Table extends AdminerCallable
      */
     public function add($server, $database)
     {
-        $formId = 'table-form';
-        $title = 'Create a table';
-        $content = $this->render('table/add', [
-            'formId' => $formId,
-        ]);
-        $buttons = [[
-            'title' => 'Cancel',
-            'class' => 'btn btn-tertiary',
-            'click' => 'close',
-        ],[
-            'title' => 'Save',
-            'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, $database, \pm()->form($formId)),
-        ]];
-        $this->response->dialog->show($title, $content, $buttons);
+        $tableData = $this->dbProxy->getTableData($server, $database);
+
+        $formId = 'form-table';
+        $tableId = 'adminer-table-meta';
+        $content = $this->render('table/add', $tableData)
+            ->with('formId', $formId)->with('tableId', $tableId);
+        $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->clear($this->package->getMainActionsId());
+
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-table-meta-edit')
+            ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
+        $this->jq('#adminer-table-meta-cancel')
+            ->click($this->cl(Database::class)->rq()->showTables($server, $database));
 
         return $this->response;
     }
 
     /**
-     * Show edit form for a given table
+     * Update a given table
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -124,6 +124,20 @@ class Table extends AdminerCallable
      */
     public function edit($server, $database, $table)
     {
+        $tableData = $this->dbProxy->getTableData($server, $database, $table);
+
+        $formId = 'form-table';
+        $tableId = 'adminer-table-meta';
+        $content = $this->render('table/edit', $tableData)
+            ->with('formId', $formId)->with('tableId', $tableId);
+        $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->clear($this->package->getMainActionsId());
+
+        // Set onclick handlers on toolbar buttons
+        $this->jq('#adminer-table-meta-edit')
+            ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
+        $this->jq('#adminer-table-meta-cancel')
+            ->click($this->rq()->show($server, $database, $table));
 
         return $this->response;
     }
@@ -133,7 +147,7 @@ class Table extends AdminerCallable
      *
      * @param string $server      The database server
      * @param string $database    The database name
-     * @param string $values      The table values
+     * @param array  $values      The table values
      *
      * @return \Jaxon\Response\Response
      */
@@ -149,7 +163,7 @@ class Table extends AdminerCallable
      * @param string $server      The database server
      * @param string $database    The database name
      * @param string $table       The table name
-     * @param string $values      The table values
+     * @param array  $values      The table values
      *
      * @return \Jaxon\Response\Response
      */
