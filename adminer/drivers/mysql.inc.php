@@ -544,17 +544,21 @@ if (!defined("DRIVER")) {
         foreach (get_rows("SHOW FULL COLUMNS FROM " . table($table)) as $row) {
             preg_match('~^([^( ]+)(?:\((.+)\))?( unsigned)?( zerofill)?$~', $row["Type"], $match);
             $matchCount = count($match);
+            $match1 = $matchCount > 1 ? $match[1] : '';
+            $match2 = $matchCount > 2 ? $match[2] : '';
+            $match3 = $matchCount > 3 ? $match[3] : '';
+            $match4 = $matchCount > 4 ? $match[4] : '';
 
             $return[$row["Field"]] = array(
                 "field" => $row["Field"],
                 "full_type" => $row["Type"],
-                "type" => $match[1],
-                "length" => $matchCount > 2 ? $match[2] : '',
-                "unsigned" => $matchCount > 4 ? ltrim($match[3] . $match[4]) : '',
-                "default" => ($row["Default"] != "" || preg_match("~char|set~", $match[1]) ? (preg_match('~text~', $match[1]) ? stripslashes(preg_replace("~^'(.*)'\$~", '\1', $row["Default"])) : $row["Default"]) : null),
+                "type" => $match1,
+                "length" => $match2,
+                "unsigned" => ltrim($match3 . $match4),
+                "default" => ($row["Default"] != "" || preg_match("~char|set~", $match1) ? (preg_match('~text~', $match1) ? stripslashes(preg_replace("~^'(.*)'\$~", '\1', $row["Default"])) : $row["Default"]) : null),
                 "null" => ($row["Null"] == "YES"),
                 "auto_increment" => ($row["Extra"] == "auto_increment"),
-                "on_update" => (preg_match('~^on update (.+)~i', $row["Extra"], $match) ? $match[1] : ""), //! available since MySQL 5.1.23
+                "on_update" => (preg_match('~^on update (.+)~i', $row["Extra"], $match) ? $match1 : ""), //! available since MySQL 5.1.23
                 "collation" => $row["Collation"],
                 "privileges" => array_flip(preg_split('~, *~', $row["Privileges"])),
                 "comment" => $row["Comment"],
@@ -597,12 +601,17 @@ if (!defined("DRIVER")) {
 
             foreach ($matches as $match) {
                 $matchCount = count($match);
+                $match1 = $matchCount > 1 ? $match[1] : '';
+                $match2 = $matchCount > 2 ? $match[2] : '';
+                $match3 = $matchCount > 3 ? $match[3] : '';
+                $match4 = $matchCount > 4 ? $match[4] : '';
+                $match5 = $matchCount > 5 ? $match[5] : '';
 
-                preg_match_all("~$pattern~", $match[2], $source);
-                preg_match_all("~$pattern~", $match[5], $target);
-                $return[idf_unescape($match[1])] = array(
-                    "db" => idf_unescape($match[4] != "" ? $match[3] : $match[4]),
-                    "table" => idf_unescape($match[4] != "" ? $match[4] : $match[3]),
+                preg_match_all("~$pattern~", $match2, $source);
+                preg_match_all("~$pattern~", $match5, $target);
+                $return[idf_unescape($match1)] = array(
+                    "db" => idf_unescape($match4 != "" ? $match3 : $match4),
+                    "table" => idf_unescape($match4 != "" ? $match4 : $match3),
                     "source" => array_map('\\adminer\\idf_unescape', $source[0]),
                     "target" => array_map('\\adminer\\idf_unescape', $target[0]),
                     "on_delete" => ($matchCount > 6 ? $match[6] : "RESTRICT"),
