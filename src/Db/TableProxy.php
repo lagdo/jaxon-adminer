@@ -45,21 +45,21 @@ class TableProxy
         global $jush, $driver;
 
         $links = [
-            "select" => \adminer\lang('Select data'),
+            'select' => \adminer\lang('Select data'),
         ];
-        if(\adminer\support("table") || \adminer\support("indexes"))
+        if(\adminer\support('table') || \adminer\support('indexes'))
         {
-            $links["table"] = \adminer\lang('Show structure');
+            $links['table'] = \adminer\lang('Show structure');
         }
-        if(\adminer\support("table"))
+        if(\adminer\support('table'))
         {
-            $links["alter"] = \adminer\lang('Alter table');
+            $links['alter'] = \adminer\lang('Alter table');
         }
         if($set !== null)
         {
-            $links["edit"] = \adminer\lang('New item');
+            $links['edit'] = \adminer\lang('New item');
         }
-        // $links['docs'] = \doc_link([$jush => $driver->tableHelp($name)], "?");
+        // $links['docs'] = \doc_link([$jush => $driver->tableHelp($name)], '?');
 
         return $links;
     }
@@ -76,16 +76,16 @@ class TableProxy
         global $adminer;
 
         $main_actions = [
-            'edit-table' => \adminer\lang('Edit table'),
+            'edit-table' => \adminer\lang('Alter table'),
             'drop-table' => \adminer\lang('Drop table'),
         ];
 
         // From table.inc.php
         $status = $this->status($table);
         $name = $adminer->tableName($status);
-        $title = \adminer\lang('Table') . ": " . ($name != "" ? $name : \adminer\h($table));
+        $title = \adminer\lang('Table') . ': ' . ($name != '' ? $name : \adminer\h($table));
 
-        $comment = $status["Comment"] ?? '';
+        $comment = $status['Comment'] ?? '';
 
         $tabs = [
             'fields' => \adminer\lang('Columns'),
@@ -95,14 +95,14 @@ class TableProxy
         ];
         if(\adminer\is_view($status))
         {
-            if(\adminer\support("view_trigger"))
+            if(\adminer\support('view_trigger'))
             {
                 $tabs['triggers'] = \adminer\lang('Triggers');
             }
         }
         else
         {
-            if(\adminer\support("indexes"))
+            if(\adminer\support('indexes'))
             {
                 $tabs['indexes'] = \adminer\lang('Indexes');
             }
@@ -110,7 +110,7 @@ class TableProxy
             {
                 $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
             }
-            if(\adminer\support("trigger"))
+            if(\adminer\support('trigger'))
             {
                 $tabs['triggers'] = \adminer\lang('Triggers');
             }
@@ -143,7 +143,7 @@ class TableProxy
             // 'foreign-keys' => \adminer\lang('Foreign keys'),
             // 'triggers' => \adminer\lang('Triggers'),
         ];
-        if(\adminer\support("indexes"))
+        if(\adminer\support('indexes'))
         {
             $tabs['indexes'] = \adminer\lang('Indexes');
         }
@@ -151,7 +151,7 @@ class TableProxy
         {
             $tabs['foreign-keys'] = \adminer\lang('Foreign keys');
         }
-        if(\adminer\support("trigger"))
+        if(\adminer\support('trigger'))
         {
             $tabs['triggers'] = \adminer\lang('Triggers');
         }
@@ -170,27 +170,27 @@ class TableProxy
         $details = [];
         foreach($fields as $field)
         {
-            $type = \adminer\h($field["full_type"]);
-            if($field["null"])
+            $type = \adminer\h($field['full_type']);
+            if($field['null'])
             {
-                $type .= " <i>nullable</i>"; // " <i>NULL</i>";
+                $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
-            if($field["auto_increment"])
+            if($field['auto_increment'])
             {
-                $type .= " <i>" . \adminer\lang('Auto Increment') . "</i>";
+                $type .= ' <i>' . \adminer\lang('Auto Increment') . '</i>';
             }
-            if(\array_key_exists("default", $field))
+            if(\array_key_exists('default', $field))
             {
-                $type .= /*' ' . \adminer\lang('Default value') .*/ ' [<b>' . \adminer\h($field["default"]) . '</b>]';
+                $type .= /*' ' . \adminer\lang('Default value') .*/ ' [<b>' . \adminer\h($field['default']) . '</b>]';
             }
             $detail = [
-                'name' => \adminer\h($field["field"] ?? ''),
+                'name' => \adminer\h($field['field'] ?? ''),
                 'type' => $type,
-                'collation' => \adminer\h($field["collation"] ?? ''),
+                'collation' => \adminer\h($field['collation'] ?? ''),
             ];
             if($hasComment)
             {
-                $detail['comment'] = \adminer\h($field["comment"] ?? '');
+                $detail['comment'] = \adminer\h($field['comment'] ?? '');
             }
 
             $details[] = $detail;
@@ -208,7 +208,7 @@ class TableProxy
      */
     public function getTableIndexes(string $table)
     {
-        if(!\adminer\support("indexes"))
+        if(!\adminer\support('indexes'))
         {
             return null;
         }
@@ -232,29 +232,29 @@ class TableProxy
             $indexes = [];
         }
         foreach ($indexes as $name => $index) {
-            \ksort($index["columns"]); // enforce correct columns order
+            \ksort($index['columns']); // enforce correct columns order
             $print = [];
-            foreach($index["columns"] as $key => $val)
+            foreach($index['columns'] as $key => $val)
             {
-                $value = "<i>" . \adminer\h($val) . "</i>";
-                if(\array_key_exists("lengths", $index) &&
-                    \is_array($index["lengths"]) &&
-                    \array_key_exists($key, $index["lengths"]))
+                $value = '<i>' . \adminer\h($val) . '</i>';
+                if(\array_key_exists('lengths', $index) &&
+                    \is_array($index['lengths']) &&
+                    \array_key_exists($key, $index['lengths']))
                 {
-                    $value .= "(" . $index["lengths"][$key] . ")";
+                    $value .= '(' . $index['lengths'][$key] . ')';
                 }
-                if(\array_key_exists("descs", $index) &&
-                    \is_array($index["descs"]) &&
-                    \array_key_exists($key, $index["descs"]))
+                if(\array_key_exists('descs', $index) &&
+                    \is_array($index['descs']) &&
+                    \array_key_exists($key, $index['descs']))
                 {
-                    $value .= " DESC";
+                    $value .= ' DESC';
                 }
                 $print[] = $value;
             }
             $details[] = [
                 'name' => \adminer\h($name),
                 'type' => $index['type'],
-                'desc' => \implode(", ", $print),
+                'desc' => \implode(', ', $print),
             ];
         }
 
@@ -299,23 +299,23 @@ class TableProxy
         foreach($foreign_keys as $name => $foreign_key)
         {
             $target = '';
-            if(\array_key_exists("db", $foreign_key) && $foreign_key["db"] != "")
+            if(\array_key_exists('db', $foreign_key) && $foreign_key['db'] != '')
             {
-                $target .= "<b>" . \adminer\h($foreign_key["db"]) . "</b>.";
+                $target .= '<b>' . \adminer\h($foreign_key['db']) . '</b>.';
             }
-            if(\array_key_exists("ns", $foreign_key) && $foreign_key["ns"] != "")
+            if(\array_key_exists('ns', $foreign_key) && $foreign_key['ns'] != '')
             {
-                $target .= "<b>" . \adminer\h($foreign_key["ns"]) . "</b>.";
+                $target .= '<b>' . \adminer\h($foreign_key['ns']) . '</b>.';
             }
-            $target = \adminer\h($foreign_key["table"]) .
-                '(' . \implode(', ', \array_map('\\adminer\\h', $foreign_key["target"])) . ')';
+            $target = \adminer\h($foreign_key['table']) .
+                '(' . \implode(', ', \array_map('\\adminer\\h', $foreign_key['target'])) . ')';
             $details[] = [
                 'name' => \adminer\h($name),
-                'source' => "<i>" . \implode("</i>, <i>",
-                    \array_map('\\adminer\\h', $foreign_key["source"])) . "</i>",
+                'source' => '<i>' . \implode('</i>, <i>',
+                    \array_map('\\adminer\\h', $foreign_key['source'])) . '</i>',
                 'target' => $target,
-                'on_delete' => \adminer\h($foreign_key["on_delete"]),
-                'on_update' => \adminer\h($foreign_key["on_update"]),
+                'on_delete' => \adminer\h($foreign_key['on_delete']),
+                'on_update' => \adminer\h($foreign_key['on_update']),
             ];
         }
 
@@ -332,7 +332,7 @@ class TableProxy
     public function getTableTriggers(string $table)
     {
         $status = $this->status($table);
-        if(!\adminer\support("trigger"))
+        if(!\adminer\support('trigger'))
         {
             return null;
         }
@@ -378,6 +378,13 @@ class TableProxy
      */
     public function getTableData(string $table = '')
     {
+        // From includes/editing.inc.php
+        global $structured_types, $types, $unsigned, $on_actions;
+
+        $main_actions = [
+            'table-cancel' => \adminer\lang('Cancel'),
+        ];
+
         // From create.inc.php
         $status = [];
         $fields = [];
@@ -391,6 +398,56 @@ class TableProxy
             $fields = \adminer\fields($table);
         }
 
+        $referencable_primary = \adminer\referencable_primary($table);
+        $foreign_keys = [];
+        foreach($referencable_primary as $table_name => $field)
+        {
+            $name = \str_replace('`', '``', $table_name) . '`' . \str_replace('`', '``', $field['field']);
+            // not idf_escape() - used in JS
+            $foreign_keys[$name] = $table_name;
+        }
+
+        foreach($fields as &$field)
+        {
+            $field["has_default"] = isset($field["default"]);
+            // From includes/editing.inc.php
+            $extra_types = [];
+            $type = $field['type'];
+            if($type && !isset($types[$type]) &&
+                !isset($foreign_keys[$type]) && !\in_array($type, $extra_types))
+            {
+                $extra_types[] = $type;
+            }
+            if($foreign_keys)
+            {
+                $structured_types[\adminer\lang('Foreign keys')] = $foreign_keys;
+            }
+            $field['_types_'] = \array_merge($extra_types, $structured_types);
+            if(!isset($field['on_update']))
+            {
+                $field['on_update'] = '';
+            }
+            if(!isset($field['on_delete']))
+            {
+                $field['on_delete'] = '';
+            }
+            if(\preg_match('~^CURRENT_TIMESTAMP~i', $field['on_update']))
+            {
+                $field['on_update'] = 'CURRENT_TIMESTAMP';
+            }
+
+            $field['_length_required_'] = !$field['length'] && \preg_match('~var(char|binary)$~', $type);
+            $field['_collation_hidden_'] = !\preg_match('~(char|text|enum|set)$~', $type);
+            $field['_unsigned_hidden_'] = !(!$type || \preg_match(\adminer\number_type(), $type));
+            $field['_on_update_hidden_'] = !\preg_match('~timestamp|datetime~', $type);
+            $field['_on_delete_hidden_'] = !\preg_match('~`~', $type);
+        }
+        $options = [
+            'on_update' => ['CURRENT_TIMESTAMP'],
+            'on_delete' => \explode('|', $on_actions),
+        ];
+
+
         $collations = \adminer\collations();
         $engines = \adminer\engines();
         $support = [
@@ -401,7 +458,8 @@ class TableProxy
 
         // Give the var a better name
         $table = $status;
-        return \compact('table', 'fields', 'collations', 'engines', 'support');
+        return \compact('main_actions', 'table', 'foreign_keys', 'fields',
+            'options', 'collations', 'engines', 'support', 'unsigned');
     }
 
     /**

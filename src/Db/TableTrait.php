@@ -115,7 +115,20 @@ trait TableTrait
      */
     public function getTableData(string $server, string $database, string $table = '')
     {
-        $this->connect($server, $database);
+        $options = $this->connect($server, $database);
+
+        $breadcrumbs = [$options['name'], $database, \adminer\lang('Tables')];
+        if(($table))
+        {
+            $breadcrumbs[] = $table;
+            $breadcrumbs[] = \adminer\lang('Alter table');
+        }
+        else
+        {
+            $breadcrumbs[] = \adminer\lang('Create table');
+        }
+        $this->setBreadcrumbs($breadcrumbs);
+
         return $this->table()->getTableData($table);
     }
 }

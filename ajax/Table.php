@@ -96,19 +96,26 @@ class Table extends AdminerCallable
     public function add($server, $database)
     {
         $tableData = $this->dbProxy->getTableData($server, $database);
+        // Make data available to views
+        $this->view()->shareValues($tableData);
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
 
         $formId = 'form-table';
         $tableId = 'adminer-table-meta';
-        $content = $this->render('table/add', $tableData)
-            ->with('formId', $formId)->with('tableId', $tableId);
+        $content = $this->render('table/add', \compact('formId', 'tableId'));
         $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->clear($this->package->getMainActionsId());
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-table-meta-edit')
-            ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
-        $this->jq('#adminer-table-meta-cancel')
+        $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
+        // $this->jq('#adminer-table-meta-edit')
+        //     ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
+        // $this->jq('#adminer-table-meta-cancel')
+        //     ->click($this->cl(Database::class)->rq()->showTables($server, $database));
+        // $this->jq('#adminer-table-add-column')
+        //     ->click($this->cl(Table\Column::class)->rq()->add($server, $database));
 
         return $this->response;
     }
@@ -125,19 +132,26 @@ class Table extends AdminerCallable
     public function edit($server, $database, $table)
     {
         $tableData = $this->dbProxy->getTableData($server, $database, $table);
+        // Make data available to views
+        $this->view()->shareValues($tableData);
+
+        // Update the breadcrumbs
+        $this->showBreadcrumbs();
 
         $formId = 'form-table';
         $tableId = 'adminer-table-meta';
-        $content = $this->render('table/edit', $tableData)
-            ->with('formId', $formId)->with('tableId', $tableId);
+        $content = $this->render('table/edit', \compact('formId', 'tableId'));
         $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->clear($this->package->getMainActionsId());
 
         // Set onclick handlers on toolbar buttons
-        $this->jq('#adminer-table-meta-edit')
-            ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
-        $this->jq('#adminer-table-meta-cancel')
+        $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
+        // $this->jq('#adminer-table-meta-edit')
+        //     ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
+        // $this->jq('#adminer-table-meta-cancel')
+        //     ->click($this->rq()->show($server, $database, $table));
+        // $this->jq('#adminer-table-add-column')
+        //     ->click($this->cl(Table\Column::class)->rq()->add($server, $database));
 
         return $this->response;
     }

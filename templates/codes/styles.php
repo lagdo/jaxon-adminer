@@ -42,4 +42,35 @@
     -webkit-appearance: none;
     margin: 0;
 }
+#<?php echo $this->containerId ?> .adminer-edit-table-name {
+    padding-right: 1px;
+}
+#<?php echo $this->containerId ?> .adminer-edit-table-engine {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+#<?php echo $this->containerId ?> .adminer-edit-table-collation {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+#<?php echo $this->containerId ?> .adminer-edit-table-header,
+#<?php echo $this->containerId ?> .adminer-edit-column-header {
+    padding-top: 15px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+#<?php echo $this->containerId ?> .adminer-edit-column-left {
+    padding-right: 1px;
+}
+#<?php echo $this->containerId ?> .adminer-edit-column-middle {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+#<?php echo $this->containerId ?> .adminer-edit-column-null {
+    padding-left: 10px;
+    padding-right: 1px;
+}
+#<?php echo $this->containerId ?> .adminer-edit-column-right {
+    padding-left: 1px;
+}
 </style>
