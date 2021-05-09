@@ -370,9 +370,55 @@ class TableProxy
     }
 
     /**
+     * Get foreign keys
+     *
+     * @param string $table     The table name
+     *
+     * @return void
+     */
+    private function getForeignKeys(string $table = '')
+    {
+        $referencable_primary = \adminer\referencable_primary($table);
+        $this->foreign_keys = [];
+        foreach($referencable_primary as $table_name => $field)
+        {
+            $name = \str_replace('`', '``', $table_name) .
+                '`' . \str_replace('`', '``', $field['field']);
+            // not idf_escape() - used in JS
+            $this->foreign_keys[$name] = $table_name;
+        }
+    }
+
+    /**
+     * Get field types
+     *
+     * @param string $type  The type name
+     *
+     * @return array
+     */
+    public function getFieldTypes(string $type = '')
+    {
+        // From includes/editing.inc.php
+        global $structured_types, $types;
+
+        // From includes/editing.inc.php
+        $extra_types = [];
+        if($type && !isset($types[$type]) &&
+            !isset($this->foreign_keys[$type]) && !\in_array($type, $extra_types))
+        {
+            $extra_types[] = $type;
+        }
+        if($this->foreign_keys)
+        {
+            $structured_types[\adminer\lang('Foreign keys')] = $this->foreign_keys;
+        }
+        return \array_merge($extra_types, $structured_types);
+    }
+
+    /**
      * Get required data for create/update on tables
      *
-     * @param string     The table name
+     * @param string $table The table name
      *
      * @return array
      */
@@ -395,34 +441,22 @@ class TableProxy
             {
                 throw new Exception(\adminer\lang('No tables.'));
             }
-            $fields = \adminer\fields($table);
+            $orig_fields = \adminer\fields($table);
+            $fields = [];
+            foreach($orig_fields as $field)
+            {
+                $field["has_default"] = isset($field["default"]);
+                $fields[] = $field;
+            }
         }
 
-        $referencable_primary = \adminer\referencable_primary($table);
-        $foreign_keys = [];
-        foreach($referencable_primary as $table_name => $field)
-        {
-            $name = \str_replace('`', '``', $table_name) . '`' . \str_replace('`', '``', $field['field']);
-            // not idf_escape() - used in JS
-            $foreign_keys[$name] = $table_name;
-        }
+        $this->getForeignKeys();
 
         foreach($fields as &$field)
         {
             $field["has_default"] = isset($field["default"]);
-            // From includes/editing.inc.php
-            $extra_types = [];
             $type = $field['type'];
-            if($type && !isset($types[$type]) &&
-                !isset($foreign_keys[$type]) && !\in_array($type, $extra_types))
-            {
-                $extra_types[] = $type;
-            }
-            if($foreign_keys)
-            {
-                $structured_types[\adminer\lang('Foreign keys')] = $foreign_keys;
-            }
-            $field['_types_'] = \array_merge($extra_types, $structured_types);
+            $field['_types_'] = $this->getFieldTypes($type);
             if(!isset($field['on_update']))
             {
                 $field['on_update'] = '';
@@ -456,10 +490,43 @@ class TableProxy
             'partitioning' => \adminer\support('partitioning'),
         ];
 
+        $foreign_keys = $this->foreign_keys;
         // Give the var a better name
         $table = $status;
         return \compact('main_actions', 'table', 'foreign_keys', 'fields',
             'options', 'collations', 'engines', 'support', 'unsigned');
+    }
+
+    /**
+     * Get fields for a new column
+     *
+     * @return array
+     */
+    public function getTableField()
+    {
+        $this->getForeignKeys();
+
+        return [
+            "field" => "",
+            "type" => "",
+            "length" => "",
+            "unsigned" => "",
+            "null" => false,
+            "auto_increment" => false,
+            "collation" => '',
+            // "default" => null,
+            // "comment" => "",
+            // "primary" => true,
+            // "generated" => 0,
+            "on_update" => "",
+            "on_delete" => "",
+            "_types_" => $this->getFieldTypes(),
+            "_length_required_" => false,
+            "_collation_hidden_" => true,
+            "_unsigned_hidden_" => false,
+            "_on_update_hidden_" => true,
+            "_on_delete_hidden_" => true
+        ];
     }
 
     /**

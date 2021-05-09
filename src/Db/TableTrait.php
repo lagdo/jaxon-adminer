@@ -131,4 +131,18 @@ trait TableTrait
 
         return $this->table()->getTableData($table);
     }
+
+    /**
+     * Get fields for a new column
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     *
+     * @return array
+     */
+    public function getTableField(string $server, string $database)
+    {
+        $options = $this->connect($server, $database);
+        return $this->table()->getTableField();
+    }
 }

@@ -102,16 +102,18 @@ class Table extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $formId = 'form-table';
+        $formId = 'adminer-table-form';
         $tableId = 'adminer-table-meta';
+        $contentId = $this->package->getDbContentId();
         $content = $this->render('table/add', \compact('formId', 'tableId'));
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
-        // $this->jq('#adminer-table-meta-edit')
-        //     ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
+        $count = \jq(".$formId-column", $contentId)->length;
+        $this->jq('#adminer-table-add-column')
+            ->click($this->rq()->addColumn($server, $database, $count));
         // $this->jq('#adminer-table-meta-cancel')
         //     ->click($this->cl(Database::class)->rq()->showTables($server, $database));
         // $this->jq('#adminer-table-add-column')
@@ -138,20 +140,49 @@ class Table extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $formId = 'form-table';
+        $formId = 'adminer-table-form';
         $tableId = 'adminer-table-meta';
+        $contentId = $this->package->getDbContentId();
         $content = $this->render('table/edit', \compact('formId', 'tableId'));
-        $this->response->html($this->package->getDbContentId(), $content);
+        $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
-        // $this->jq('#adminer-table-meta-edit')
-        //     ->click($this->rq()->editMeta($server, $database, \pm()->form($formId)));
+        $count = \jq(".$formId-column", $contentId)->length;
+        $this->jq('#adminer-table-add-column')
+            ->click($this->rq()->addColumn($server, $database, $count));
         // $this->jq('#adminer-table-meta-cancel')
         //     ->click($this->rq()->show($server, $database, $table));
         // $this->jq('#adminer-table-add-column')
         //     ->click($this->cl(Table\Column::class)->rq()->add($server, $database));
+
+        return $this->response;
+    }
+
+    /**
+     * Insert a new column at a given position
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param int    $index       The number of columns in the table.
+     * @param int    $before      The new column is added before this position. Set to -1 to add at the end.
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function addColumn($server, $database, $index, $before = -1)
+    {
+        $tableData = $this->dbProxy->getTableData($server, $database);
+        // Make data available to views
+        $this->view()->shareValues($tableData);
+
+        $formId = 'adminer-table-form';
+        $content = $this->render('table/field', [
+            'class' => "$formId-column",
+            'index' => $index,
+            'field' => $this->dbProxy->getTableField($server, $database)
+        ]);
+        $this->response->append($formId, 'innerHTML', $content);
 
         return $this->response;
     }
