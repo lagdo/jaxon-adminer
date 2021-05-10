@@ -1,4 +1,5 @@
-        <div class="form-group <?php echo $this->class ?>">
+        <div class="form-group <?php echo $this->class ?>" id="<?php
+            echo sprintf('%s-%02d', $this->class, $this->index) ?>">
             <div class="col-md-3 adminer-edit-column-left">
                 <input name="fields[<?php echo $this->index ?>][field]" class="form-control" value="<?php
                     echo $this->field['field'] ?? '' ?>" data-maxlength="64" autocapitalize="off">
@@ -74,17 +75,17 @@
                     if($this->field['auto_increment']): ?>checked <?php endif ?>/>
             </div>
             <div class="col-md-2 adminer-edit-column-right" data-name="<?php
-                echo $this->field['field'] ?>" data-id="<?php echo $this->index ?>">
-                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-add-column">
+                echo $this->field['field'] ?>" data-index="<?php echo $this->index ?>">
+                <button type="button" class="btn btn-primary btn-xs adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-up">
+                <button type="button" class="btn btn-primary btn-xs adminer-table-column-up">
                     <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-down">
+                <button type="button" class="btn btn-primary btn-xs adminer-table-column-down">
                     <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-del-column">
+                <button type="button" class="btn btn-primary btn-xs adminer-table-column-del">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
             </div>

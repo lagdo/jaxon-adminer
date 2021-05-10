@@ -40,7 +40,7 @@
             </label>
             <div class="col-md-2 adminer-edit-column-right">
 <?php if($this->support['columns']): ?>
-                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-add-column">
+                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>
 <?php endif ?>

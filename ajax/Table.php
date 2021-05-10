@@ -111,9 +111,9 @@ class Table extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
-        $count = \jq(".$formId-column", $contentId)->length;
-        $this->jq('#adminer-table-add-column')
-            ->click($this->rq()->addColumn($server, $database, $count));
+        $length = \jq(".$formId-column", "#$contentId")->size();
+        $this->jq('#adminer-table-column-add')
+            ->click($this->rq()->addColumn($server, $database, $length));
         // $this->jq('#adminer-table-meta-cancel')
         //     ->click($this->cl(Database::class)->rq()->showTables($server, $database));
         // $this->jq('#adminer-table-add-column')
@@ -149,9 +149,12 @@ class Table extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
-        $count = \jq(".$formId-column", $contentId)->length;
-        $this->jq('#adminer-table-add-column')
-            ->click($this->rq()->addColumn($server, $database, $count));
+        $length = \jq(".$formId-column", "#$contentId")->size();
+        $this->jq('#adminer-table-column-add')
+            ->click($this->rq()->addColumn($server, $database, $length));
+        $before = \jq()->parent()->attr('data-index');
+        $this->jq('.adminer-table-column-add')
+            ->click($this->rq()->addColumn($server, $database, $length, $before));
         // $this->jq('#adminer-table-meta-cancel')
         //     ->click($this->rq()->show($server, $database, $table));
         // $this->jq('#adminer-table-add-column')
@@ -165,24 +168,46 @@ class Table extends AdminerCallable
      *
      * @param string $server      The database server
      * @param string $database    The database name
-     * @param int    $index       The number of columns in the table.
+     * @param int    $length      The number of columns in the table.
      * @param int    $before      The new column is added before this position. Set to -1 to add at the end.
      *
      * @return \Jaxon\Response\Response
      */
-    public function addColumn($server, $database, $index, $before = -1)
+    public function addColumn($server, $database, $length, $before = -1)
     {
         $tableData = $this->dbProxy->getTableData($server, $database);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
         $formId = 'adminer-table-form';
+        $columnId = \sprintf('%s-column-%02d', $formId, $length);
+        $beforeId = \sprintf('%s-column-%02d', $formId, $before);
         $content = $this->render('table/field', [
             'class' => "$formId-column",
-            'index' => $index,
+            'index' => $length,
             'field' => $this->dbProxy->getTableField($server, $database)
         ]);
-        $this->response->append($formId, 'innerHTML', $content);
+
+        $contentId = $this->package->getDbContentId();
+        $length_ = \jq(".$formId-column", "#$contentId")->size();
+        $before_ = \jq()->parent()->attr('data-index');
+        if($before < 0)
+        {
+            // Add the new column at the end of the list
+            $this->response->append($formId, 'innerHTML', $content);
+            // Set the button event handlers on the new column
+            $this->jq('.adminer-table-column-add', "#$columnId")
+                ->click($this->rq()->addColumn($server, $database, $length_, $before_));
+            return $this->response;
+        }
+
+        // Insert the new column before the given index
+        $this->response->prepend($beforeId, 'outerHTML', $content);
+        // Set the button event handlers on the new and the modified column
+        $this->jq('.adminer-table-column-add', "#$columnId")
+            ->click($this->rq()->addColumn($server, $database, $length_, $before_));
+        $this->jq('.adminer-table-column-add', "#$beforeId")
+            ->click($this->rq()->addColumn($server, $database, $length_, $before_));
 
         return $this->response;
     }
