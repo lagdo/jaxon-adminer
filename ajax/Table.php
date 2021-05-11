@@ -161,9 +161,11 @@ class Table extends AdminerCallable
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $length));
-        $target = \jq()->parent()->attr('data-index');
+        $index = \jq()->parent()->attr('data-index');
         $this->jq('.adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $length, $target));
+            ->click($this->cl(Column::class)->rq()->add($server, $database, $length, $index));
+        $this->jq('.adminer-table-column-del')
+            ->click($this->cl(Column::class)->rq()->setForDelete($server, $database, $index));
 
         return $this->response;
     }

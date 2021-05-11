@@ -124,4 +124,58 @@ class Column extends AdminerCallable
 
         return $this->response;
     }
+
+    /**
+     * Mark an existing column as to be deleted
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param int    $index       The column index
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function setForDelete($server, $database, $index)
+    {
+        $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
+
+        $this->jq('.adminer-table-column-del', "#$columnId")
+            ->removeClass('btn-primary')
+            ->addClass('btn-danger')
+            // Remove the current onClick handler and set a new one.
+            ->unbind('click')
+            ->click($this->rq()->cancelDelete($server, $database, $index));
+        // The Glyphicon icon set has no cancel on undo icon. Terrible.
+        // $this->jq('.adminer-table-column-del>span', "#$columnId")
+        //     ->removeClass('glyphicon-remove')
+        //     ->addClass('glyphicon-cancel');
+
+        return $this->response;
+    }
+
+    /**
+     * Cancel delete on an existing column
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param int    $index       The column index
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function cancelDelete($server, $database, $index)
+    {
+        $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
+
+        $this->jq('.adminer-table-column-del', "#$columnId")
+            ->removeClass('btn-danger')
+            ->addClass('btn-primary')
+            // Remove the current onClick handler and set a new one.
+            ->unbind('click')
+            ->click($this->rq()->setForDelete($server, $database, $index));
+        // The Glyphicon icon set has no cancel on undo icon. Terrible.
+        // $this->jq('.adminer-table-column-del>span', "#$columnId")
+        //     ->removeClass('glyphicon-cancel')
+        //     ->addClass('glyphicon-remove');
+
+        return $this->response;
+    }
 }
