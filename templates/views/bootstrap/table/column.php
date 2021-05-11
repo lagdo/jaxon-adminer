@@ -76,8 +76,8 @@
                 <input type="radio" name="auto_increment_col" value="<?php echo $this->index ?>" <?php
                     if($this->field['auto_increment']): ?>checked <?php endif ?>/>
             </div>
-            <div class="col-md-2 adminer-edit-column-right" data-name="<?php
-                echo $this->field['field'] ?>" data-index="<?php echo $this->index ?>">
+            <div class="col-md-2 adminer-edit-column-right adminer-table-column-buttons" data-index="<?php
+                echo $this->index ?>">
                 <button type="button" class="btn btn-primary btn-xs adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>

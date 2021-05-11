@@ -49,7 +49,7 @@ class Column extends AdminerCallable
      *
      * @param string $server      The database server
      * @param string $database    The database name
-     * @param int    $length      The number of columns in the table.
+     * @param int    $length      The number of columns in the table
      * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
      *
      * @return \Jaxon\Response\Response
@@ -81,27 +81,23 @@ class Column extends AdminerCallable
         {
             // Add the new column at the end of the list
             $this->response->append($this->formId, 'innerHTML', $content);
-            // Set the button event handlers on the new column
-            $this->jq('.adminer-table-column-add', "#$columnId")
-                ->click($this->rq()->add($server, $database, $length, $index));
-            $this->jq('.adminer-table-column-del', "#$columnId")
-                ->click($this->rq()->del($server, $database, $index));
-
-            return $this->response;
+        }
+        else
+        {
+            // Insert the new column before the given index
+            /*
+            * The prepend() function is not suitable here because it rewrites the
+            * $targetId element, resetting all its event handlers and inputs.
+            */
+            $this->insertBefore($targetId, $columnId, $columnClass, $content);
+            // $this->response->prepend($targetId, 'outerHTML', $content);
         }
 
-        // Insert the new column before the given index
-        /*
-         * The prepend() function is not suitable here because it rewrites the
-         * $targetId element, resetting all its event handlers and inputs.
-         */
-        $this->insertBefore($targetId, $columnId, $columnClass, $content);
-        // $this->response->prepend($targetId, 'outerHTML', $content);
         // Set the button event handlers on the new and the modified column
         $this->jq('.adminer-table-column-add', "#$columnId")
             ->click($this->rq()->add($server, $database, $length, $index));
         $this->jq('.adminer-table-column-del', "#$columnId")
-            ->click($this->rq()->del($server, $database, $index));
+            ->click($this->rq()->del($server, $database, $length, $index));
 
         return $this->response;
     }
@@ -111,16 +107,27 @@ class Column extends AdminerCallable
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param int    $length      The number of columns in the table
      * @param int    $index       The column index
      *
      * @return \Jaxon\Response\Response
      */
-    public function del($server, $database, $index)
+    public function del($server, $database, $length, $index)
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
         // Delete the column
         $this->response->remove($columnId, 'outerHTML', '');
+
+        // Reset the added columns ids, so they remain contiguous.
+        $length--;
+        for($id = $index; $id < $length; $id++)
+        {
+            $currId = \sprintf('%s-column-%02d', $this->formId, $id + 1);
+            $nextId = \sprintf('%s-column-%02d', $this->formId, $id);
+            $this->jq('.adminer-table-column-buttons', "#$currId")->attr('data-index', $id);
+            $this->jq("#$currId")->attr('id', $nextId);
+        }
 
         return $this->response;
     }
