@@ -52,7 +52,7 @@
             </div>
         </div>
 <?php foreach($this->fields as $index => $field): ?>
-<?php echo $this->render('adminer::views::table/field', [
+<?php echo $this->render('adminer::views::table/column', [
     'class' => $this->formId . '-column',
     'index' => $index,
     'field' => $field,
