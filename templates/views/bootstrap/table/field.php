@@ -1,5 +1,7 @@
+<?php if(isset($this->class)): ?>
         <div class="form-group <?php echo $this->class ?>" id="<?php
             echo sprintf('%s-%02d', $this->class, $this->index) ?>">
+<?php endif ?>
             <div class="col-md-3 adminer-edit-column-left">
                 <input name="fields[<?php echo $this->index ?>][field]" class="form-control" value="<?php
                     echo $this->field['field'] ?? '' ?>" data-maxlength="64" autocapitalize="off">
@@ -90,4 +92,6 @@
                 </button>
             </div>
 <?php endif ?>
+<?php if(isset($this->class)): ?>
         </div>
+<?php endif ?>

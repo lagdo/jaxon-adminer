@@ -12,6 +12,16 @@ use Exception;
 class Table extends AdminerCallable
 {
     /**
+     * The form id
+     */
+    protected $formId = 'adminer-table-form';
+
+    /**
+     * The table id
+     */
+    protected $tableId = 'adminer-table-header';
+
+    /**
      * Display the content of a tab
      *
      * @param array  $tableData The data to be displayed in the view
@@ -102,16 +112,17 @@ class Table extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $formId = 'adminer-table-form';
-        $tableId = 'adminer-table-meta';
         $contentId = $this->package->getDbContentId();
-        $content = $this->render('table/add', \compact('formId', 'tableId'));
+        $content = $this->render('table/add', [
+            'formId' => $this->formId,
+            'tableId' => $this->tableId,
+        ]);
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
-        $length = \jq(".$formId-column", "#$contentId")->size();
+        $length = \jq(".{$this->formId}-column", "#$contentId")->size();
         $this->jq('#adminer-table-column-add')
             ->click($this->rq()->addColumn($server, $database, $length));
         // $this->jq('#adminer-table-meta-cancel')
@@ -140,21 +151,22 @@ class Table extends AdminerCallable
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $formId = 'adminer-table-form';
-        $tableId = 'adminer-table-meta';
         $contentId = $this->package->getDbContentId();
-        $content = $this->render('table/edit', \compact('formId', 'tableId'));
+        $content = $this->render('table/edit', [
+            'formId' => $this->formId,
+            'tableId' => $this->tableId,
+        ]);
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
-        $length = \jq(".$formId-column", "#$contentId")->size();
+        $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->rq()->addColumn($server, $database, $length));
-        $before = \jq()->parent()->attr('data-index');
+        $target = \jq()->parent()->attr('data-index');
         $this->jq('.adminer-table-column-add')
-            ->click($this->rq()->addColumn($server, $database, $length, $before));
+            ->click($this->rq()->addColumn($server, $database, $length, $target));
         // $this->jq('#adminer-table-meta-cancel')
         //     ->click($this->rq()->show($server, $database, $table));
         // $this->jq('#adminer-table-add-column')
@@ -166,48 +178,83 @@ class Table extends AdminerCallable
     /**
      * Insert a new column at a given position
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param int    $length      The number of columns in the table.
-     * @param int    $before      The new column is added before this position. Set to -1 to add at the end.
+     * @param string $target      The target element
+     * @param string $id          The new element id
+     * @param string $class       The new element class
+     * @param string $content     The new element content
+     * @param array  $attrs       The new element attributes
      *
      * @return \Jaxon\Response\Response
      */
-    public function addColumn($server, $database, $length, $before = -1)
+    public function insertColumnBefore($target, $id, $class, $content, array $attrs = [])
+    {
+        // Insert a div with the id before the target
+        $this->response->insert($target, 'div', $id);
+        // Set the new element class
+        $this->jq("#$id")->attr('class', "form-group $class");
+        // Set the new element attributes
+        foreach($attrs as $name => $value)
+        {
+            $this->jq("#$id")->attr($name, $value);
+        }
+        // Set the new element content
+        $this->response->html($id, $content);
+    }
+
+    /**
+     * Insert a new column at a given position
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param int    $length      The number of columns in the table.
+     * @param int    $target      The new column is added before this position. Set to -1 to add at the end.
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function addColumn($server, $database, $length, $target = -1)
     {
         $tableData = $this->dbProxy->getTableData($server, $database);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
-        $formId = 'adminer-table-form';
-        $columnId = \sprintf('%s-column-%02d', $formId, $length);
-        $beforeId = \sprintf('%s-column-%02d', $formId, $before);
-        $content = $this->render('table/field', [
-            'class' => "$formId-column",
+        $columnClass = "{$this->formId}-column";
+        $columnId = \sprintf('%s-%02d', $columnClass, $length);
+        $targetId = \sprintf('%s-%02d', $columnClass, $target);
+        $vars = [
             'index' => $length,
             'field' => $this->dbProxy->getTableField($server, $database)
-        ]);
+        ];
+        if($target < 0)
+        {
+            // Get the content with wrapper
+            $vars['class'] = $columnClass;
+        }
+        $content = $this->render('table/field', $vars);
 
         $contentId = $this->package->getDbContentId();
-        $length_ = \jq(".$formId-column", "#$contentId")->size();
-        $before_ = \jq()->parent()->attr('data-index');
-        if($before < 0)
+        $length = \jq(".$columnClass", "#$contentId")->length;
+        $index = \jq()->parent()->attr('data-index');
+        if($target < 0)
         {
             // Add the new column at the end of the list
-            $this->response->append($formId, 'innerHTML', $content);
+            $this->response->append($this->formId, 'innerHTML', $content);
             // Set the button event handlers on the new column
             $this->jq('.adminer-table-column-add', "#$columnId")
-                ->click($this->rq()->addColumn($server, $database, $length_, $before_));
+                ->click($this->rq()->addColumn($server, $database, $length, $index));
+
             return $this->response;
         }
 
         // Insert the new column before the given index
-        $this->response->prepend($beforeId, 'outerHTML', $content);
+        /*
+         * The prepend() function is not suitable here because it rewrites the
+         * $targetId element, resetting all its event handlers and inputs.
+         */
+        $this->insertColumnBefore($targetId, $columnId, $columnClass, $content);
+        // $this->response->prepend($targetId, 'outerHTML', $content);
         // Set the button event handlers on the new and the modified column
         $this->jq('.adminer-table-column-add', "#$columnId")
-            ->click($this->rq()->addColumn($server, $database, $length_, $before_));
-        $this->jq('.adminer-table-column-add', "#$beforeId")
-            ->click($this->rq()->addColumn($server, $database, $length_, $before_));
+            ->click($this->rq()->addColumn($server, $database, $length, $index));
 
         return $this->response;
     }
