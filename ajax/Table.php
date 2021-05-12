@@ -123,7 +123,7 @@ class Table extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
-        $length = \jq(".{$this->formId}-column", "#$contentId")->size();
+        $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $length));
 

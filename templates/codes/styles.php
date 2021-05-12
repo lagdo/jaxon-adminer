@@ -54,23 +54,38 @@
     padding-right: 1px;
 }
 #<?php echo $this->containerId ?> .adminer-edit-table-header,
-#<?php echo $this->containerId ?> .adminer-edit-column-header {
+#<?php echo $this->containerId ?> .adminer-table-column-header {
     padding-top: 15px;
     padding-bottom: 0;
     margin-bottom: 0;
 }
-#<?php echo $this->containerId ?> .adminer-edit-column-left {
+#<?php echo $this->containerId ?> .adminer-table-column-left {
     padding-right: 1px;
 }
-#<?php echo $this->containerId ?> .adminer-edit-column-middle {
+#<?php echo $this->containerId ?> .adminer-table-column-default,
+#<?php echo $this->containerId ?> .adminer-table-column-middle {
     padding-left: 1px;
     padding-right: 1px;
 }
-#<?php echo $this->containerId ?> .adminer-edit-column-null {
+#<?php echo $this->containerId ?> .adminer-table-column-null,
+#<?php echo $this->containerId ?> .adminer-table-column-null-header {
     padding-left: 10px;
     padding-right: 1px;
 }
-#<?php echo $this->containerId ?> .adminer-edit-column-right {
+#<?php echo $this->containerId ?> .adminer-table-column-null input {
+    margin-top: 10px;
+}
+#<?php echo $this->containerId ?> .adminer-table-column-buttons,
+#<?php echo $this->containerId ?> .adminer-table-column-buttons-header {
+    padding-left: 10px;
+}
+#<?php echo $this->containerId ?> .adminer-table-column-buttons button {
+    margin-top: 5px;
+}
+#<?php echo $this->containerId ?> .adminer-table-column-right {
     padding-left: 1px;
+}
+#<?php echo $this->containerId ?> .second-line {
+    margin-top: 2px;
 }
 </style>

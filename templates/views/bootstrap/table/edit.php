@@ -34,14 +34,14 @@
             </div>
 <?php endif ?>
         </div>
-        <div class="form-group adminer-edit-column-header">
-            <label class="col-md-2 adminer-edit-column-left"><?php echo \adminer\lang('Column') ?></label>
-            <label class="col-md-1 adminer-edit-column-middle"><?php echo \adminer\lang('Length') ?></label>
-            <label class="col-md-2 adminer-edit-column-middle" for="auto_increment_col">
-                <input type="radio" name="auto_increment_col" value=""> Auto Increment
+        <div class="form-group adminer-table-column-header">
+            <label class="col-md-2 adminer-table-column-left"><?php echo \adminer\lang('Column') ?></label>
+            <label class="col-md-3 adminer-table-column-middle"><?php echo \adminer\lang('Length') ?></label>
+            <label class="col-md-1 adminer-table-column-middle adminer-table-column-null-header" for="auto_increment_col">
+                <input type="radio" name="auto_increment_col" value=""> AI
             </label>
-            <label class="col-md-5 adminer-edit-column-middle"><?php echo \adminer\lang('Options') ?></label>
-            <div class="col-md-2 adminer-edit-column-right">
+            <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
+            <div class="col-md-2 adminer-table-column-buttons-header">
 <?php if($this->support['columns']): ?>
                 <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
