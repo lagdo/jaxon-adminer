@@ -481,13 +481,14 @@ class TableProxy
             'on_delete' => \explode('|', $on_actions),
         ];
 
-
         $collations = \adminer\collations();
         $engines = \adminer\engines();
         $support = [
             'columns' => \adminer\support('columns'),
             'comment' => \adminer\support('comment'),
             'partitioning' => \adminer\support('partitioning'),
+            'move_col' => \adminer\support('move_col'),
+            'drop_col' => \adminer\support('drop_col'),
         ];
 
         $foreign_keys = $this->foreign_keys;

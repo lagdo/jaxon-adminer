@@ -8,7 +8,7 @@
                     echo $this->table['Name'] ?>" placeholder="Name" />
             </div>
 <?php if($this->engines): ?>
-            <div class="col-md-2 adminer-edit-table-engine">
+            <div class="col-md-3 adminer-edit-table-engine">
                 <select name="engine" class="form-control">
                     <option value="">(engine)</option>
 <?php foreach($this->engines as $group => $engine): ?>
@@ -35,14 +35,12 @@
 <?php endif ?>
         </div>
         <div class="form-group adminer-edit-column-header">
-            <label class="col-md-3 adminer-edit-column-left"><?php echo \adminer\lang('Column') ?></label>
-            <label class="col-md-2 adminer-edit-column-middle"><?php echo \adminer\lang('Type') ?></label>
+            <label class="col-md-2 adminer-edit-column-left"><?php echo \adminer\lang('Column') ?></label>
             <label class="col-md-1 adminer-edit-column-middle"><?php echo \adminer\lang('Length') ?></label>
-            <label class="col-md-2 adminer-edit-column-middle"><?php echo \adminer\lang('Options') ?></label>
-            <label class="col-md-1 adminer-edit-column-null">NULL</label>
-            <label class="col-md-1 adminer-edit-column-middle">
-                <input type="radio" name="auto_increment_col" value=""> AI
+            <label class="col-md-2 adminer-edit-column-middle" for="auto_increment_col">
+                <input type="radio" name="auto_increment_col" value=""> Auto Increment
             </label>
+            <label class="col-md-5 adminer-edit-column-middle"><?php echo \adminer\lang('Options') ?></label>
             <div class="col-md-2 adminer-edit-column-right">
 <?php if($this->support['columns']): ?>
                 <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-add">
@@ -60,6 +58,7 @@
     'unsigned' => $this->unsigned,
     'foreign_keys' => $this->foreign_keys,
     'options' => $this->options,
+    'support' => $this->support,
 ]) ?>
 <?php endforeach ?>
     </form>

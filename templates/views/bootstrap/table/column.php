@@ -2,13 +2,28 @@
         <div class="form-group <?php echo $this->class ?>" id="<?php
             echo sprintf('%s-%02d', $this->class, $this->index) ?>">
 <?php endif ?>
+            <!-- Start first line -->
             <div class="col-md-3 adminer-edit-column-left">
                 <input name="fields[<?php echo $this->index ?>][field]" class="form-control" value="<?php
                     echo $this->field['field'] ?? '' ?>" data-maxlength="64" autocapitalize="off">
                 <input type="hidden" name="fields[<?php
                     echo $this->index ?>][orig]" value="<?php echo $this->field['field'] ?? '' ?>">
             </div>
-            <div class="col-md-2 adminer-edit-column-middle">
+            <label class="col-md-2 adminer-edit-column-middle" for="auto_increment_col">
+                <input type="radio" name="auto_increment_col" value="<?php echo $this->index ?>" <?php
+                    if($this->field['auto_increment']): ?>checked <?php endif ?>/> Auto Increment
+            </label>
+            <label class="col-md-1 adminer-edit-column-null">
+                <input type="checkbox" name="fields[<?php echo $this->index ?>][null]" value="1" <?php
+                    if($this->field['null']): ?>checked <?php endif ?>/> Null
+            </label>
+            <div class="col-md-6 adminer-edit-column-right">
+                <input name="fields[<?php echo $this->index ?>][comment]" class="form-control" value="<?php
+                    echo $this->field['comment'] ?? '' ?>">
+            </div>
+            <!-- End first line -->
+            <!-- Start second line -->
+            <div class="col-md-2 adminer-edit-column-left">
                 <select name="fields[<?php echo $this->index ?>][type]" class="form-control">
 <?php foreach($this->field['_types_'] as $group => $types): ?>
                     <optgroup label="<?php echo $group ?>">
@@ -25,7 +40,7 @@
                     if($this->field['_length_required_']): ?> required<?php endif ?>" value="<?php
                     echo $this->field['length'] ?>" size="3">
             </div>
-            <div class="col-md-2 adminer-edit-column-middle">
+            <div class="col-md-3 adminer-edit-column-middle">
                 <select name="fields[<?php echo $this->index ?>][collation]" class="form-control<?php
                     if($this->field['_collation_hidden_']): ?> hidden<?php endif ?>">
                     <option value="">(<?php echo \adminer\lang('collation') ?>)</option>
@@ -67,17 +82,15 @@
                         endif ?>><?php echo $option ?></option>
 <?php endforeach ?>
                 </select>
+<?php endif ?>
             </div>
-            <div class="col-md-1 adminer-edit-column-null" style="padding-left:10px;padding-right:1px;">
-                <input type="checkbox" name="fields[<?php echo $this->index ?>][null]" value="1" <?php
-                    if($this->field['null']): ?>checked <?php endif ?>/>
-            </div>
-            <div class="col-md-1 adminer-edit-column-middle">
-                <input type="radio" name="auto_increment_col" value="<?php echo $this->index ?>" <?php
-                    if($this->field['auto_increment']): ?>checked <?php endif ?>/>
+            <div class="col-md-4 adminer-edit-column-middle">
+                <input name="fields[<?php echo $this->index ?>][default]" class="form-control" value="<?php
+                    echo $this->field['default'] ?? '' ?>">
             </div>
             <div class="col-md-2 adminer-edit-column-right adminer-table-column-buttons" data-index="<?php
                 echo $this->index ?>">
+<?php if($this->support['move_col']): ?>
                 <button type="button" class="btn btn-primary btn-xs adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>
@@ -87,11 +100,14 @@
                 <button type="button" class="btn btn-primary btn-xs adminer-table-column-down">
                     <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
                 </button>
+<?php endif ?>
+<?php if($this->support['drop_col']): ?>
                 <button type="button" class="btn btn-primary btn-xs adminer-table-column-del">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
-            </div>
 <?php endif ?>
+            </div>
+            <!-- End second line -->
 <?php if(isset($this->class)): ?>
         </div>
 <?php endif ?>

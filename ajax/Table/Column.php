@@ -151,10 +151,9 @@ class Column extends AdminerCallable
             // Remove the current onClick handler and set a new one.
             ->unbind('click')
             ->click($this->rq()->cancelDelete($server, $database, $index));
-        // The Glyphicon icon set has no cancel on undo icon. Terrible.
-        // $this->jq('.adminer-table-column-del>span', "#$columnId")
-        //     ->removeClass('glyphicon-remove')
-        //     ->addClass('glyphicon-cancel');
+        $this->jq('.adminer-table-column-del>span', "#$columnId")
+            ->removeClass('glyphicon-remove')
+            ->addClass('glyphicon-trash');
 
         return $this->response;
     }
@@ -178,10 +177,9 @@ class Column extends AdminerCallable
             // Remove the current onClick handler and set a new one.
             ->unbind('click')
             ->click($this->rq()->setForDelete($server, $database, $index));
-        // The Glyphicon icon set has no cancel on undo icon. Terrible.
-        // $this->jq('.adminer-table-column-del>span', "#$columnId")
-        //     ->removeClass('glyphicon-cancel')
-        //     ->addClass('glyphicon-remove');
+        $this->jq('.adminer-table-column-del>span', "#$columnId")
+            ->removeClass('glyphicon-trash')
+            ->addClass('glyphicon-remove');
 
         return $this->response;
     }
