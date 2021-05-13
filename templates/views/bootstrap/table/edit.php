@@ -1,14 +1,14 @@
     <form class="form-horizontal" role="form" id="<?php echo $this->formId ?>">
-        <div class="form-group adminer-edit-table-header" id="<?php echo $this->tableId ?>">
+        <div class="form-group adminer-edit-table-header">
             <label class="col-md-2">Table</label>
         </div>
-        <div class="form-group">
+        <div class="form-group adminer-edit-table-header">
             <div class="col-md-3 adminer-edit-table-name">
                 <input type="text" name="name" class="form-control" value="<?php
                     echo $this->table['Name'] ?>" placeholder="Name" />
             </div>
 <?php if($this->engines): ?>
-            <div class="col-md-3 adminer-edit-table-engine">
+            <div class="col-md-2 adminer-edit-table-engine">
                 <select name="engine" class="form-control">
                     <option value="">(engine)</option>
 <?php foreach($this->engines as $group => $engine): ?>
@@ -19,7 +19,7 @@
             </div>
 <?php endif ?>
 <?php if($this->collations): ?>
-            <div class="col-md-3 adminer-edit-table-collation">
+            <div class="col-md-2 adminer-edit-table-collation">
                 <select name="collation" class="form-control">
                     <option value="" selected>(collation)</option>
 <?php foreach($this->collations as $group => $collations): ?>
@@ -33,12 +33,20 @@
                 </select>
             </div>
 <?php endif ?>
+<?php if($this->support['comment']): ?>
+            <div class="col-md-4 adminer-table-column-middle">
+                <input name="comment" class="form-control" value="<?php
+                    echo $this->table['Comment'] ?? '' ?>" placeholder="<?php
+                    echo \adminer\lang('Comment') ?>" />
+            </div>
+<?php endif ?>
         </div>
         <div class="form-group adminer-table-column-header">
             <label class="col-md-2 adminer-table-column-left"><?php echo \adminer\lang('Column') ?></label>
             <label class="col-md-3 adminer-table-column-middle"><?php echo \adminer\lang('Length') ?></label>
-            <label class="col-md-1 adminer-table-column-middle adminer-table-column-null-header" for="auto_increment_col">
-                <input type="radio" name="auto_increment_col" value=""> AI
+            <label class="col-md-1 adminer-table-column-null-header" for="auto_increment_col">
+                <input type="radio" name="auto_increment_col" value="" <?php
+                    if($this->table['Auto_increment']): ?>checked <?php endif ?>/> AI
             </label>
             <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
             <div class="col-md-2 adminer-table-column-buttons-header">
@@ -54,6 +62,7 @@
     'class' => $this->formId . '-column',
     'index' => $index,
     'field' => $field,
+    'prefixFields' => sprintf("fields[%d]", $index + 1),
     'collations' => $this->collations,
     'unsigned' => $this->unsigned,
     'foreign_keys' => $this->foreign_keys,

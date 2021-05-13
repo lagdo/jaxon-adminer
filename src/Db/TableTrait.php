@@ -145,4 +145,50 @@ trait TableTrait
         $options = $this->connect($server, $database);
         return $this->table()->getTableField();
     }
+
+    /**
+     * Create a table
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param array  $values    The table values
+     *
+     * @return array|null
+     */
+    public function createTable(string $server, string $database, array $values)
+    {
+        $this->connect($server, $database);
+        return $this->table()->createTable($values);
+    }
+
+    /**
+     * Alter a table
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $table     The table name
+     * @param array  $values    The table values
+     *
+     * @return array|null
+     */
+    public function alterTable(string $server, string $database, string $table, array $values)
+    {
+        $this->connect($server, $database);
+        return $this->table()->alterTable($table, $values);
+    }
+
+    /**
+     * Drop a table
+     *
+     * @param string $server    The selected server
+     * @param string $database  The database name
+     * @param string $table     The table name
+     *
+     * @return array|null
+     */
+    public function dropTable(string $server, string $database, string $table)
+    {
+        $this->connect($server, $database);
+        return $this->table()->dropTable($table);
+    }
 }

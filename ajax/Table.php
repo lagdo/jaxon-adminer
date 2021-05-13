@@ -95,7 +95,6 @@ class Table extends AdminerCallable
         return $this->response;
     }
 
-
     /**
      * Create a new table
      *
@@ -121,9 +120,12 @@ class Table extends AdminerCallable
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
+        $length = \jq(".{$this->formId}-column", "#$contentId")->length;
+        $values = \pm()->form($this->formId);
+        $this->jq('#adminer-main-action-table-save')
+            ->click($this->rq()->create($server, $database, $values)->when($length));
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
-        $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
             ->click($this->cl(Column::class)->rq()->add($server, $database, $length));
 
@@ -156,6 +158,9 @@ class Table extends AdminerCallable
         $this->response->html($contentId, $content);
 
         // Set onclick handlers on toolbar buttons
+        $values = \pm()->form($this->formId);
+        $this->jq('#adminer-main-action-table-save')
+            ->click($this->rq()->create($server, $database, $table, $values));
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
@@ -181,7 +186,29 @@ class Table extends AdminerCallable
      */
     public function create($server, $database, array $values)
     {
+        $this->logger()->debug('Values', $values);
+        if(!isset($values['comment']))
+        {
+            $values['comment'] = null;
+        }
+        if(!isset($values['engine']))
+        {
+            $values['engine'] = '';
+        }
+        if(!isset($values['collation']))
+        {
+            $values['collation'] = '';
+        }
 
+        $result = $this->dbProxy->createTable($server, $database, $values);
+        if(!$result['success'])
+        {
+            $this->response->dialog->error($result['error']);
+            return $this->response;
+        }
+
+        $this->show();
+        $this->response->dialog->success($result['message']);
         return $this->response;
     }
 
@@ -195,9 +222,30 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function update($server, $database, $table, array $values)
+    public function alter($server, $database, $table, array $values)
     {
+        if(!isset($values['comment']))
+        {
+            $values['comment'] = null;
+        }
+        if(!isset($values['engine']))
+        {
+            $values['engine'] = '';
+        }
+        if(!isset($values['collation']))
+        {
+            $values['collation'] = '';
+        }
 
+        $result = $this->dbProxy->alterTable($server, $database, $table, $values);
+        if(!$result['success'])
+        {
+            $this->response->dialog->error($result['error']);
+            return $this->response;
+        }
+
+        $this->show();
+        $this->response->dialog->success($result['message']);
         return $this->response;
     }
 

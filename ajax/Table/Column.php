@@ -19,7 +19,7 @@ class Column extends AdminerCallable
     protected $formId = 'adminer-table-form';
 
     /**
-     * Insert a new column at a given position
+     * Insert a new HTML element before a given target
      *
      * @param string $target      The target element
      * @param string $id          The new element id
@@ -29,10 +29,36 @@ class Column extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function insertBefore($target, $id, $class, $content, array $attrs = [])
+    private function insertBefore($target, $id, $class, $content, array $attrs = [])
     {
         // Insert a div with the id before the target
-        $this->response->insert($target, 'div', $id);
+        $this->response->insertBefore($target, 'div', $id);
+        // Set the new element class
+        $this->jq("#$id")->attr('class', "form-group $class");
+        // Set the new element attributes
+        foreach($attrs as $name => $value)
+        {
+            $this->jq("#$id")->attr($name, $value);
+        }
+        // Set the new element content
+        $this->response->html($id, $content);
+    }
+
+    /**
+     * Insert a new HTML element after a given target
+     *
+     * @param string $target      The target element
+     * @param string $id          The new element id
+     * @param string $class       The new element class
+     * @param string $content     The new element content
+     * @param array  $attrs       The new element attributes
+     *
+     * @return \Jaxon\Response\Response
+     */
+    private function insertAfter($target, $id, $class, $content, array $attrs = [])
+    {
+        // Insert a div with the id after the target
+        $this->response->insertAfter($target, 'div', $id);
         // Set the new element class
         $this->jq("#$id")->attr('class', "form-group $class");
         // Set the new element attributes
@@ -65,7 +91,8 @@ class Column extends AdminerCallable
         $targetId = \sprintf('%s-%02d', $columnClass, $target);
         $vars = [
             'index' => $length,
-            'field' => $this->dbProxy->getTableField($server, $database)
+            'field' => $this->dbProxy->getTableField($server, $database),
+            'prefixFields' => sprintf("fields[%d]", $length + 1),
         ];
         if($target < 0)
         {
@@ -89,7 +116,7 @@ class Column extends AdminerCallable
             * The prepend() function is not suitable here because it rewrites the
             * $targetId element, resetting all its event handlers and inputs.
             */
-            $this->insertBefore($targetId, $columnId, $columnClass, $content);
+            $this->insertAfter($targetId, $columnId, $columnClass, $content);
             // $this->response->prepend($targetId, 'outerHTML', $content);
         }
 

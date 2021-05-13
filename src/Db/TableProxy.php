@@ -231,7 +231,7 @@ class TableProxy
         {
             $indexes = [];
         }
-        foreach ($indexes as $name => $index) {
+        foreach($indexes as $name => $index) {
             \ksort($index['columns']); // enforce correct columns order
             $print = [];
             foreach($index['columns'] as $key => $val)
@@ -378,9 +378,9 @@ class TableProxy
      */
     private function getForeignKeys(string $table = '')
     {
-        $referencable_primary = \adminer\referencable_primary($table);
+        $this->referencable_primary = \adminer\referencable_primary($table);
         $this->foreign_keys = [];
-        foreach($referencable_primary as $table_name => $field)
+        foreach($this->referencable_primary as $table_name => $field)
         {
             $name = \str_replace('`', '``', $table_name) .
                 '`' . \str_replace('`', '``', $field['field']);
@@ -428,6 +428,7 @@ class TableProxy
         global $structured_types, $types, $unsigned, $on_actions;
 
         $main_actions = [
+            'table-save' => \adminer\lang('Save'),
             'table-cancel' => \adminer\lang('Cancel'),
         ];
 
@@ -445,7 +446,7 @@ class TableProxy
             $fields = [];
             foreach($orig_fields as $field)
             {
-                $field["has_default"] = isset($field["default"]);
+                $field['has_default'] = isset($field['default']);
                 $fields[] = $field;
             }
         }
@@ -454,7 +455,7 @@ class TableProxy
 
         foreach($fields as &$field)
         {
-            $field["has_default"] = isset($field["default"]);
+            $field['has_default'] = isset($field['default']);
             $type = $field['type'];
             $field['_types_'] = $this->getFieldTypes($type);
             if(!isset($field['on_update']))
@@ -508,40 +509,161 @@ class TableProxy
         $this->getForeignKeys();
 
         return [
-            "field" => "",
-            "type" => "",
-            "length" => "",
-            "unsigned" => "",
-            "null" => false,
-            "auto_increment" => false,
-            "collation" => '',
-            "has_default" => false,
-            "default" => null,
-            "comment" => "",
-            // "primary" => true,
-            // "generated" => 0,
-            "on_update" => "",
-            "on_delete" => "",
-            "_types_" => $this->getFieldTypes(),
-            "_length_required_" => false,
-            "_collation_hidden_" => true,
-            "_unsigned_hidden_" => false,
-            "_on_update_hidden_" => true,
-            "_on_delete_hidden_" => true
+            'field' => '',
+            'type' => '',
+            'length' => '',
+            'unsigned' => '',
+            'null' => false,
+            'auto_increment' => false,
+            'collation' => '',
+            'has_default' => false,
+            'default' => null,
+            'comment' => '',
+            // 'primary' => true,
+            // 'generated' => 0,
+            'on_update' => '',
+            'on_delete' => '',
+            '_types_' => $this->getFieldTypes(),
+            '_length_required_' => false,
+            '_collation_hidden_' => true,
+            '_unsigned_hidden_' => false,
+            '_on_update_hidden_' => true,
+            '_on_delete_hidden_' => true
         ];
     }
 
     /**
-     * Get a table
+     * Create or alter a table
      *
+     * @param array  $values    The table values
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTable(string $table)
+    private function createOrAlterTable(array $values, string $table, array $orig_fields,
+        array $table_status, string $comment, string $engine, string $collation)
     {
         global $jush, $error;
 
+        // From create.inc.php
+        $values['fields'] = (array)$values['fields'];
+        if($values['auto_increment_col'])
+        {
+            $values['fields'][$values['auto_increment_col']]['auto_increment'] = true;
+        }
+
+        $fields = [];
+        $all_fields = [];
+        $use_all_fields = false;
+        $foreign = [];
+        $orig_field = \reset($orig_fields);
+        $after = ' FIRST';
+
+        $this->getForeignKeys();
+
+        foreach($values['fields'] as $key => $field)
+        {
+            $foreign_key = $this->foreign_keys[$field['type']] ?? null;
+            //! can collide with user defined type
+            $type_field = ($foreign_key !== null ? $this->referencable_primary[$foreign_key] : $field);
+            if($field['field'] != '')
+            {
+                if(!isset($field['has_default']))
+                {
+                    $field['default'] = null;
+                }
+                $field['auto_increment'] = ($key == $values['auto_increment_col']);
+                $field["null"] = isset($field["null"]);
+
+                $process_field = \adminer\process_field($field, $type_field);
+                $all_fields[] = [$field['orig'], $process_field, $after];
+                if(!$orig_field || $process_field != \adminer\process_field($orig_field, $orig_field))
+                {
+                    $fields[] = [$field['orig'], $process_field, $after];
+                    if($field['orig'] != '' || $after)
+                    {
+                        $use_all_fields = true;
+                    }
+                }
+                if($foreign_key !== null)
+                {
+                    $foreign[\adminer\idf_escape($field['field'])] = ($table != '' && $jush != 'sqlite' ? 'ADD' : ' ') .
+                        \adminer\format_foreign_key([
+                            'table' => $this->foreign_keys[$field['type']],
+                            'source' => [$field['field']],
+                            'target' => [$type_field['field']],
+                            'on_delete' => $field['on_delete'],
+                        ]);
+                }
+                $after = ' AFTER ' . \adminer\idf_escape($field['field']);
+            }
+            elseif($field['orig'] != '')
+            {
+                $use_all_fields = true;
+                $fields[] = [$field['orig']];
+            }
+            if($field['orig'] != '')
+            {
+                $orig_field = \next($orig_fields);
+                if(!$orig_field)
+                {
+                    $after = '';
+                }
+            }
+        }
+
+        // For now, partitioning is not implemented
+        $partitioning = '';
+        // if($partition_by[$values['partition_by']])
+        // {
+        //     $partitions = [];
+        //     if($values['partition_by'] == 'RANGE' || $values['partition_by'] == 'LIST')
+        //     {
+        //         foreach(\array_filter($values['partition_names']) as $key => $val)
+        //         {
+        //             $value = $values['partition_values'][$key];
+        //             $partitions[] = "\n  PARTITION " . \adminer\idf_escape($val) .
+        //                 ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
+        //                 ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
+        //         }
+        //     }
+        //     $partitioning .= "\nPARTITION BY $values[partition_by]($values[partition])" .
+        //         ($partitions // $values['partition'] can be expression, not only column
+        //         ? ' (' . \implode(',', $partitions) . "\n)"
+        //         : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
+        //     );
+        // }
+        // elseif(\adminer\support('partitioning') &&
+        //     \preg_match('~partitioned~', $table_status['Create_options']))
+        // {
+        //     $partitioning .= "\nREMOVE PARTITIONING";
+        // }
+
+        $name = \trim($values['name']);
+        $autoIncrement = isset($values['auto_increment']) && $values['auto_increment'] != '' ?
+            \adminer\number($values['auto_increment']) : '';
+        $_fields = ($jush == 'sqlite' && ($use_all_fields || $foreign) ? $all_fields : $fields);
+
+        $success = \adminer\alter_table($table, $name, $_fields, $foreign,
+            $comment, $engine, $collation, $autoIncrement, $partitioning);
+
+        if(!$error)
+        {
+            $error = \adminer\error();
+        }
+        if(($error))
+        {
+            throw new Exception($error);
+        }
+
+        $message = $table == '' ?
+            \adminer\lang('Table has been created.') :
+            \adminer\lang('Table has been altered.');
+
+        // From functions.inc.php
+        // queries_redirect(ME . (support('table') ? 'table=' : 'select=') . urlencode($name), $message, $redirect);
+
+        return \compact('success', 'message', 'error');
     }
 
     /**
@@ -553,22 +675,43 @@ class TableProxy
      */
     public function createTable(array $values)
     {
-        global $jush, $error;
+        $orig_fields = [];
+        $table_status = [];
 
+        $comment = $values['comment'] ?? null;
+        $engine = $values['engine'] ?? '';
+        $collation = $values['collation'] ?? '';
+
+        return $this->createOrAlterTable($values, '',
+            $orig_fields, $table_status, $comment, $engine, $collation);
     }
 
     /**
-     * Update a table
+     * Alter a table
      *
      * @param string $table     The table name
      * @param array  $values    The table values
      *
      * @return array
      */
-    public function updateTable(string $table, array $values)
+    public function alterTable(string $table, array $values)
     {
-        global $jush, $error;
+        $orig_fields = \adminer\fields($table);
+        $table_status = \adminer\table_status($table);
+        if(!$table_status)
+        {
+            throw new Exception(\adminer\lang('No tables.'));
+        }
 
+        $currComment = $table_status['Comment'] ?? null;
+        $currEngine = $table_status['Engine'] ?? '';
+        $currCollation = $table_status['Collation'] ?? '';
+        $comment = $values['comment'] != $currComment ? $values['comment'] : null;
+        $engine = $values['engine'] != $currEngine ? $values['engine'] : '';
+        $collation = $values['collation'] != $currCollation ? $values['collation'] : '';
+
+        return $this->createOrAlterTable($values, $table,
+            $orig_fields, $table_status, $comment, $engine, $collation);
     }
 
     /**
