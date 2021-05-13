@@ -22,8 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\Adminer\\": "src/",
-            "Lagdo\\Adminer\\Ajax\\": "ajax/"
+            "Lagdo\\Adminer\\": "src/"
         },
         "files": [
             "src/start.php"

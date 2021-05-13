@@ -2,7 +2,7 @@
 
 return [
     'directories' => [
-        __DIR__ . '/../ajax' => [
+        __DIR__ . '/../src/Ajax' => [
             'namespace' => 'Lagdo\\Adminer\\Ajax',
             'autoload' => false,
             \Lagdo\Adminer\Ajax\Import::class => [
