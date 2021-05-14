@@ -46,7 +46,7 @@
             <label class="col-md-3 adminer-table-column-middle"><?php echo \adminer\lang('Length') ?></label>
             <label class="col-md-1 adminer-table-column-null-header" for="auto_increment_col">
                 <input type="radio" name="auto_increment_col" value="" <?php
-                    if($this->table['Auto_increment']): ?>checked <?php endif ?>/> AI
+                    if(!$this->options['has_auto_increment']): ?>checked <?php endif ?>/> AI
             </label>
             <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
             <div class="col-md-2 adminer-table-column-buttons-header">

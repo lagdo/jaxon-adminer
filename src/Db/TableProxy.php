@@ -453,8 +453,10 @@ class TableProxy
 
         $this->getForeignKeys();
 
+        $hasAutoIncrement = false;
         foreach($fields as &$field)
         {
+            $hasAutoIncrement = $hasAutoIncrement && $field['auto_increment'];
             $field['has_default'] = isset($field['default']);
             $type = $field['type'];
             $field['_types_'] = $this->getFieldTypes($type);
@@ -478,6 +480,7 @@ class TableProxy
             $field['_on_delete_hidden_'] = !\preg_match('~`~', $type);
         }
         $options = [
+            'has_auto_increment' => $hasAutoIncrement,
             'on_update' => ['CURRENT_TIMESTAMP'],
             'on_delete' => \explode('|', $on_actions),
         ];
@@ -540,10 +543,10 @@ class TableProxy
      *
      * @return array
      */
-    private function createOrAlterTable(array $values, string $table, array $orig_fields,
-        array $table_status, string $comment, string $engine, string $collation)
+    private function createOrAlterTable(array $values, string $table,
+        array $orig_fields, array $table_status, string $engine, string $collation, $comment)
     {
-        global $jush, $error;
+        global $adminer, $jush, $error;
 
         // From create.inc.php
         $values['fields'] = (array)$values['fields'];
@@ -644,6 +647,12 @@ class TableProxy
             \adminer\number($values['auto_increment']) : '';
         $_fields = ($jush == 'sqlite' && ($use_all_fields || $foreign) ? $all_fields : $fields);
 
+        // Save data for auto_increment() function.
+        $adminer->table = $table;
+        $adminer->ai['col'] = $autoIncrement;
+        $adminer->ai['step'] = '';
+        $adminer->ai['fields'] = $values['fields'];
+
         $success = \adminer\alter_table($table, $name, $_fields, $foreign,
             $comment, $engine, $collation, $autoIncrement, $partitioning);
 
@@ -651,10 +660,10 @@ class TableProxy
         {
             $error = \adminer\error();
         }
-        if(($error))
-        {
-            throw new Exception($error);
-        }
+        // if(($error))
+        // {
+        //     throw new Exception($error);
+        // }
 
         $message = $table == '' ?
             \adminer\lang('Table has been created.') :
@@ -683,7 +692,7 @@ class TableProxy
         $collation = $values['collation'] ?? '';
 
         return $this->createOrAlterTable($values, '',
-            $orig_fields, $table_status, $comment, $engine, $collation);
+            $orig_fields, $table_status, $engine, $collation, $comment);
     }
 
     /**
@@ -711,7 +720,7 @@ class TableProxy
         $collation = $values['collation'] != $currCollation ? $values['collation'] : '';
 
         return $this->createOrAlterTable($values, $table,
-            $orig_fields, $table_status, $comment, $engine, $collation);
+            $orig_fields, $table_status, $engine, $collation, $comment);
     }
 
     /**

@@ -160,7 +160,7 @@ class Table extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $values = \pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->create($server, $database, $table, $values));
+            ->click($this->rq()->alter($server, $database, $table, $values));
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
@@ -186,7 +186,6 @@ class Table extends AdminerCallable
      */
     public function create($server, $database, array $values)
     {
-        $this->logger()->debug('Values', $values);
         if(!isset($values['comment']))
         {
             $values['comment'] = null;
@@ -207,7 +206,7 @@ class Table extends AdminerCallable
             return $this->response;
         }
 
-        $this->show();
+        $this->show($server, $database, $values['name']);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -244,7 +243,7 @@ class Table extends AdminerCallable
             return $this->response;
         }
 
-        $this->show();
+        $this->show($server, $database, $values['name']);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }

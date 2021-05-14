@@ -44,7 +44,7 @@
                 <input type="radio" name="auto_increment_col" value="" checked /> AI
             </label>
             <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
-            <div class="col-md-2 adminer-table-column-buttons">
+            <div class="col-md-2 adminer-table-column-buttons-header">
 <?php if($this->support['columns']): ?>
                 <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
