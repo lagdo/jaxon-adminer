@@ -10,6 +10,10 @@ class Adminer {
     /** @var array the selected database credentials, from Jaxon config options */
     public $credentials;
 
+    // Data used when creating/altering tables
+    public $table; // The table name or empty string
+    public $ai = []; // Auto increment
+
     /** Name in title and navigation
     * @return string HTML code
     */

@@ -714,11 +714,13 @@ if (!defined("DRIVER")) {
     * @return string
     */
     function auto_increment() {
+        global $adminer;
+
         $auto_increment_index = " PRIMARY KEY";
         // don't overwrite primary key by auto_increment
-        if ($_GET["create"] != "" && $_POST["auto_increment_col"]) {
-            foreach (indexes($_GET["create"]) as $index) {
-                if (in_array($_POST["fields"][$_POST["auto_increment_col"]]["orig"], $index["columns"], true)) {
+        if ($adminer->table != "" && $adminer->ai['col']) {
+            foreach (indexes($adminer->table) as $index) {
+                if (in_array($adminer->ai['fields'][$adminer->ai['col']]["orig"], $index["columns"], true)) {
                     $auto_increment_index = "";
                     break;
                 }
