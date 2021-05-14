@@ -259,7 +259,15 @@ class Table extends AdminerCallable
      */
     public function drop($server, $database, $table)
     {
+        $result = $this->dbProxy->dropTable($server, $database, $table);
+        if(!$result['success'])
+        {
+            $this->response->dialog->error($result['error']);
+            return $this->response;
+        }
 
+        $this->cl(Database::class)->showTables($server, $database);
+        $this->response->dialog->success($result['message']);
         return $this->response;
     }
 }

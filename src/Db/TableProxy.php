@@ -732,7 +732,21 @@ class TableProxy
      */
     public function dropTable(string $table)
     {
-        global $jush, $error;
+        global $error;
 
+        $success = \adminer\drop_tables([$table]);
+
+        if(!$error)
+        {
+            $error = \adminer\error();
+        }
+        // if(($error))
+        // {
+        //     throw new Exception($error);
+        // }
+
+        $message = \adminer\lang('Table has been dropped.');
+
+        return \compact('success', 'message', 'error');
     }
 }
