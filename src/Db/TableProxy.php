@@ -569,7 +569,10 @@ class TableProxy
             $foreign_key = $this->foreign_keys[$field['type']] ?? null;
             //! can collide with user defined type
             $type_field = ($foreign_key !== null ? $this->referencable_primary[$foreign_key] : $field);
-            if($field['field'] != '')
+            // Originally, deleted fields have the "field" field set to an empty string.
+            // But in our implementation, the "field" field is deleted.
+            // if($field['field'] != '')
+            if(isset($field['field']) && $field['field'] != '')
             {
                 if(!isset($field['has_default']))
                 {
@@ -602,8 +605,10 @@ class TableProxy
             }
             elseif($field['orig'] != '')
             {
+                // A missing "field" field and a not empty "orig" field means the column is to be dropped.
+                // We also append null in the array because the drivers code accesses field at position 1.
                 $use_all_fields = true;
-                $fields[] = [$field['orig']];
+                $fields[] = [$field['orig'], null];
             }
             if($field['orig'] != '')
             {

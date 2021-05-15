@@ -30,5 +30,16 @@ jaxon.adminer = {
                 textInput.val(text);
             }
         });
-    }
+    },
+    onColumnRenamed: function() {
+        let column = $(this).parent();
+        while ((column) && !column.attr('data-index')) {
+            column = column.parent();
+        }
+        if (!column) {
+            return;
+        }
+        let index = parseInt(column.attr('data-index'), 10) + 1;
+        $(this).attr('name', 'fields[' + index + '][' + $(this).attr('data-field') + ']');
+    },
 }
