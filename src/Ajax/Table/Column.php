@@ -126,7 +126,8 @@ class Column extends AdminerCallable
         $this->jq('.adminer-table-column-add', "#$columnId")
             ->click($this->rq()->add($server, $database, $length, $index));
         $this->jq('.adminer-table-column-del', "#$columnId")
-            ->click($this->rq()->del($server, $database, $length, $index));
+            ->click($this->rq()->del($server, $database, $length, $index)
+            ->confirm('Delete this column?'));
 
         return $this->response;
     }

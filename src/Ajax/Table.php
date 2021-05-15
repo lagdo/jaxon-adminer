@@ -123,7 +123,8 @@ class Table extends AdminerCallable
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $values = \pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->create($server, $database, $values)->when($length));
+            ->click($this->rq()->create($server, $database, $values)
+            ->when($length));
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->cl(Database::class)->rq()->showTables($server, $database));
         $this->jq('#adminer-table-column-add')
@@ -160,7 +161,8 @@ class Table extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $values = \pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->alter($server, $database, $table, $values));
+            ->click($this->rq()->alter($server, $database, $table, $values)
+            ->confirm("Save changes on table $table?"));
         $this->jq('#adminer-main-action-table-cancel')
             ->click($this->rq()->show($server, $database, $table));
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
