@@ -33,7 +33,8 @@ jaxon.adminer = {
     },
     onColumnRenamed: function() {
         let column = $(this).parent();
-        while ((column) && !column.attr('data-index')) {
+        // The get() method returns the wrapped js object.
+        while ((column) && !column.get().hasAttribute('data-index')) {
             column = column.parent();
         }
         if (!column) {
