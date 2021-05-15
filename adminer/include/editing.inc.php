@@ -106,7 +106,7 @@ function referencable_primary($self) {
 	foreach (table_status('', true) as $table_name => $table) {
 		if ($table_name != $self && fk_support($table)) {
 			foreach (fields($table_name) as $field) {
-				if ($field["primary"]) {
+				if (isset($field["primary"])) {
 					if (isset($return[$table_name])) { // multi column primary key
 						unset($return[$table_name]);
 						break;
