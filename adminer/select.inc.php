@@ -430,7 +430,7 @@ if (!$columns && support("table")) {
 								$link .= where_link($i++, $k, $v);
 							}
 						}
-						
+
 						$val = select_value($val, $link, $field, $text_length);
 						$id = h("val[$unique_idf][" . bracket_escape($key) . "]");
 						$value = $_POST["val"][$unique_idf][bracket_escape($key)];
@@ -491,7 +491,7 @@ if (!$columns && support("table")) {
 					echo "\n";
 				}
 			}
-			
+
 			echo "<div class='footer'><div>\n";
 			if ($rows || $page) {
 				if ($pagination) {
@@ -523,7 +523,7 @@ if (!$columns && support("table")) {
 					}
 					echo "</fieldset>\n";
 				}
-				
+
 				echo "<fieldset>";
 				echo "<legend>" . lang('Whole result') . "</legend>";
 				$display_rows = ($exact_count ? "" : "~ ") . $found_rows;

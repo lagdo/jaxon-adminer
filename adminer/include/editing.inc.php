@@ -213,10 +213,14 @@ function process_length($length) {
 */
 function process_type($field, $collate = "COLLATE") {
 	global $unsigned;
+	$values = [
+		'unsigned' => $field["unsigned"] ?? null,
+		'collation' => $field["collation"] ?? null,
+	];
 	return " $field[type]"
 		. process_length($field["length"])
-		. (preg_match(number_type(), $field["type"]) && in_array($field["unsigned"], $unsigned) ? " $field[unsigned]" : "")
-		. (preg_match('~char|text|enum|set~', $field["type"]) && $field["collation"] ? " $collate " . q($field["collation"]) : "")
+		. (preg_match(number_type(), $field["type"]) && in_array($values["unsigned"], $unsigned) ? " $values[unsigned]" : "")
+		. (preg_match('~char|text|enum|set~', $field["type"]) && $values["collation"] ? " $collate " . q($values["collation"]) : "")
 	;
 }
 
