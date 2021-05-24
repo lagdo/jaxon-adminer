@@ -50,13 +50,27 @@ class ServerProxy
         global $adminer;
         // Get the database lists
         // Passing false as parameter to this call prevent from using the slow_query() function,
-        // which outputs data to the browser that are prepended to the Jaxon response.
+        // which outputs data to the browser are prepended to the Jaxon response.
         if($this->finalDatabases === null)
         {
             $this->finalDatabases = $adminer->databases(false);
             if(\is_array($this->userDatabases))
             {
-                $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
+                // Only keep databases that appear in the config.
+                $finalDatabases = [];
+                foreach($this->userDatabases as $database)
+                {
+                    $name = $database;
+                    if(($position = \strpos($name, ':')) !== false)
+                    {
+                        $name = \substr($name, 0, $position);
+                    }
+                    if(\in_array($name, $this->finalDatabases))
+                    {
+                        $finalDatabases[] = $database;
+                    }
+                }
+                $this->finalDatabases = $finalDatabases;
             }
         }
         return $this->finalDatabases;

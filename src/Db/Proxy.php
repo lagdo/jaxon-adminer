@@ -145,7 +145,17 @@ class Proxy
         // From adminer.inc.php
         if(($database))
         {
+            $schema = '';
+            if(($position = \strpos($database, ':')) !== false)
+            {
+                $schema = \substr($database, $position + 1);
+                $database = \substr($database, 0, $position);
+            }
             $connection->select_db($database);
+            if($schema !== '')
+            {
+                \adminer\set_schema($schema, $connection);
+            }
         }
 
         return $options;

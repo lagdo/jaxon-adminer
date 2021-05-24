@@ -21,19 +21,24 @@ class CommandProxy
      * The constructor
      *
      * @param string $database      The database name
-     * @param string $schema        The database schema
      */
-    public function __construct(string $database = '', string $schema = '')
+    public function __construct(string $database = '')
     {
-        if($database != "")
+        if($database != '')
         {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
             $connection = \adminer\connect();
             if(\is_object($connection))
             {
+                $schema = '';
+                if(($position = \strpos($database, ':')) !== false)
+                {
+                    $schema = \substr($database, $position + 1);
+                    $database = \substr($database, 0, $position);
+                }
                 $connection->select_db($database);
-                if($schema != "")
+                if($schema !== '')
                 {
                     \adminer\set_schema($schema, $connection);
                 }
@@ -139,7 +144,8 @@ class CommandProxy
             $name = $field->name;
             $orgtable = $field->orgtable;
             $orgname = $field->orgname;
-            $tables[$field->table] = $orgtable;
+            // PostgreSQL fix: the table field can be missing.
+            $tables[$field->table ?? $orgtable] = $orgtable;
             if($orgtables && $jush == "sql")
             { // MySQL EXPLAIN
                 $links[$j] = ($name == "table" ? "table=" : ($name == "possible_keys" ? "indexes=" : null));
