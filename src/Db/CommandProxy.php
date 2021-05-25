@@ -21,8 +21,9 @@ class CommandProxy
      * The constructor
      *
      * @param string $database      The database name
+     * @param string $schema        The database schema
      */
-    public function __construct(string $database = '')
+    public function __construct(string $database = '', string $schema = '')
     {
         if($database != '')
         {
@@ -31,12 +32,6 @@ class CommandProxy
             $connection = \adminer\connect();
             if(\is_object($connection))
             {
-                $schema = '';
-                if(($position = \strpos($database, ':')) !== false)
-                {
-                    $schema = \substr($database, $position + 1);
-                    $database = \substr($database, 0, $position);
-                }
                 $connection->select_db($database);
                 if($schema !== '')
                 {

@@ -20,6 +20,8 @@
             </div>
             <div class="col-md-12" id="<?php echo $this->dbListId ?>">
             </div>
+            <div class="col-md-12" id="<?php echo $this->schemaListId ?>">
+            </div>
             <div class="col-md-12" id="<?php echo $this->dbActionsId ?>">
             </div>
             <div class="col-md-12" id="<?php echo $this->dbMenuId ?>">

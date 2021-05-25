@@ -80,9 +80,9 @@ class Column extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function add($server, $database, $length, $target = -1)
+    public function add($server, $database, $schema, $length, $target = -1)
     {
-        $tableData = $this->dbProxy->getTableData($server, $database);
+        $tableData = $this->dbProxy->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -90,7 +90,7 @@ class Column extends AdminerCallable
         $columnId = \sprintf('%s-%02d', $columnClass, $length);
         $vars = [
             'index' => $length,
-            'field' => $this->dbProxy->getTableField($server, $database),
+            'field' => $this->dbProxy->getTableField($server, $database, $schema),
             'prefixFields' => sprintf("fields[%d]", $length + 1),
         ];
         if($target < 0)
@@ -124,9 +124,9 @@ class Column extends AdminerCallable
         $this->jq('[data-field]', "#$columnId")
             ->on('jaxon.adminer.renamed', \pm()->js('jaxon.adminer.onColumnRenamed'));
         $this->jq('.adminer-table-column-add', "#$columnId")
-            ->click($this->rq()->add($server, $database, $length, $index));
+            ->click($this->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del', "#$columnId")
-            ->click($this->rq()->del($server, $database, $length, $index)
+            ->click($this->rq()->del($server, $database, $schema, $length, $index)
             ->confirm('Delete this column?'));
 
         return $this->response;
@@ -142,7 +142,7 @@ class Column extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function del($server, $database, $length, $index)
+    public function del($server, $database, $schema, $length, $index)
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -172,7 +172,7 @@ class Column extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function setForDelete($server, $database, $index)
+    public function setForDelete($server, $database, $schema, $index)
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
 
@@ -184,7 +184,7 @@ class Column extends AdminerCallable
             ->addClass('btn-danger')
             // Remove the current onClick handler before setting a new one.
             ->unbind('click')
-            ->click($this->rq()->cancelDelete($server, $database, $index));
+            ->click($this->rq()->cancelDelete($server, $database, $schema, $index));
         $this->jq('.adminer-table-column-del>span', "#$columnId")
             ->removeClass('glyphicon-remove')
             ->addClass('glyphicon-trash');
@@ -201,7 +201,7 @@ class Column extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function cancelDelete($server, $database, $index)
+    public function cancelDelete($server, $database, $schema, $index)
     {
         $columnId = \sprintf('%s-column-%02d', $this->formId, $index);
         $columnName = \sprintf('fields[%d][field]', $index + 1);
@@ -214,7 +214,7 @@ class Column extends AdminerCallable
             ->addClass('btn-primary')
             // Remove the current onClick handler before setting a new one.
             ->unbind('click')
-            ->click($this->rq()->setForDelete($server, $database, $index));
+            ->click($this->rq()->setForDelete($server, $database, $schema, $index));
         $this->jq('.adminer-table-column-del>span', "#$columnId")
             ->removeClass('glyphicon-trash')
             ->addClass('glyphicon-remove');

@@ -81,14 +81,37 @@ class Proxy
     // }
 
     /**
+     * Select the database and schema
+     *
+     * @param string $database  The database name
+     * @param string $schema    The database schema
+     *
+     * @return array
+     */
+    protected function select(string $database, string $schema)
+    {
+        global $connection;
+
+        if($database !== '')
+        {
+            $connection->select_db($database);
+            if($schema !== '')
+            {
+                \adminer\set_schema($schema, $connection);
+            }
+        }
+    }
+
+    /**
      * Connect to a database server
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      *
      * @return array
      */
-    protected function connect(string $server, string $database = '')
+    protected function connect(string $server, string $database = '', string $schema = '')
     {
         global $adminer, $host, $port, $connection, $driver;
 
@@ -96,6 +119,8 @@ class Proxy
         // Prevent multiple calls.
         if(($connection))
         {
+            // From adminer.inc.php
+            $this->select($database, $schema);
             return $options;
         }
 
@@ -143,20 +168,7 @@ class Proxy
         $driver = new \adminer\Min_Driver($connection);
 
         // From adminer.inc.php
-        if(($database))
-        {
-            $schema = '';
-            if(($position = \strpos($database, ':')) !== false)
-            {
-                $schema = \substr($database, $position + 1);
-                $database = \substr($database, 0, $position);
-            }
-            $connection->select_db($database);
-            if($schema !== '')
-            {
-                \adminer\set_schema($schema, $connection);
-            }
-        }
+        $this->select($database, $schema);
 
         return $options;
     }

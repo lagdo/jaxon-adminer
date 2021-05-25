@@ -67,7 +67,7 @@ trait ImportTrait
     public function executeSqlFiles(string $server, array $files,
         bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->import($database, $schema)
             ->executeSqlFiles($files, $errorStops, $onlyErrors);
     }

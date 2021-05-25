@@ -19,9 +19,9 @@ class Command extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showCommandForm(string $server, string $database = '')
+    public function showCommandForm(string $server, string $database = '', string $schema = '')
     {
-        $commandOptions = $this->dbProxy->prepareCommand($server, $database);
+        $commandOptions = $this->dbProxy->prepareCommand($server, $database, $schema);
 
         // Make data available to views
         foreach($commandOptions as $name => $value)
@@ -48,7 +48,7 @@ class Command extends AdminerCallable
         $this->response->html($this->package->getDbContentId(), $content);
 
         $this->jq("#$btnId")
-            ->click($this->rq()->execute($server, $database, \pm()->form($formId))
+            ->click($this->rq()->execute($server, $database, $schema, \pm()->form($formId))
                 ->when(\pm()->input($queryId)));
 
         return $this->response;
@@ -63,7 +63,7 @@ class Command extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function execute(string $server, string $database, array $formValues)
+    public function execute(string $server, string $database, string $schema, array $formValues)
     {
         $query = \trim($formValues['query'] ?? '');
         $limit = \intval($formValues['limit'] ?? 0);
@@ -77,7 +77,7 @@ class Command extends AdminerCallable
         }
 
         $queryResults = $this->dbProxy->executeCommands($server,
-            $query, $limit, $errorStops, $onlyErrors, $database);
+            $query, $limit, $errorStops, $onlyErrors, $database, $schema);
         // $this->logger()->debug(\json_encode($queryResults));
 
         $content = $this->render('sql/results', $queryResults);

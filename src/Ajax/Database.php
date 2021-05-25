@@ -100,10 +100,7 @@ class Database extends AdminerCallable
     {
         $databaseInfo = $this->dbProxy->getDatabaseInfo($server, $database);
         // Make database info available to views
-        foreach($databaseInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($databaseInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -112,9 +109,25 @@ class Database extends AdminerCallable
         $this->response->html($this->package->getServerActionsId(), '');
         $this->response->html($this->package->getDbActionsId(), $content);
 
+        $schemas = $databaseInfo['schemas'];
+        $schema = '';
+        if($schemas)
+        {
+            $schema = \pm()->select('adminer-schema-select');
+            // Todo: insert schema list in menu
+            $content = $this->render('menu/schemas');
+            $this->response->html($this->package->getSchemaListId(), $content);
+            $this->response->assign($this->package->getSchemaListId(), 'style.visibility', 'visible');
+            $this->response->assign($this->package->getSchemaListId(), 'style.display', 'flex');
+        }
+        else
+        {
+            $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
+        }
+
         // Set the click handlers
         $this->jq('#adminer-menu-action-database-command')
-            ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database));
+            ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database, $schema));
         $this->jq('#adminer-menu-action-database-import')
             ->click($this->cl(Import::class)->rq()->showImportForm($server, $database));
         $this->jq('#adminer-menu-action-database-export')
@@ -125,22 +138,23 @@ class Database extends AdminerCallable
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-table')
-            ->click($this->rq()->showTables($server, $database));
+            ->click($this->rq()->showTables($server, $database, $schema));
         $this->jq('#adminer-menu-action-view')
-            ->click($this->rq()->showViews($server, $database));
+            ->click($this->rq()->showViews($server, $database, $schema));
         $this->jq('#adminer-menu-action-routine')
-            ->click($this->rq()->showRoutines($server, $database));
+            ->click($this->rq()->showRoutines($server, $database, $schema));
         $this->jq('#adminer-menu-action-sequence')
-            ->click($this->rq()->showSequences($server, $database));
+            ->click($this->rq()->showSequences($server, $database, $schema));
         $this->jq('#adminer-menu-action-type')
-            ->click($this->rq()->showUserTypes($server, $database));
+            ->click($this->rq()->showUserTypes($server, $database, $schema));
         $this->jq('#adminer-menu-action-event')
-            ->click($this->rq()->showEvents($server, $database));
+            ->click($this->rq()->showEvents($server, $database, $schema));
         // Set the selected entry on database dropdown select
         $this->jq('#adminer-dbname-select')->val($database)->change();
 
         // Show the database tables
-        $this->showTables($server, $database);
+        $schema = $schemas ? $schemas[0] : '';
+        $this->showTables($server, $database, $schema);
 
         return $this->response;
     }
@@ -181,9 +195,9 @@ class Database extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showTables($server, $database)
+    public function showTables($server, $database, $schema)
     {
-        $tablesInfo = $this->dbProxy->getTables($server, $database);
+        $tablesInfo = $this->dbProxy->getTables($server, $database, $schema);
 
         $tableNameClass = 'adminer-table-name';
         // Add links, classes and data values to table names.
@@ -203,14 +217,14 @@ class Database extends AdminerCallable
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-table')
-            ->click($this->cl(Table::class)->rq()->add($server, $database));
+            ->click($this->cl(Table::class)->rq()->add($server, $database, $schema));
 
         // Set onclick handlers on table checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
         $table = \jq()->parent()->attr('data-name');
         $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(Table::class)->rq()->show($server, $database, $table));
+            ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
 
         return $this->response;
     }
@@ -223,9 +237,9 @@ class Database extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showViews($server, $database)
+    public function showViews($server, $database, $schema)
     {
-        $viewsInfo = $this->dbProxy->getViews($server, $database);
+        $viewsInfo = $this->dbProxy->getViews($server, $database, $schema);
 
         $viewNameClass = 'adminer-view-name';
         // Add links, classes and data values to view names.
@@ -245,14 +259,14 @@ class Database extends AdminerCallable
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-view')
-            ->click($this->cl(View::class)->rq()->add($server, $database));
+            ->click($this->cl(View::class)->rq()->add($server, $database, $schema));
 
         // Set onclick handlers on view checkbox
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on view names
         $view = \jq()->parent()->attr('data-name');
         $this->jq('.' . $viewNameClass . '>a', '#' . $this->package->getDbContentId())
-            ->click($this->cl(View::class)->rq()->show($server, $database, $view));
+            ->click($this->cl(View::class)->rq()->show($server, $database, $schema, $view));
 
         return $this->response;
     }
@@ -265,9 +279,9 @@ class Database extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showRoutines($server, $database)
+    public function showRoutines($server, $database, $schema)
     {
-        $routinesInfo = $this->dbProxy->getRoutines($server, $database);
+        $routinesInfo = $this->dbProxy->getRoutines($server, $database, $schema);
         $this->showSection('routine', $routinesInfo);
 
         return $this->response;
@@ -281,9 +295,9 @@ class Database extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showSequences($server, $database)
+    public function showSequences($server, $database, $schema)
     {
-        $sequencesInfo = $this->dbProxy->getSequences($server, $database);
+        $sequencesInfo = $this->dbProxy->getSequences($server, $database, $schema);
         $this->showSection('sequence', $sequencesInfo);
 
         return $this->response;
@@ -297,9 +311,9 @@ class Database extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showUserTypes($server, $database)
+    public function showUserTypes($server, $database, $schema)
     {
-        $userTypesInfo = $this->dbProxy->getUserTypes($server, $database);
+        $userTypesInfo = $this->dbProxy->getUserTypes($server, $database, $schema);
         $this->showSection('type', $userTypesInfo);
 
         return $this->response;
@@ -313,9 +327,9 @@ class Database extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function showEvents($server, $database)
+    public function showEvents($server, $database, $schema)
     {
-        $eventsInfo = $this->dbProxy->getEvents($server, $database);
+        $eventsInfo = $this->dbProxy->getEvents($server, $database, $schema);
         $this->showSection('event', $eventsInfo);
 
         return $this->response;

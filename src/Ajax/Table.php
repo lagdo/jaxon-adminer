@@ -48,9 +48,9 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function show($server, $database, $table)
+    public function show($server, $database, $schema, $table)
     {
-        $tableInfo = $this->dbProxy->getTableInfo($server, $database, $table);
+        $tableInfo = $this->dbProxy->getTableInfo($server, $database, $schema, $table);
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
 
@@ -61,25 +61,25 @@ class Table extends AdminerCallable
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbProxy->getTableFields($server, $database, $table);
+        $fieldsInfo = $this->dbProxy->getTableFields($server, $database, $schema, $table);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show indexes
-        $indexesInfo = $this->dbProxy->getTableIndexes($server, $database, $table);
+        $indexesInfo = $this->dbProxy->getTableIndexes($server, $database, $schema, $table);
         if(\is_array($indexesInfo))
         {
             $this->showTab($indexesInfo, 'tab-content-indexes');
         }
 
         // Show foreign keys
-        $foreignKeysInfo = $this->dbProxy->getTableForeignKeys($server, $database, $table);
+        $foreignKeysInfo = $this->dbProxy->getTableForeignKeys($server, $database, $schema, $table);
         if(\is_array($foreignKeysInfo))
         {
             $this->showTab($foreignKeysInfo, 'tab-content-foreign-keys');
         }
 
         // Show triggers
-        $triggersInfo = $this->dbProxy->getTableTriggers($server, $database, $table);
+        $triggersInfo = $this->dbProxy->getTableTriggers($server, $database, $schema, $table);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -87,9 +87,9 @@ class Table extends AdminerCallable
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-edit-table')
-            ->click($this->rq()->edit($server, $database, $table));
+            ->click($this->rq()->edit($server, $database, $schema, $table));
         $this->jq('#adminer-main-action-drop-table')
-            ->click($this->rq()->drop($server, $database, $table)
+            ->click($this->rq()->drop($server, $database, $schema, $table)
             ->confirm("Drop table $table?"));
 
         return $this->response;
@@ -103,9 +103,9 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function add($server, $database)
+    public function add($server, $database, $schema)
     {
-        $tableData = $this->dbProxy->getTableData($server, $database);
+        $tableData = $this->dbProxy->getTableData($server, $database, $schema);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -123,12 +123,12 @@ class Table extends AdminerCallable
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $values = \pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->create($server, $database, $values)
+            ->click($this->rq()->create($server, $database, $schema, $values)
             ->when($length));
         $this->jq('#adminer-main-action-table-cancel')
-            ->click($this->cl(Database::class)->rq()->showTables($server, $database));
+            ->click($this->cl(Database::class)->rq()->showTables($server, $database, $schema));
         $this->jq('#adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $length));
+            ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
 
         return $this->response;
     }
@@ -142,9 +142,9 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function edit($server, $database, $table)
+    public function edit($server, $database, $schema, $table)
     {
-        $tableData = $this->dbProxy->getTableData($server, $database, $table);
+        $tableData = $this->dbProxy->getTableData($server, $database, $schema, $table);
         // Make data available to views
         $this->view()->shareValues($tableData);
 
@@ -161,18 +161,18 @@ class Table extends AdminerCallable
         // Set onclick handlers on toolbar buttons
         $values = \pm()->form($this->formId);
         $this->jq('#adminer-main-action-table-save')
-            ->click($this->rq()->alter($server, $database, $table, $values)
+            ->click($this->rq()->alter($server, $database, $schema, $table, $values)
             ->confirm("Save changes on table $table?"));
         $this->jq('#adminer-main-action-table-cancel')
-            ->click($this->rq()->show($server, $database, $table));
+            ->click($this->rq()->show($server, $database, $schema, $table));
         $length = \jq(".{$this->formId}-column", "#$contentId")->length;
         $this->jq('#adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $length));
+            ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length));
         $index = \jq()->parent()->attr('data-index');
         $this->jq('.adminer-table-column-add')
-            ->click($this->cl(Column::class)->rq()->add($server, $database, $length, $index));
+            ->click($this->cl(Column::class)->rq()->add($server, $database, $schema, $length, $index));
         $this->jq('.adminer-table-column-del')
-            ->click($this->cl(Column::class)->rq()->setForDelete($server, $database, $index));
+            ->click($this->cl(Column::class)->rq()->setForDelete($server, $database, $schema, $index));
 
         return $this->response;
     }
@@ -186,7 +186,7 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function create($server, $database, array $values)
+    public function create($server, $database, $schema, array $values)
     {
         if(!isset($values['comment']))
         {
@@ -201,14 +201,14 @@ class Table extends AdminerCallable
             $values['collation'] = '';
         }
 
-        $result = $this->dbProxy->createTable($server, $database, $values);
+        $result = $this->dbProxy->createTable($server, $database, $schema, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
             return $this->response;
         }
 
-        $this->show($server, $database, $values['name']);
+        $this->show($server, $database, $schema, $values['name']);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -223,7 +223,7 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function alter($server, $database, $table, array $values)
+    public function alter($server, $database, $schema, $table, array $values)
     {
         if(!isset($values['comment']))
         {
@@ -238,14 +238,14 @@ class Table extends AdminerCallable
             $values['collation'] = '';
         }
 
-        $result = $this->dbProxy->alterTable($server, $database, $table, $values);
+        $result = $this->dbProxy->alterTable($server, $database, $schema, $table, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
             return $this->response;
         }
 
-        $this->show($server, $database, $values['name']);
+        $this->show($server, $database, $schema, $values['name']);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -259,16 +259,16 @@ class Table extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function drop($server, $database, $table)
+    public function drop($server, $database, $schema, $table)
     {
-        $result = $this->dbProxy->dropTable($server, $database, $table);
+        $result = $this->dbProxy->dropTable($server, $database, $schema, $table);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
             return $this->response;
         }
 
-        $this->cl(Database::class)->showTables($server, $database);
+        $this->cl(Database::class)->showTables($server, $database, $schema);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }

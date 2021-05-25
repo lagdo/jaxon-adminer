@@ -31,13 +31,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableInfo(string $server, string $database, string $table)
+    public function getTableInfo(string $server, string $database, string $schema, string $table)
     {
-        $options = $this->connect($server, $database);
+        $options = $this->connect($server, $database, $schema);
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables'), $table]);
 
@@ -49,13 +50,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableFields(string $server, string $database, string $table)
+    public function getTableFields(string $server, string $database, string $schema, string $table)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->getTableFields($table);
     }
 
@@ -64,13 +66,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableIndexes(string $server, string $database, string $table)
+    public function getTableIndexes(string $server, string $database, string $schema, string $table)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->getTableIndexes($table);
     }
 
@@ -79,13 +82,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableForeignKeys(string $server, string $database, string $table)
+    public function getTableForeignKeys(string $server, string $database, string $schema, string $table)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->getTableForeignKeys($table);
     }
 
@@ -94,13 +98,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function getTableTriggers(string $server, string $database, string $table)
+    public function getTableTriggers(string $server, string $database, string $schema, string $table)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->getTableTriggers($table);
     }
 
@@ -109,13 +114,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array
      */
-    public function getTableData(string $server, string $database, string $table = '')
+    public function getTableData(string $server, string $database, string $schema, string $table = '')
     {
-        $options = $this->connect($server, $database);
+        $options = $this->connect($server, $database, $schema);
 
         $breadcrumbs = [$options['name'], $database, \adminer\lang('Tables')];
         if(($table))
@@ -137,12 +143,13 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      *
      * @return array
      */
-    public function getTableField(string $server, string $database)
+    public function getTableField(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database);
+        $options = $this->connect($server, $database, $schema);
         return $this->table()->getTableField();
     }
 
@@ -151,13 +158,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param array  $values    The table values
      *
      * @return array|null
      */
-    public function createTable(string $server, string $database, array $values)
+    public function createTable(string $server, string $database, string $schema, array $values)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->createTable($values);
     }
 
@@ -166,14 +174,15 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      * @param array  $values    The table values
      *
      * @return array|null
      */
-    public function alterTable(string $server, string $database, string $table, array $values)
+    public function alterTable(string $server, string $database, string $schema, string $table, array $values)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->alterTable($table, $values);
     }
 
@@ -182,13 +191,14 @@ trait TableTrait
      *
      * @param string $server    The selected server
      * @param string $database  The database name
+     * @param string $schema    The database schema
      * @param string $table     The table name
      *
      * @return array|null
      */
-    public function dropTable(string $server, string $database, string $table)
+    public function dropTable(string $server, string $database, string $schema, string $table)
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->table()->dropTable($table);
     }
 }

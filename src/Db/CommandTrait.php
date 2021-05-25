@@ -20,10 +20,11 @@ trait CommandTrait
      * Get the proxy
      *
      * @param string $database      The database name
+     * @param string $schema        The database schema
      *
      * @return CommandProxy
      */
-    protected function command(string $database)
+    protected function command(string $database, string $schema)
     {
         return $this->commandProxy ?: ($this->commandProxy = new CommandProxy($database));
     }
@@ -33,12 +34,13 @@ trait CommandTrait
      *
      * @param string $server        The selected server
      * @param string $database      The database name
+     * @param string $schema        The database schema
      *
      * @return array
      */
-    public function prepareCommand(string $server, string $database = '')
+    public function prepareCommand(string $server, string $database = '', string $schema = '')
     {
-        $options = $this->connect($server, $database);
+        $options = $this->connect($server, $database, $schema);
 
         $breadcrumbs = [$options['name']];
         if(($database))
@@ -67,13 +69,14 @@ trait CommandTrait
      * @param bool   $errorStops    Stop executing the requests in case of error
      * @param bool   $onlyErrors    Return only errors
      * @param string $database      The database name
+     * @param string $schema        The database schema
      *
      * @return array
      */
     public function executeCommands(string $server, string $query, int $limit,
-        bool $errorStops, bool $onlyErrors, string $database = '')
+        bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
     {
-        $this->connect($server, $database);
+        $this->connect($server, $database, $schema);
         return $this->command($database)
             ->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }

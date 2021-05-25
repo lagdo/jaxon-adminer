@@ -85,6 +85,16 @@ class Package extends JaxonPackage
      *
      * @return string
      */
+    public function getSchemaListId()
+    {
+        return 'adminer-schema-list';
+    }
+
+    /**
+     * Get the div id of the HTML element
+     *
+     * @return string
+     */
     public function getDbMenuId()
     {
         return 'adminer-database-menu';
@@ -125,6 +135,7 @@ class Package extends JaxonPackage
             'mainActionsId' => $this->getMainActionsId(),
             'serverActionsId' => $this->getServerActionsId(),
             'dbListId' => $this->getDbListId(),
+            'schemaListId' => $this->getSchemaListId(),
             'dbMenuId' => $this->getDbMenuId(),
             'dbActionsId' => $this->getDbActionsId(),
             'dbContentId' => $this->getDbContentId(),

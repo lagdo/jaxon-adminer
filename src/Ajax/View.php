@@ -37,9 +37,9 @@ class View extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function show($server, $database, $view)
+    public function show($server, $database, $schema, $view)
     {
-        $viewInfo = $this->dbProxy->getViewInfo($server, $database, $view);
+        $viewInfo = $this->dbProxy->getViewInfo($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
 
@@ -50,11 +50,11 @@ class View extends AdminerCallable
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Show fields
-        $fieldsInfo = $this->dbProxy->getViewFields($server, $database, $view);
+        $fieldsInfo = $this->dbProxy->getViewFields($server, $database, $schema, $view);
         $this->showTab($fieldsInfo, 'tab-content-fields');
 
         // Show triggers
-        $triggersInfo = $this->dbProxy->getViewTriggers($server, $database, $view);
+        $triggersInfo = $this->dbProxy->getViewTriggers($server, $database, $schema, $view);
         if(\is_array($triggersInfo))
         {
             $this->showTab($triggersInfo, 'tab-content-triggers');
@@ -62,9 +62,9 @@ class View extends AdminerCallable
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-edit-view')
-            ->click($this->rq()->edit($server, $database, $view));
+            ->click($this->rq()->edit($server, $database, $schema, $view));
         $this->jq('#adminer-main-action-drop-view')
-            ->click($this->rq()->drop($server, $database, $view)
+            ->click($this->rq()->drop($server, $database, $schema, $view)
             ->confirm("Drop view $view?"));
 
         return $this->response;
@@ -78,7 +78,7 @@ class View extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function add($server, $database)
+    public function add($server, $database, $schema)
     {
         $formId = 'view-form';
         $title = 'Create a view';
@@ -93,7 +93,7 @@ class View extends AdminerCallable
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->create($server, $database, \pm()->form($formId)),
+            'click' => $this->rq()->create($server, $database, $schema, \pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -109,9 +109,9 @@ class View extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function edit($server, $database, $view)
+    public function edit($server, $database, $schema, $view)
     {
-        $viewData = $this->dbProxy->getView($server, $database, $view);
+        $viewData = $this->dbProxy->getView($server, $database, $schema, $view);
         // Make view info available to views
         $this->view()->shareValues($viewData);
 
@@ -128,7 +128,7 @@ class View extends AdminerCallable
         ],[
             'title' => 'Save',
             'class' => 'btn btn-primary',
-            'click' => $this->rq()->update($server, $database, $view, \pm()->form($formId)),
+            'click' => $this->rq()->update($server, $database, $schema, $view, \pm()->form($formId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
 
@@ -144,11 +144,11 @@ class View extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function create($server, $database, array $values)
+    public function create($server, $database, $schema, array $values)
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        $result = $this->dbProxy->createView($server, $database, $values);
+        $result = $this->dbProxy->createView($server, $database, $schema, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -156,7 +156,7 @@ class View extends AdminerCallable
         }
 
         $this->response->dialog->hide();
-        $this->cl(Database::class)->showViews($server, $database);
+        $this->cl(Database::class)->showViews($server, $database, $schema);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -171,11 +171,11 @@ class View extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function update($server, $database, $view, array $values)
+    public function update($server, $database, $schema, $view, array $values)
     {
         $values['materialized'] = \array_key_exists('materialized', $values);
 
-        $result = $this->dbProxy->updateView($server, $database, $view, $values);
+        $result = $this->dbProxy->updateView($server, $database, $schema, $view, $values);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
@@ -183,7 +183,7 @@ class View extends AdminerCallable
         }
 
         $this->response->dialog->hide();
-        $this->cl(Database::class)->showViews($server, $database);
+        $this->cl(Database::class)->showViews($server, $database, $schema);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }
@@ -197,16 +197,16 @@ class View extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function drop($server, $database, $view)
+    public function drop($server, $database, $schema, $view)
     {
-        $result = $this->dbProxy->dropView($server, $database, $view);
+        $result = $this->dbProxy->dropView($server, $database, $schema, $view);
         if(!$result['success'])
         {
             $this->response->dialog->error($result['error']);
             return $this->response;
         }
 
-        $this->cl(Database::class)->showViews($server, $database);
+        $this->cl(Database::class)->showViews($server, $database, $schema);
         $this->response->dialog->success($result['message']);
         return $this->response;
     }

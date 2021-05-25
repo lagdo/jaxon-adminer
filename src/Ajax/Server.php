@@ -37,6 +37,9 @@ class Server extends AdminerCallable
         $content = $this->render('menu/databases');
         $this->response->html($this->package->getDbListId(), $content);
 
+        // Hide schema list
+        $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
+
         // Set onclick handlers on database dropdown select
         $database = \pm()->select('adminer-dbname-select');
         $this->jq('#adminer-dbname-select-btn')
