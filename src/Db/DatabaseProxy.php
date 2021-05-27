@@ -10,14 +10,65 @@ use Exception;
 class DatabaseProxy
 {
     /**
+     * The final schema list
+     *
+     * @var array
+     */
+    protected $finalSchemas = null;
+
+    /**
+     * The schemas the user has access to
+     *
+     * @var array
+     */
+    protected $userSchemas = null;
+
+    /**
+     * The constructor
+     *
+     * @param array $options    The server config options
+     */
+    public function __construct(array $options)
+    {
+        // Set the user schemas, if defined.
+        if(\array_key_exists('access', $options) &&
+            \is_array($options['access']) &&
+            \array_key_exists('schemas', $options['access']) &&
+            \is_array($options['access']['schemas']))
+        {
+            $this->userSchemas = $options['access']['schemas'];
+        }
+    }
+
+    /**
+     * Get the schemas from the connected database
+     *
+     * @return array
+     */
+    protected function schemas()
+    {
+        global $adminer;
+        // Get the schema lists
+        if($this->finalSchemas === null)
+        {
+            $this->finalSchemas = $adminer->schemas();
+            if(\is_array($this->userSchemas))
+            {
+                // Only keep schemas that appear in the config.
+                $this->finalSchemas = \array_intersect($this->finalSchemas, $this->userSchemas);
+                $this->finalSchemas = \array_values($this->finalSchemas);
+            }
+        }
+        return $this->finalSchemas;
+    }
+
+    /**
      * Connect to a database server
      *
      * @return void
      */
     public function getDatabaseInfo()
     {
-        global $adminer;
-
         $sql_actions = [
             'database-command' => \adminer\lang('SQL command'),
             'database-import' => \adminer\lang('Import'),
@@ -57,7 +108,7 @@ class DatabaseProxy
         $schemas = null;
         if(\adminer\support("scheme"))
         {
-            $schemas = $adminer->schemas();
+            $schemas = $this->schemas();
         }
         // $tables_list = \adminer\tables_list();
 

@@ -19,11 +19,13 @@ trait DatabaseTrait
     /**
      * Get the proxy
      *
+     * @param array $options    The server config options
+     *
      * @return DatabaseProxy
      */
-    protected function database()
+    protected function database(array $options)
     {
-        return $this->databaseProxy ?: ($this->databaseProxy = new DatabaseProxy());
+        return $this->databaseProxy ?: ($this->databaseProxy = new DatabaseProxy($options));
     }
 
     /**
@@ -40,7 +42,7 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database]);
 
-        return $this->database()->getDatabaseInfo();
+        return $this->database($options)->getDatabaseInfo();
     }
 
     /**
@@ -58,7 +60,7 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables')]);
 
-        return $this->database()->getTables();
+        return $this->database($options)->getTables();
     }
 
     /**
@@ -76,7 +78,7 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Views')]);
 
-        return $this->database()->getViews();
+        return $this->database($options)->getViews();
     }
 
     /**
@@ -94,7 +96,7 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Routines')]);
 
-        return $this->database()->getRoutines();
+        return $this->database($options)->getRoutines();
     }
 
     /**
@@ -112,7 +114,7 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Sequences')]);
 
-        return $this->database()->getSequences();
+        return $this->database($options)->getSequences();
     }
 
     /**
@@ -130,7 +132,7 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('User types')]);
 
-        return $this->database()->getUserTypes();
+        return $this->database($options)->getUserTypes();
     }
 
     /**
@@ -148,6 +150,6 @@ trait DatabaseTrait
 
         $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Events')]);
 
-        return $this->database()->getEvents();
+        return $this->database($options)->getEvents();
     }
 }

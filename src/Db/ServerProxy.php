@@ -41,7 +41,7 @@ class ServerProxy
     }
 
     /**
-     * Fetch and return the database from the connected server
+     * Get the databases from the connected server
      *
      * @return array
      */
@@ -57,20 +57,8 @@ class ServerProxy
             if(\is_array($this->userDatabases))
             {
                 // Only keep databases that appear in the config.
-                $finalDatabases = [];
-                foreach($this->userDatabases as $database)
-                {
-                    $name = $database;
-                    if(($position = \strpos($name, ':')) !== false)
-                    {
-                        $name = \substr($name, 0, $position);
-                    }
-                    if(\in_array($name, $this->finalDatabases))
-                    {
-                        $finalDatabases[] = $database;
-                    }
-                }
-                $this->finalDatabases = $finalDatabases;
+                $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
+                $this->finalDatabases = \array_values($this->finalDatabases);
             }
         }
         return $this->finalDatabases;

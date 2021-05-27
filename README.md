@@ -151,8 +151,8 @@ The `access.server` option can also be set at a server level, and in this case i
 ```
 In the above configuration, the user will be able to access server information only on the `second_server`.
 
-The `access.databases` option defines the set of databases the user can access.
-This option can only be defined at server level, and will apply to that specific server.
+The `access.databases` and `access.schemas` options define the set of databases and schemas the user can access.
+This options can only be defined at server level, and will apply to that specific server.
 
 ```php
     'app' => [
@@ -177,6 +177,7 @@ This option can only be defined at server level, and will apply to that specific
                         'access' => [
                             'server' => false,
                             'databases' => ['db1', 'db2', 'db3'],
+                            'schemas' => ['public'],
                         ],
                     ],
                 ],
