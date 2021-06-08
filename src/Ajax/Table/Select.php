@@ -2,6 +2,7 @@
 
 namespace Lagdo\Adminer\Ajax\Table;
 
+use Lagdo\Adminer\Ajax\Table;
 use Lagdo\Adminer\AdminerCallable;
 
 use Exception;
@@ -33,15 +34,35 @@ class Select extends AdminerCallable
         $btnColumnsId = 'adminer-table-select-columns';
         $btnFiltersId = 'adminer-table-select-filters';
         $btnSortingId = 'adminer-table-select-sorting';
-        $btnActionId = 'adminer-table-select-action';
+        $btnEditId = 'adminer-table-select-edit';
+        $btnExecId = 'adminer-table-select-exec';
+        $btnLimitId = 'adminer-table-select-limit';
+        $btnLengthId = 'adminer-table-select-length';
         $content = $this->render('table/select', [
             'formId' => $formId,
             'btnColumnsId' => $btnColumnsId,
             'btnFiltersId' => $btnFiltersId,
             'btnSortingId' => $btnSortingId,
-            'btnActionId' => $btnActionId,
+            'btnEditId' => $btnEditId,
+            'btnExecId' => $btnExecId,
+            'btnLimitId' => $btnLimitId,
+            'btnLengthId' => $btnLengthId,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
+
+        // Set onclick handlers on buttons
+        $this->jq('#adminer-main-action-select-back')
+            ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
+        // $this->jq('#adminer-main-action-select-edit')
+        //     ->click($this->rq()->drop($server, $database, $schema, $table));
+        // $this->jq('#adminer-main-action-select-table')
+        //     ->click($this->rq()->show($server, $database, $schema, $table));
+        // $this->jq('#adminer-main-action-insert-table')
+        //     ->click($this->rq()->edit($server, $database, $schema, $table));
+        // $this->jq('#adminer-main-action-select-table')
+        //     ->click($this->rq()->show($server, $database, $schema, $table));
+        // $this->jq('#adminer-main-action-insert-table')
+        //     ->click($this->rq()->edit($server, $database, $schema, $table));
 
         return $this->response;
     }

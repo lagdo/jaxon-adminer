@@ -254,7 +254,7 @@ class Adminer {
         //     (support("sql") ? " <a href='" . h(ME) . "sql=" . urlencode($query) . "'>" .
         //     lang('Edit') . "</a>" : "") . $return;
         return "<p><code class='jush-$jush'>" . h(str_replace("\n", " ", $query)) .
-            "</code> <span class='time'>(" . format_time($start) . ")</span>" . $return;
+            "</code> <span class='time'>(" . format_time($start) . ")</span>" . $return . "</p>";
     }
 
     /** Query printed in SQL command before execution

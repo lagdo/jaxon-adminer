@@ -88,4 +88,7 @@
 #<?php echo $this->containerId ?> .second-line {
     margin-top: 2px;
 }
+#<?php echo $this->containerId ?> .input-group-btn .btn {
+    margin: 0;
+}
 </style>

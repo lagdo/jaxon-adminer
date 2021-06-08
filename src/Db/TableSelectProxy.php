@@ -141,6 +141,42 @@ class TableSelectProxy
     {}
 
     /**
+     * Select data from table
+     *
+	 * @param string $table
+	 * @param array $select
+	 * @param array $where
+	 * @param array $group
+	 * @param array $order
+	 * @param int $limit
+	 * @param int $page index of page starting at zero
+	 *
+	 * @return string
+	 */
+    private function selectQueryBuild($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
+    {
+        // From driver.inc.php
+        global $adminer, $jush;
+		$is_group = (\count($group) < \count($select));
+		$query = $adminer->selectQueryBuild($select, $where, $group, $order, $limit, $page);
+        if(!$query)
+        {
+			$query = "SELECT" . \adminer\limit(
+                ($page != "last" && $limit != "" && $group && $is_group && $jush == "sql" ?
+                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . \adminer\table($table),
+                ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $is_group ?
+                    "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
+				($limit != "" ? +$limit : null),
+				($page ? $limit * $page : 0),
+				"\n"
+			);
+		}
+
+        // From adminer.inc.php
+        return '<p><code class="jush-' . $jush . '">' . \adminer\h(\str_replace("\n", " ", $query)) . '</code></p>';
+	}
+
+    /**
      * Get required data for create/update on tables
      *
      * @param string $table The table name
@@ -292,17 +328,18 @@ class TableSelectProxy
                 }
             }
         }
-        $print = true; // Output the SQL select query
-        ob_start();
-        $result = $driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
-        $query = ob_get_clean();
+        // $print = true; // Output the SQL select query
+        // ob_start();
+        // $result = $driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
+        // $query = ob_get_clean();
+
+		$query = $this->selectQueryBuild($table, $select2, $where, $group2, $order, $limit, $page);
 
         $main_actions = [
             'select-back' => \adminer\lang('Back'),
-            'select-edit' => \adminer\lang('Edit'),
         ];
 
-        return \compact('main_actions', 'options', 'query', 'result');
+        return \compact('main_actions', 'options', 'query');
     }
 
     /**
