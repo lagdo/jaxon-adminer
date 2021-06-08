@@ -5,7 +5,7 @@ namespace adminer;
 
 class Adminer {
     /** @var array operators used in select, null for all operators */
-    var $operators;
+    public $operators;
 
     /** @var array the selected database credentials, from Jaxon config options */
     public $credentials;
@@ -249,10 +249,12 @@ class Adminer {
                 . "$return<div id='$id' class='hidden'>\n$warnings</div>\n"
             ;
         }
-        return "<p><code class='jush-$jush'>" . h(str_replace("\n", " ", $query)) . "</code> <span class='time'>(" . format_time($start) . ")</span>"
-            . (support("sql") ? " <a href='" . h(ME) . "sql=" . urlencode($query) . "'>" . lang('Edit') . "</a>" : "")
-            . $return
-        ;
+        // return "<p><code class='jush-$jush'>" . h(str_replace("\n", " ", $query)) .
+        //     "</code> <span class='time'>(" . format_time($start) . ")</span>" .
+        //     (support("sql") ? " <a href='" . h(ME) . "sql=" . urlencode($query) . "'>" .
+        //     lang('Edit') . "</a>" : "") . $return;
+        return "<p><code class='jush-$jush'>" . h(str_replace("\n", " ", $query)) .
+            "</code> <span class='time'>(" . format_time($start) . ")</span>" . $return;
     }
 
     /** Query printed in SQL command before execution
@@ -544,7 +546,8 @@ class Adminer {
         $return = array();
         foreach ($indexes as $i => $index) {
             if ($index["type"] == "FULLTEXT" && $_GET["fulltext"][$i] != "") {
-                $return[] = "MATCH (" . implode(", ", array_map('\\adminer\\idf_escape', $index["columns"])) . ") AGAINST (" . q($_GET["fulltext"][$i]) . (isset($_GET["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
+                $return[] = "MATCH (" . implode(", ", array_map('\\adminer\\idf_escape', $index["columns"])) . ") AGAINST ("
+                    . q($_GET["fulltext"][$i]) . (isset($_GET["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
             }
         }
         foreach ((array) $_GET["where"] as $key => $val) {

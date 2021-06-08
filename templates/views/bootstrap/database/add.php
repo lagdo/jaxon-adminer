@@ -12,11 +12,11 @@
                             <select name="collation" class="form-control">
                                 <option value="" selected>(collation)</option>
 <?php foreach($this->collations as $group => $collations): ?>
-                                    <optgroup label="<?php echo $group ?>">
+                                <optgroup label="<?php echo $group ?>">
 <?php foreach($collations as $collation): ?>
-                                        <option><?php echo $collation ?></option>
+                                    <option><?php echo $collation ?></option>
 <?php endforeach ?>
-                                    </optgroup>
+                                </optgroup>
 <?php endforeach ?>
                             </select>
                         </div>

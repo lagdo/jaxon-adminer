@@ -14,6 +14,8 @@ class Proxy
     use UserTrait;
     use DatabaseTrait;
     use TableTrait;
+    use TableSelectTrait;
+    use TableQueryTrait;
     use ViewTrait;
     use CommandTrait;
     use ExportTrait;

@@ -3,6 +3,8 @@
 namespace Lagdo\Adminer\Ajax;
 
 use Lagdo\Adminer\Ajax\Table\Column;
+use Lagdo\Adminer\Ajax\Table\Select;
+use Lagdo\Adminer\Ajax\Table\Query;
 use Lagdo\Adminer\AdminerCallable;
 
 use Exception;
@@ -91,6 +93,10 @@ class Table extends AdminerCallable
         $this->jq('#adminer-main-action-drop-table')
             ->click($this->rq()->drop($server, $database, $schema, $table)
             ->confirm("Drop table $table?"));
+        $this->jq('#adminer-main-action-select-table')
+            ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
+        // $this->jq('#adminer-main-action-insert-table')
+        //     ->click($this->cl(Column::class)->rq()->edit($server, $database, $schema, $table));
 
         return $this->response;
     }

@@ -78,6 +78,8 @@ class TableProxy
         $main_actions = [
             'edit-table' => \adminer\lang('Alter table'),
             'drop-table' => \adminer\lang('Drop table'),
+            'select-table' => \adminer\lang('Select'),
+            'insert-table' => \adminer\lang('New item'),
         ];
 
         // From table.inc.php
