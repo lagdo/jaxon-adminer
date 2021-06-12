@@ -20,7 +20,7 @@ class TableSelectProxy
         global $functions, $grouping;
         return [
             'select' => $select,
-            'q_columns' => (array)$_GET["columns"],
+            'values' => (array)$_GET["columns"],
             'columns' => $columns,
             'functions' => $functions,
             'grouping' => $grouping,
@@ -44,8 +44,8 @@ class TableSelectProxy
             $fulltexts[$i] = $index["type"] == "FULLTEXT" ? h($_GET["fulltext"][$i]) : '';
         }
         return [
-            'where' => $where,
-            'q_where' => \array_merge((array)$_GET["where"], [[]]),
+            // 'where' => $where,
+            'values' => (array)$_GET["where"],
             'columns' => $columns,
             'indexes' => $indexes,
             'operators' => $adminer->operators,
@@ -62,9 +62,18 @@ class TableSelectProxy
      */
     private function getSortingOptions($order, $columns, $indexes)
     {
+        $values = [];
+        $descs = (array)$_GET["desc"];
+        foreach((array)$_GET["order"] as $key => $value)
+        {
+            $values[] = [
+                'col' => $value,
+                'desc' => $descs[$key] ?? 0,
+            ];
+        }
         return [
-            'order' => $order,
-            'q_order' => (array)$_GET["order"],
+            // 'order' => $order,
+            'values' => $values,
             'columns' => $columns,
         ];
     }
@@ -153,7 +162,7 @@ class TableSelectProxy
 	 *
 	 * @return string
 	 */
-    private function selectQueryBuild($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
+    private function buildSelectQuery($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
     {
         // From driver.inc.php
         global $adminer, $jush;
@@ -179,21 +188,25 @@ class TableSelectProxy
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
+     * @param string $table     The table name
+     * @param array  $options   The query options
      *
      * @return array
      */
-    public function getSelectData(string $table)
+    public function getSelectData(string $table, array $options = [])
     {
         global $adminer, $driver, $connection;
 
-        // Set request parameters
-        $_GET['columns'] = [];
-        $_GET["where"] = [];
-        $_GET["order"] = [];
-        $_GET["fulltext"] = [];
-        $page = 0; // $_GET["page"];
-        $_GET["page"] = $page;
+        // Set request parameters for Adminer functions
+        $_GET['columns'] = $options['columns'] ?? [];
+        $_GET['where'] = $options['where'] ?? [];
+        $_GET['order'] = $options['order'] ?? [];
+        $_GET['desc'] = $options['desc'] ?? [];
+        $_GET['fulltext'] = $options['fulltext'] ?? [];
+        $_GET['limit'] = $options['limit'] ?? '50';
+        $_GET['text_length'] = $options['text_length'] ?? '100';
+        $page = 0; // $_GET['page'];
+        $_GET['page'] = $page;
 
         // From select.inc.php
         $table_status = \adminer\table_status1($table);
@@ -311,7 +324,7 @@ class TableSelectProxy
         }
         foreach($select as $key => $val)
         {
-            $field = $fields[\adminer\idf_unescape($val)];
+            $field = $fields[\adminer\idf_unescape($val)] ?? null;
             if($field && ($as = \adminer\convert_field($field)))
             {
                 $select2[$key] = "$as AS $val";
@@ -333,7 +346,7 @@ class TableSelectProxy
         // $result = $driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
         // $query = ob_get_clean();
 
-		$query = $this->selectQueryBuild($table, $select2, $where, $group2, $order, $limit, $page);
+		$query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
         $main_actions = [
             'select-back' => \adminer\lang('Back'),

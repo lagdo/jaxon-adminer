@@ -29,20 +29,22 @@ trait TableSelectTrait
     /**
      * Get required data for create/update on tables
      *
-     * @param string $server    The selected server
-     * @param string $database  The database name
-     * @param string $schema    The database schema
-     * @param string $table     The table name
+     * @param string $server        The selected server
+     * @param string $database      The database name
+     * @param string $schema        The database schema
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function getSelectData(string $server, string $database, string $schema, string $table)
+    public function getSelectData(string $server, string $database, string $schema,
+        string $table, array $queryOptions = [])
     {
         $options = $this->connect($server, $database, $schema);
 
         $this->setBreadcrumbs([$options['name'], \adminer\lang('Databases'),
             $database, \adminer\lang('Tables'), $table, \adminer\lang('Select')]);
 
-        return $this->tableSelect()->getSelectData($table);
+        return $this->tableSelect()->getSelectData($table, $queryOptions);
     }
 }
