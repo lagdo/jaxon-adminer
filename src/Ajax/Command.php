@@ -16,10 +16,13 @@ class Command extends AdminerCallable
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The schema name
+     * @param string $query       The SQL query to display
      *
      * @return \Jaxon\Response\Response
      */
-    public function showCommandForm(string $server, string $database = '', string $schema = '')
+    public function showCommandForm(string $server, string $database = '',
+        string $schema = '', string $query = '')
     {
         $commandOptions = $this->dbProxy->prepareCommand($server, $database, $schema);
 
@@ -44,6 +47,7 @@ class Command extends AdminerCallable
             'formId' => $formId,
             'queryId' => $queryId,
             'defaultLimit' => 20,
+            'query' => $query,
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
@@ -59,6 +63,7 @@ class Command extends AdminerCallable
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The schema name
      * @param array $formValues
      *
      * @return \Jaxon\Response\Response

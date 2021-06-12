@@ -77,7 +77,7 @@ trait CommandTrait
         bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
     {
         $this->connect($server, $database, $schema);
-        return $this->command($database)
+        return $this->command($database, $schema)
             ->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }
 }

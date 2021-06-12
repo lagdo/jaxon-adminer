@@ -4,7 +4,8 @@
     <form class="form-horizontal" role="form" id="<?php echo $this->formId ?>">
         <div class="form-group">
             <textarea name="query" class="form-control" id="<?php echo
-                $this->queryId ?>" rows="10" spellcheck="false" wrap="on"></textarea>
+                $this->queryId ?>" rows="10" spellcheck="false" wrap="on"><?php echo
+                $this->query ?></textarea>
         </div>
         <div class="form-group">
             <div class="col-md-3">

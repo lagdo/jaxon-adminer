@@ -3,6 +3,7 @@
 namespace Lagdo\Adminer\Ajax\Table;
 
 use Lagdo\Adminer\Ajax\Table;
+use Lagdo\Adminer\Ajax\Command;
 use Lagdo\Adminer\AdminerCallable;
 
 use Exception;
@@ -99,6 +100,9 @@ class Select extends AdminerCallable
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
         $this->jq("#$btnLengthId")
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
+        $query = \jq('#' . $this->txtQueryId . ' p code')->text();
+        $this->jq("#$btnEditId")
+            ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database, $schema, $query));
 
         return $this->response;
     }
@@ -114,7 +118,8 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function setQueryOptions(string $server, string $database, string $schema, string $table, array $options)
+    public function setQueryOptions(string $server, string $database, string $schema,
+        string $table, array $options)
     {
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
         // Display the new query
@@ -134,13 +139,14 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function editColumns(string $server, string $database, string $schema, string $table, array $options)
+    public function editColumns(string $server, string $database, string $schema,
+        string $table, array $options)
     {
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
-        $title = 'Columns';
+        $title = 'Edit columns';
         $content = $this->render('table/select/columns-edit', [
             'formId' => $this->columnsFormId,
             'options' => $selectData['options']['columns'],
@@ -172,7 +178,8 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function saveColumns(string $server, string $database, string $schema, string $table, array $options, array $changed)
+    public function saveColumns(string $server, string $database, string $schema,
+        string $table, array $options, array $changed)
     {
         // $this->logger()->debug('Save columns', \compact('options', 'changed'));
         $options['columns'] = $changed['columns'];
@@ -203,13 +210,14 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function editFilters(string $server, string $database, string $schema, string $table, array $options)
+    public function editFilters(string $server, string $database, string $schema,
+        string $table, array $options)
     {
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
-        $title = 'Filters';
+        $title = 'Edit filters';
         $content = $this->render('table/select/filters-edit', [
             'formId' => $this->filtersFormId,
             'options' => $selectData['options']['filters'],
@@ -241,7 +249,8 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function saveFilters(string $server, string $database, string $schema, string $table, array $options, array $changed)
+    public function saveFilters(string $server, string $database, string $schema,
+        string $table, array $options, array $changed)
     {
         // $this->logger()->debug('Save filters', \compact('options', 'changed'));
         $options['where'] = $changed['where'];
@@ -272,13 +281,14 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function editSorting(string $server, string $database, string $schema, string $table, array $options)
+    public function editSorting(string $server, string $database, string $schema,
+        string $table, array $options)
     {
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
-        $title = 'Sorting';
+        $title = 'Edit order';
         $content = $this->render('table/select/sorting-edit', [
             'formId' => $this->sortingFormId,
             'options' => $selectData['options']['sorting'],
@@ -310,7 +320,8 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function saveSorting(string $server, string $database, string $schema, string $table, array $options, array $changed)
+    public function saveSorting(string $server, string $database, string $schema,
+        string $table, array $options, array $changed)
     {
         // $this->logger()->debug('Save sorting', \compact('options', 'changed'));
         $options['order'] = $changed['order'];
