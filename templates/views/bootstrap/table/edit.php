@@ -42,8 +42,7 @@
 <?php endif ?>
         </div>
         <div class="form-group adminer-table-column-header">
-            <label class="col-md-2 adminer-table-column-left"><?php echo \adminer\lang('Column') ?></label>
-            <label class="col-md-3 adminer-table-column-middle"><?php echo \adminer\lang('Length') ?></label>
+            <label class="col-md-5 adminer-table-column-left"><?php echo \adminer\lang('Column') ?></label>
             <label class="col-md-1 adminer-table-column-null-header" for="auto_increment_col">
                 <input type="radio" name="auto_increment_col" value="" <?php
                     if(!$this->options['has_auto_increment']): ?>checked <?php endif ?>/> AI

@@ -57,7 +57,7 @@
 #<?php echo $this->containerId ?> .adminer-table-column-header {
     padding-top: 15px;
     padding-bottom: 0;
-    margin-bottom: 0;
+    margin-bottom: 10px;
 }
 #<?php echo $this->containerId ?> .adminer-table-column-left {
     padding-right: 1px;

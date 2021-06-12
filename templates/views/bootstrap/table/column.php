@@ -2,10 +2,12 @@
         <div class="form-group <?php echo $this->class ?>" data-index="<?php
             echo $this->index ?>" id="<?php echo sprintf('%s-%02d', $this->class, $this->index) ?>">
 <?php endif ?>
+        <div class="col-md-12"><div class="row">
             <!-- Start first line -->
             <div class="col-md-3 adminer-table-column-left">
                 <input class="form-control column-name" name="<?php
-                    echo $this->prefixFields ?>[field]" data-field="field" value="<?php
+                    echo $this->prefixFields ?>[field]" placeholder="<?php
+                    echo \adminer\lang('Name') ?>" data-field="field" value="<?php
                     echo $this->field['field'] ?>" data-maxlength="64" autocapitalize="off" />
                 <input type="hidden" name="<?php echo $this->prefixFields ?>[orig]" value="<?php
                     echo $this->field['field'] ?>" data-field="orig" />
@@ -65,7 +67,8 @@
             </div>
             <div class="col-md-1 adminer-table-column-middle second-line">
                 <input class="form-control" name="<?php
-                    echo $this->prefixFields ?>[length]" data-field="length"<?php
+                    echo $this->prefixFields ?>[length]" placeholder="<?php
+                    echo \adminer\lang('Length') ?>" data-field="length"<?php
                     if($this->field['_length_required_']): ?> required<?php endif ?> value="<?php
                     echo $this->field['length'] ?>" size="3">
             </div>
@@ -132,6 +135,7 @@
 <?php endif ?>
             </div>
             <!-- End second line -->
+        </div></div>
 <?php if(isset($this->class)): ?>
         </div>
 <?php endif ?>
