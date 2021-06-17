@@ -91,4 +91,12 @@
 #<?php echo $this->containerId ?> .input-group-btn .btn {
     margin: 0;
 }
+#<?php echo $this->containerId ?> pre {
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
 </style>
