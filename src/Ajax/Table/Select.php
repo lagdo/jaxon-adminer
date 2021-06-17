@@ -100,9 +100,27 @@ class Select extends AdminerCallable
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
         $this->jq("#$btnLengthId")
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
-        $query = \jq('#' . $this->txtQueryId . ' p code')->text();
+        $query = \jq('#' . $this->txtQueryId)->text();
         $this->jq("#$btnEditId")
             ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database, $schema, $query));
+
+        return $this->response;
+    }
+
+    /**
+     * Execute the query
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param string $schema      The schema name
+     * @param string $table       The table name
+     * @param array  $options     The query options
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function exec(string $server, string $database, string $schema,
+        string $table, array $options)
+    {
 
         return $this->response;
     }
@@ -146,10 +164,17 @@ class Select extends AdminerCallable
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
+        // For handlers on buttons
+        $targetId = $this->columnsFormId;
+        $sourceId = "$targetId-item-template";
+        $checkboxClass = "$targetId-item-checkbox";
+
         $title = 'Edit columns';
         $content = $this->render('table/select/columns-edit', [
             'formId' => $this->columnsFormId,
             'options' => $selectData['options']['columns'],
+            'btnAdd' => "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
+            'btnDel' => "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')"
         ]);
         $buttons = [[
             'title' => 'Cancel',
@@ -162,6 +187,9 @@ class Select extends AdminerCallable
                 \pm()->form($this->selectFormId), \pm()->form($this->columnsFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
+
+        $count = \count($selectData['options']['columns']['values']);
+        $this->response->script("jaxon.adminer.newItemIndex=$count");
 
         return $this->response;
     }
@@ -181,8 +209,7 @@ class Select extends AdminerCallable
     public function saveColumns(string $server, string $database, string $schema,
         string $table, array $options, array $changed)
     {
-        // $this->logger()->debug('Save columns', \compact('options', 'changed'));
-        $options['columns'] = $changed['columns'];
+        $options['columns'] = \array_values($changed['columns'] ?? []);
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
@@ -217,10 +244,17 @@ class Select extends AdminerCallable
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
+        // For handlers on buttons
+        $targetId = $this->filtersFormId;
+        $sourceId = "$targetId-item-template";
+        $checkboxClass = "$targetId-item-checkbox";
+
         $title = 'Edit filters';
         $content = $this->render('table/select/filters-edit', [
             'formId' => $this->filtersFormId,
             'options' => $selectData['options']['filters'],
+            'btnAdd' => "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
+            'btnDel' => "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')"
         ]);
         $buttons = [[
             'title' => 'Cancel',
@@ -233,6 +267,9 @@ class Select extends AdminerCallable
                 \pm()->form($this->selectFormId), \pm()->form($this->filtersFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
+
+        $count = \count($selectData['options']['filters']['values']);
+        $this->response->script("jaxon.adminer.newItemIndex=$count");
 
         return $this->response;
     }
@@ -252,8 +289,7 @@ class Select extends AdminerCallable
     public function saveFilters(string $server, string $database, string $schema,
         string $table, array $options, array $changed)
     {
-        // $this->logger()->debug('Save filters', \compact('options', 'changed'));
-        $options['where'] = $changed['where'];
+        $options['where'] = \array_values($changed['where'] ?? []);
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
@@ -288,10 +324,17 @@ class Select extends AdminerCallable
         // Make data available to views
         // $this->view()->shareValues($selectData);
 
+        // For handlers on buttons
+        $targetId = $this->sortingFormId;
+        $sourceId = "$targetId-item-template";
+        $checkboxClass = "$targetId-item-checkbox";
+
         $title = 'Edit order';
         $content = $this->render('table/select/sorting-edit', [
             'formId' => $this->sortingFormId,
             'options' => $selectData['options']['sorting'],
+            'btnAdd' => "jaxon.adminer.insertSelectQueryItem('$targetId', '$sourceId')",
+            'btnDel' => "jaxon.adminer.removeSelectQueryItems('$targetId', '$checkboxClass')"
         ]);
         $buttons = [[
             'title' => 'Cancel',
@@ -304,6 +347,9 @@ class Select extends AdminerCallable
                 \pm()->form($this->selectFormId), \pm()->form($this->sortingFormId)),
         ]];
         $this->response->dialog->show($title, $content, $buttons);
+
+        $count = \count($selectData['options']['sorting']['values']);
+        $this->response->script("jaxon.adminer.newItemIndex=$count");
 
         return $this->response;
     }
@@ -323,9 +369,8 @@ class Select extends AdminerCallable
     public function saveSorting(string $server, string $database, string $schema,
         string $table, array $options, array $changed)
     {
-        // $this->logger()->debug('Save sorting', \compact('options', 'changed'));
-        $options['order'] = $changed['order'];
-        $options['desc'] = $changed['desc'] ?? [];
+        $options['order'] = \array_values($changed['order'] ?? []);
+        $options['desc'] = \array_values($changed['desc'] ?? []);
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog

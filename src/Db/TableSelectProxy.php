@@ -182,7 +182,7 @@ class TableSelectProxy
 		}
 
         // From adminer.inc.php
-        return '<p><code class="jush-' . $jush . '">' . \adminer\h(\str_replace("\n", " ", $query)) . '</code></p>';
+        return \adminer\h(\str_replace("\n", " ", $query));
 	}
 
     /**
@@ -205,7 +205,7 @@ class TableSelectProxy
         $_GET['fulltext'] = $options['fulltext'] ?? [];
         $_GET['limit'] = $options['limit'] ?? '50';
         $_GET['text_length'] = $options['text_length'] ?? '100';
-        $page = 0; // $_GET['page'];
+        $page = $options['page'] ?? 0;
         $_GET['page'] = $page;
 
         // From select.inc.php
@@ -359,43 +359,36 @@ class TableSelectProxy
      * Get required data for create/update on tables
      *
      * @param string $table The table name
+     * @param array  $options   The query options
      *
      * @return array
      */
-    public function execSelect(string $table, $page)
+    public function execSelect(string $table, array $options)
     {
-        global $adminer, $connection, $driver;
+        global $connection;
 
-        // From select.inc.php
-        if($page == "last")
+        $queryData = $this->getSelectData($table, $options);
+
+        // From driver.inc.php
+        $start = microtime(true);
+        $results = $connection->query($query);
+        // From adminer.inc.php
+        $duration = \adminer\format_time($start); // Compute and format the duration
+
+        $rows = null;
+        if(($results))
         {
-            $found_rows = $connection->result(count_rows($table, $where, $is_group, $group));
-            $page = floor(max(0, $found_rows - 1) / $limit);
-        }
-
-        $select2 = $select;
-        $group2 = $group;
-        if(!$select2) {
-            $select2[] = "*";
-            $convert_fields = convert_fields($columns, $fields, $select);
-            if($convert_fields) {
-                $select2[] = substr($convert_fields, 2);
-            }
-        }
-        foreach($select as $key => $val) {
-            $field = $fields[idf_unescape($val)];
-            if($field && ($as = convert_field($field))) {
-                $select2[$key] = "$as AS $val";
-            }
-        }
-        if(!$is_group && $unselected) {
-            foreach($unselected as $key => $val) {
-                $select2[] = idf_escape($key);
-                if($group2) {
-                    $group2[] = idf_escape($key);
+            // From select.inc.php
+            $rows = [];
+            while(($row = $results->fetch_assoc()))
+            {
+                if($page && $jush == "oracle")
+                {
+                    unset($row["RNUM"]);
                 }
+                $rows[] = $row;
             }
         }
-        $result = $driver->select($table, $select2, $where, $group2, $order, $limit, $page, true);
+        return \compact('duration', 'rows');
     }
 }

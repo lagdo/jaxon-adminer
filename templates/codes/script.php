@@ -40,7 +40,19 @@ jaxon.adminer = {
         if (!column) {
             return;
         }
-        let index = parseInt(column.attr('data-index'), 10) + 1;
+        const index = parseInt(column.attr('data-index'), 10) + 1;
         $(this).attr('name', 'fields[' + index + '][' + $(this).attr('data-field') + ']');
+    },
+    insertSelectQueryItem: function(targetId, sourceId) {
+        const index = jaxon.adminer.newItemIndex++;
+        const sourceHtml = $('#' + sourceId).html().replace(/__index__/g, index);
+        const targetElt = jaxon.$(targetId);
+        targetElt.insertAdjacentHTML('beforeend', sourceHtml);
+    },
+    removeSelectQueryItems: function(targetId, checkboxClass) {
+        $('.' + checkboxClass + ':checked', '#' + targetId).each(function() {
+            const selector = '#' + targetId + '-item-' + $(this).attr('data-index');
+            $(selector).remove();
+        });
     },
 }

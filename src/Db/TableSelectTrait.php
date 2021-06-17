@@ -47,4 +47,23 @@ trait TableSelectTrait
 
         return $this->tableSelect()->getSelectData($table, $queryOptions);
     }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $server        The selected server
+     * @param string $database      The database name
+     * @param string $schema        The database schema
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function execSelectQuery(string $server, string $database, string $schema,
+        string $table, array $queryOptions = [])
+    {
+        $this->connect($server, $database, $schema);
+
+        return $this->tableSelect()->execSelect($table, $queryOptions);
+    }
 }
