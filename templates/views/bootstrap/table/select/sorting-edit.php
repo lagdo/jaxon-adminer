@@ -27,8 +27,8 @@
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <input type="checkbox" name="desc[<?php echo $i ?>]" <?php
-                            if($value['desc']): ?>checked<?php endif ?> value="1" />
+                        <input type="checkbox" name="desc[<?php echo $i ?>]"<?php
+                            if($value['desc']): ?> checked<?php endif ?> value="1" />
                     </span>
                     <label for="desc[<?php echo $i ?>]" class="form-control"><?php
                         echo \adminer\lang('descending') ?></label>

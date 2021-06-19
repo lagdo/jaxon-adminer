@@ -100,6 +100,8 @@ class Select extends AdminerCallable
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
         $this->jq("#$btnLengthId")
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
+        $this->jq("#$btnExecId")
+            ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
         $query = \jq('#' . $this->txtQueryId)->text();
         $this->jq("#$btnEditId")
             ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database, $schema, $query));
@@ -118,9 +120,13 @@ class Select extends AdminerCallable
      *
      * @return \Jaxon\Response\Response
      */
-    public function exec(string $server, string $database, string $schema,
+    public function execSelect(string $server, string $database, string $schema,
         string $table, array $options)
     {
+        $results = $this->dbProxy->execSelect($server, $database, $schema, $table, $options);
+
+        $content = $this->render('table/select/results', $results);
+        $this->response->html('adminer-table-select-results', $content);
 
         return $this->response;
     }
@@ -209,7 +215,7 @@ class Select extends AdminerCallable
     public function saveColumns(string $server, string $database, string $schema,
         string $table, array $options, array $changed)
     {
-        $options['columns'] = \array_values($changed['columns'] ?? []);
+        $options['columns'] = $changed['columns'] ?? [];
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
@@ -289,7 +295,7 @@ class Select extends AdminerCallable
     public function saveFilters(string $server, string $database, string $schema,
         string $table, array $options, array $changed)
     {
-        $options['where'] = \array_values($changed['where'] ?? []);
+        $options['where'] = $changed['where'] ?? [];
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog
@@ -369,8 +375,8 @@ class Select extends AdminerCallable
     public function saveSorting(string $server, string $database, string $schema,
         string $table, array $options, array $changed)
     {
-        $options['order'] = \array_values($changed['order'] ?? []);
-        $options['desc'] = \array_values($changed['desc'] ?? []);
+        $options['order'] = $changed['order'] ?? [];
+        $options['desc'] = $changed['desc'] ?? [];
         $selectData = $this->dbProxy->getSelectData($server, $database, $schema, $table, $options);
 
         // Hide the dialog

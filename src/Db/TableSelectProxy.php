@@ -188,24 +188,41 @@ class TableSelectProxy
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table     The table name
-     * @param array  $options   The query options
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function getSelectData(string $table, array $options = [])
+    private function prepareSelect(string $table, array &$queryOptions = [])
     {
         global $adminer, $driver, $connection;
 
+        if(!isset($queryOptions['columns']))
+        {
+            $queryOptions['columns'] = [];
+        }
+        if(!isset($queryOptions['where']))
+        {
+            $queryOptions['where'] = [];
+        }
+        if(!isset($queryOptions['order']))
+        {
+            $queryOptions['order'] = [];
+        }
+        if(!isset($queryOptions['desc']))
+        {
+            $queryOptions['desc'] = [];
+        }
+
         // Set request parameters for Adminer functions
-        $_GET['columns'] = $options['columns'] ?? [];
-        $_GET['where'] = $options['where'] ?? [];
-        $_GET['order'] = $options['order'] ?? [];
-        $_GET['desc'] = $options['desc'] ?? [];
-        $_GET['fulltext'] = $options['fulltext'] ?? [];
-        $_GET['limit'] = $options['limit'] ?? '50';
-        $_GET['text_length'] = $options['text_length'] ?? '100';
-        $page = $options['page'] ?? 0;
+        $_GET['columns'] = $queryOptions['columns'] ?? [];
+        $_GET['where'] = $queryOptions['where'] ?? [];
+        $_GET['order'] = $queryOptions['order'] ?? [];
+        $_GET['desc'] = $queryOptions['desc'] ?? [];
+        $_GET['fulltext'] = $queryOptions['fulltext'] ?? [];
+        $_GET['limit'] = $queryOptions['limit'] ?? '50';
+        $_GET['text_length'] = $queryOptions['text_length'] ?? '100';
+        $page = $queryOptions['page'] ?? 0;
         $_GET['page'] = $page;
 
         // From select.inc.php
@@ -296,6 +313,12 @@ class TableSelectProxy
                 ($fields ? "." : ": " . \adminer\error()));
         }
 
+        if($page == "last")
+        {
+            $found_rows = $connection->result(\adminer\count_rows($table, $where, $is_group, $group));
+            $page = \floor(\max(0, $found_rows - 1) / $limit);
+        }
+
         $options = [
             'columns' => $this->getColumnsOptions($select, $columns),
             'filters' => $this->getFiltersOptions($where, $columns, $indexes),
@@ -304,12 +327,6 @@ class TableSelectProxy
             'length' => $this->getLengthOptions($text_length),
             // 'action' => $this->getActionOptions($indexes),
         ];
-
-        if($page == "last")
-        {
-            $found_rows = $connection->result(\adminer\count_rows($table, $where, $is_group, $group));
-            $page = \floor(\max(0, $found_rows - 1) / $limit);
-        }
 
         $select2 = $select;
         $group2 = $group;
@@ -341,54 +358,230 @@ class TableSelectProxy
                 }
             }
         }
+
         // $print = true; // Output the SQL select query
         // ob_start();
         // $result = $driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
         // $query = ob_get_clean();
-
 		$query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
+
+        return [$table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page, $text_length, $options, $query];
+    }
+
+    /**
+     * Get required data for create/update on tables
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function getSelectData(string $table, array $queryOptions = [])
+    {
+        list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
+            $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
 
         $main_actions = [
             'select-back' => \adminer\lang('Back'),
         ];
 
         return \compact('main_actions', 'options', 'query');
-    }
+	}
 
     /**
      * Get required data for create/update on tables
      *
-     * @param string $table The table name
-     * @param array  $options   The query options
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function execSelect(string $table, array $options)
+    public function execSelect(string $table, array $queryOptions)
     {
-        global $connection;
+        global $adminer, $connection, $driver, $jush;
 
-        $queryData = $this->getSelectData($table, $options);
+        list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
+            $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
 
         // From driver.inc.php
         $start = microtime(true);
-        $results = $connection->query($query);
+        $result = $connection->query($query);
         // From adminer.inc.php
         $duration = \adminer\format_time($start); // Compute and format the duration
 
-        $rows = null;
-        if(($results))
+        if(!$result)
         {
-            // From select.inc.php
-            $rows = [];
-            while(($row = $results->fetch_assoc()))
-            {
-                if($page && $jush == "oracle")
-                {
-                    unset($row["RNUM"]);
-                }
-                $rows[] = $row;
-            }
+            return null;
         }
-        return \compact('duration', 'rows');
+        // From select.inc.php
+        $rows = [];
+        while(($row = $result->fetch_assoc()))
+        {
+            if($page && $jush == "oracle")
+            {
+                unset($row["RNUM"]);
+            }
+            $rows[] = $row;
+        }
+        if(!$rows)
+        {
+            return null;
+        }
+        // $backward_keys = $adminer->backwardKeys($table, $table_name);
+
+        // Results headers
+        $headers = [
+            '', // !$group && $select ? '' : lang('Modify');
+        ];
+        $names = [];
+        $functions = [];
+        reset($select);
+        $rank = 1;
+        foreach($rows[0] as $key => $val)
+        {
+            $header = [];
+            if(!isset($unselected[$key]))
+            {
+                $val = $queryOptions["columns"][key($select)] ?? [];
+                $fun = $val["fun"] ?? '';
+                $field = $fields[$select ? ($val ? $val["col"] : current($select)) : $key];
+                $name = ($field ? $adminer->fieldName($field, $rank) : ($fun ? "*" : $key));
+                $header = \compact('val', 'field', 'name');
+                if($name != "") {
+                    $rank++;
+                    $names[$key] = $name;
+                    $column = \adminer\idf_escape($key);
+                    // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
+                    // $desc = "&desc%5B0%5D=1";
+                    $header['column'] = $column;
+                    $header['key'] = \adminer\h(\adminer\bracket_escape($key));
+                    $header['sql'] = \adminer\apply_sql_function($fun, $name); //! columns looking like functions
+                }
+                $functions[$key] = $fun;
+                next($select);
+            }
+            $headers[] = $header;
+        }
+
+        // $lengths = [];
+        // if($_GET["modify"])
+        // {
+        //     foreach($rows as $row)
+        //     {
+        //         foreach($row as $key => $val)
+        //         {
+        //             $lengths[$key] = \max($lengths[$key], \min(40, strlen(\utf8_decode($val))));
+        //         }
+        //     }
+        // }
+
+        $results = [];
+        foreach($adminer->rowDescriptions($rows, $foreign_keys) as $n => $row)
+        {
+            $unique_array = \adminer\unique_array($rows[$n], $indexes);
+            if(!$unique_array)
+            {
+                $unique_array = [];
+                foreach($rows[$n] as $key => $val)
+                {
+                    if(!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key))
+                    {
+                        //! columns looking like functions
+                        $unique_array[$key] = $val;
+                    }
+                }
+            }
+            // Unique identifier to edit returned data.
+            // $unique_idf = "";
+            // foreach($unique_array as $key => $val)
+            // {
+            //     if(($jush == "sql" || $jush == "pgsql") &&
+            //         \preg_match('~char|text|enum|set~', $fields[$key]["type"]) && strlen($val) > 64)
+            //     {
+            //         $key = (\strpos($key, '(') ? $key : \adminer\idf_escape($key)); //! columns looking like functions
+            //         $key = "MD5(" . ($jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
+            //             $key : "CONVERT($key USING " . \adminer\charset($connection) . ")") . ")";
+            //         $val = md5($val);
+            //     }
+            //     $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . \adminer\bracket_escape($key) . "]") .
+            //         "=" . \urlencode($val) : "null%5B%5D=" . \urlencode($key));
+            // }
+
+            $result = [];
+            foreach($row as $key => $val)
+            {
+                if(isset($names[$key]))
+                {
+                    $field = $fields[$key] ?? [];
+                    $val = $driver->value($val, $field);
+                    if($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != ""))
+                    {
+                        //! filled e-mails can be contained on other pages
+                        $email_fields[$key] = (\adminer\is_mail($val) ? $names[$key] : "");
+                    }
+
+                    $link = "";
+                    // if(\preg_match('~blob|bytea|raw|file~', $field["type"] ?? '') && $val != "")
+                    // {
+                    //     $link = ME . 'download=' . \urlencode($table) . '&field=' . \urlencode($key) . $unique_idf;
+                    // }
+                    // if(!$link && $val !== null)
+                    // {
+                    //     // link related items
+                    //     foreach((array) $foreign_keys[$key] as $foreign_key)
+                    //     {
+                    //         if(\count($foreign_keys[$key]) == 1 || \end($foreign_key["source"]) == $key)
+                    //         {
+                    //             $link = "";
+                    //             foreach($foreign_key["source"] as $i => $source)
+                    //             {
+                    //                 $link .= \adminer\where_link($i, $foreign_key["target"][$i], $rows[$n][$source]);
+                    //             }
+                    //             // InnoDB supports non-UNIQUE keys
+                    //             $link = ($foreign_key["db"] != "" ? \preg_replace('~([?&]db=)[^&]+~', '\1' .
+                    //                 \urlencode($foreign_key["db"]), ME) : ME) . 'select=' . \urlencode($foreign_key["table"]) . $link;
+                    //             if($foreign_key["ns"])
+                    //             {
+                    //                 $link = \preg_replace('~([?&]ns=)[^&]+~', '\1' . \urlencode($foreign_key["ns"]), $link);
+                    //             }
+                    //             if(\count($foreign_key["source"]) == 1)
+                    //             {
+                    //                 break;
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                    // if($key == "COUNT(*)")
+                    // {
+                    //     //! columns looking like functions
+                    //     $link = ME . "select=" . \urlencode($table);
+                    //     $i = 0;
+                    //     foreach((array) $_GET["where"] as $v)
+                    //     {
+                    //         if(!\array_key_exists($v["col"], $unique_array))
+                    //         {
+                    //             $link .= \adminer\where_link($i++, $v["col"], $v["val"], $v["op"]);
+                    //         }
+                    //     }
+                    //     foreach($unique_array as $k => $v)
+                    //     {
+                    //         $link .= \adminer\where_link($i++, $k, $v);
+                    //     }
+                    // }
+
+                    $val = \adminer\select_value($val, $link, $field, $text_length);
+                    // $id = \adminer\h("val[$unique_idf][" . \adminer\bracket_escape($key) . "]");
+                    // $value = $_POST["val"][$unique_idf][\adminer\bracket_escape($key)];
+                    // $editable = !\is_array($row[$key]) && \adminer\is_utf8($val) &&
+                    //     $rows[$n][$key] == $row[$key] && !$functions[$key];
+                    $text = \preg_match('~text|lob~', $field["type"] ?? '');
+
+                    $result[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);
+                }
+            }
+            $results[] = $result;
+        }
+
+        return \compact('duration', 'headers', 'results');
     }
 }
