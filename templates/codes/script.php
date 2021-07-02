@@ -43,16 +43,16 @@ jaxon.adminer = {
         const index = parseInt(column.attr('data-index'), 10) + 1;
         $(this).attr('name', 'fields[' + index + '][' + $(this).attr('data-field') + ']');
     },
-    insertSelectQueryItem: function(targetId, sourceId) {
+    insertSelectQueryItem: function(targetId, templateId) {
         const index = jaxon.adminer.newItemIndex++;
-        const sourceHtml = $('#' + sourceId).html().replace(/__index__/g, index);
+        const itemHtml = $('#' + templateId).html().replace(/__index__/g, index);
         const targetElt = jaxon.$(targetId);
-        targetElt.insertAdjacentHTML('beforeend', sourceHtml);
+        targetElt.insertAdjacentHTML('beforeend', itemHtml);
     },
-    removeSelectQueryItems: function(targetId, checkboxClass) {
-        $('.' + checkboxClass + ':checked', '#' + targetId).each(function() {
-            const selector = '#' + targetId + '-item-' + $(this).attr('data-index');
-            $(selector).remove();
+    removeSelectQueryItems: function(containerId, checkboxClass) {
+        $('.' + checkboxClass + ':checked', '#' + containerId).each(function() {
+            const targetId = '#' + containerId + '-item-' + $(this).attr('data-index');
+            $(targetId).remove();
         });
     },
 }
