@@ -182,7 +182,7 @@ class TableSelectProxy
 		}
 
         // From adminer.inc.php
-        return \adminer\h(\str_replace("\n", " ", $query));
+        return \str_replace("\n", " ", $query);
 	}
 
     /**
@@ -380,6 +380,7 @@ class TableSelectProxy
     {
         list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
             $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
+        $query = \adminer\h($query);
 
         $main_actions = [
             'select-back' => \adminer\lang('Back'),
