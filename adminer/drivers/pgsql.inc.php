@@ -382,7 +382,11 @@ ORDER BY a.attnum"
 			$row["auto_increment"] = $row['identity'] || preg_match('~^nextval\(~i', $row["default"]);
 			$row["privileges"] = array("insert" => 1, "select" => 1, "update" => 1);
 			if (preg_match('~(.+)::[^,)]+(.*)~', $row["default"], $match)) {
-				$row["default"] = ($match[1] == "NULL" ? null : (($match[1][0] == "'" ? idf_unescape($match[1]) : $match[1]) . $match[2]));
+				$match1 = $match[1] ?? '';
+				$match10 = $match1[0] ?? '';
+				$match2 = $match[2] ?? '';
+				$row["default"] = ($match1 == "NULL" ? null :
+					(($match10 == "'" ? idf_unescape($match1) : $match1) . $match2));
 			}
 			$return[$row["field"]] = $row;
 		}
@@ -422,14 +426,23 @@ WHERE conrelid = (SELECT pc.oid FROM pg_class AS pc INNER JOIN pg_namespace AS p
 AND contype = 'f'::char
 ORDER BY conkey, conname") as $row) {
 			if (preg_match('~FOREIGN KEY\s*\((.+)\)\s*REFERENCES (.+)\((.+)\)(.*)$~iA', $row['definition'], $match)) {
-				$row['source'] = array_map('trim', explode(',', $match[1]));
-				if (preg_match('~^(("([^"]|"")+"|[^"]+)\.)?"?("([^"]|"")+"|[^"]+)$~', $match[2], $match2)) {
-					$row['ns'] = str_replace('""', '"', preg_replace('~^"(.+)"$~', '\1', $match2[2]));
-					$row['table'] = str_replace('""', '"', preg_replace('~^"(.+)"$~', '\1', $match2[4]));
+				$match1 = $match[1] ?? '';
+				$match2 = $match[2] ?? '';
+				$match3 = $match[3] ?? '';
+				$match4 = $match[4] ?? '';
+				$match11 = '';
+				$row['source'] = array_map('trim', explode(',', $match1));
+				if (preg_match('~^(("([^"]|"")+"|[^"]+)\.)?"?("([^"]|"")+"|[^"]+)$~', $match2, $match10)) {
+					$match11 = $match10[1] ?? '';
+					$match12 = $match10[2] ?? '';
+					// $match13 = $match10[3] ?? '';
+					$match14 = $match10[4] ?? '';
+					$row['ns'] = str_replace('""', '"', preg_replace('~^"(.+)"$~', '\1', $match12));
+					$row['table'] = str_replace('""', '"', preg_replace('~^"(.+)"$~', '\1', $match14));
 				}
-				$row['target'] = array_map('trim', explode(',', $match[3]));
-				$row['on_delete'] = (preg_match("~ON DELETE ($on_actions)~", $match[4], $match2) ? $match2[1] : 'NO ACTION');
-				$row['on_update'] = (preg_match("~ON UPDATE ($on_actions)~", $match[4], $match2) ? $match2[1] : 'NO ACTION');
+				$row['target'] = array_map('trim', explode(',', $match3));
+				$row['on_delete'] = (preg_match("~ON DELETE ($on_actions)~", $match4, $match10) ? $match11 : 'NO ACTION');
+				$row['on_update'] = (preg_match("~ON UPDATE ($on_actions)~", $match4, $match10) ? $match11 : 'NO ACTION');
 				$return[$row['conname']] = $row;
 			}
 		}
@@ -471,7 +484,12 @@ ORDER BY connamespace, conname") as $row) {
 		global $connection;
 		$return = h($connection->error);
 		if (preg_match('~^(.*\n)?([^\n]*)\n( *)\^(\n.*)?$~s', $return, $match)) {
-			$return = $match[1] . preg_replace('~((?:[^&]|&[^;]*;){' . strlen($match[3]) . '})(.*)~', '\1<b>\2</b>', $match[2]) . $match[4];
+			$match1 = $match[1] ?? '';
+			$match2 = $match[2] ?? '';
+			$match3 = $match[3] ?? '';
+			$match4 = $match[4] ?? '';
+			$return = $match1 . preg_replace('~((?:[^&]|&[^;]*;){' .
+				strlen($match3) . '})(.*)~', '\1<b>\2</b>', $match2) . $match4;
 		}
 		return nl_br($return);
 	}
