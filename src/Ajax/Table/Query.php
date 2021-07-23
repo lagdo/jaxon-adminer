@@ -48,8 +48,11 @@ class Query extends AdminerCallable
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
-        // $options = \pm()->form($this->queryFormId);
-        // // Set onclick handlers on buttons
+        $options = \pm()->form($this->queryFormId);
+        // Set onclick handlers on buttons
+        $this->jq('#adminer-main-action-query-save')
+            ->click($this->rq()->execInsert($server, $database, $schema, $table, $options)
+            ->confirm(\adminer\lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
 
@@ -70,10 +73,16 @@ class Query extends AdminerCallable
     public function execInsert(string $server, string $database, string $schema,
         string $table, array $options)
     {
-        $results = $this->dbProxy->execQuery($server, $database, $schema, $table, $options);
+        $results = $this->dbProxy->insertItem($server, $database, $schema, $table, $options);
 
-        $content = $this->render('table/insert/results', $results);
-        $this->response->html('adminer-table-insert-results', $content);
+        // Show the error
+        if(($results['error']))
+        {
+            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            return $this->response;
+        }
+        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->showInsert($server, $database, $schema, $table);
 
         return $this->response;
     }
@@ -81,33 +90,20 @@ class Query extends AdminerCallable
     /**
      * Show the update query form
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The schema name
-     * @param string $table       The table name
-     * @param integer $rowId      The query options
-     * @param array  $rowIds      The query options
+     * @param string $server        The database server
+     * @param string $database      The database name
+     * @param string $schema        The schema name
+     * @param string $table         The table name
+     * @param integer $rowId        The selected row
+     * @param array  $rowIds        The row selectors
      *
      * @return \Jaxon\Response\Response
      */
     public function showUpdate(string $server, string $database, string $schema,
         string $table, int $rowId, array $rowIds)
     {
-        $where = [];
-        $null = [];
-        foreach($rowIds[$rowId] ?? [] as $key => $val)
-        {
-            if($val === null)
-            {
-                $null[] = $key;
-            }
-            else
-            {
-                $where[$key] = $val;
-            }
-        }
-        $queryData = $this->dbProxy->getQueryData($server, $database, $schema, $table,
-            ['where' => $where, 'null' => $null, 'action' => 'Edit item']);
+        $rowIds = $rowIds[$rowId];
+        $queryData = $this->dbProxy->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
         if(($queryData['error']))
         {
@@ -124,10 +120,13 @@ class Query extends AdminerCallable
         ]);
         $this->response->html($this->package->getDbContentId(), $content);
 
-        // $options = \pm()->form($this->queryFormId);
-        // // Set onclick handlers on buttons
+        $options = \pm()->form($this->queryFormId);
+        // Set onclick handlers on buttons
+        $this->jq('#adminer-main-action-query-save')
+            ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options)
+            ->confirm(\adminer\lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
-            ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
+            ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
 
         return $this->response;
     }
@@ -135,21 +134,60 @@ class Query extends AdminerCallable
     /**
      * Execute the update query
      *
-     * @param string $server      The database server
-     * @param string $database    The database name
-     * @param string $schema      The schema name
-     * @param string $table       The table name
-     * @param array  $options     The query options
+     * @param string $server        The database server
+     * @param string $database      The database name
+     * @param string $schema        The schema name
+     * @param string $table         The table name
+     * @param array  $rowIds        The row selector
+     * @param array  $options       The query options
      *
      * @return \Jaxon\Response\Response
      */
     public function execUpdate(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $rowIds, array $options)
     {
-        $results = $this->dbProxy->execQuery($server, $database, $schema, $table, $options);
+        $options['where'] = $rowIds['where'];
+        $options['null'] = $rowIds['null'];
+        $results = $this->dbProxy->updateItem($server, $database, $schema, $table, $options);
 
-        $content = $this->render('table/update/results', $results);
-        $this->response->html('adminer-table-update-results', $content);
+        // Show the error
+        if(($results['error']))
+        {
+            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            return $this->response;
+        }
+        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->cl(Select::class)->show($server, $database, $schema, $table);
+
+        return $this->response;
+    }
+
+    /**
+     * Execute the delete query
+     *
+     * @param string $server        The database server
+     * @param string $database      The database name
+     * @param string $schema        The schema name
+     * @param string $table         The table name
+     * @param integer $rowId        The selected row
+     * @param array  $rowIds        The row selectors
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function execDelete(string $server, string $database, string $schema,
+        string $table, int $rowId, array $rowIds)
+    {
+        $rowIds = $rowIds[$rowId];
+        $results = $this->dbProxy->deleteItem($server, $database, $schema, $table, $rowIds);
+
+        // Show the error
+        if(($results['error']))
+        {
+            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            return $this->response;
+        }
+        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->cl(Select::class)->show($server, $database, $schema, $table);
 
         return $this->response;
     }

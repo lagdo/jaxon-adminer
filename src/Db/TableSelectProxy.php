@@ -497,7 +497,10 @@ class TableSelectProxy
 
             // Unique identifier to edit returned data.
             // $unique_idf = "";
-            $rowIds = [];
+            $rowIds = [
+                'where' => [],
+                'null' => [],
+            ];
             foreach($unique_array as $key => $val)
             {
                 $key = \trim($key);
@@ -509,7 +512,14 @@ class TableSelectProxy
                         $key : "CONVERT($key USING " . \adminer\charset($connection) . ")") . ")";
                     $val = \md5($val);
                 }
-                $rowIds[\adminer\bracket_escape($key)] = $val;
+                if($val !== null)
+                {
+                    $rowIds['where'][\adminer\bracket_escape($key)] = $val;
+                }
+                else
+                {
+                    $rowIds['null'][] = \adminer\bracket_escape($key);
+                }
                 // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . \adminer\bracket_escape($key) . "]") .
                 //     "=" . \urlencode($val) : \urlencode("null[]") . "=" . \urlencode($key));
             }

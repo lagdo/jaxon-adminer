@@ -9,10 +9,12 @@
     <tbody>
 <?php $rowId = 0; foreach($this->rows as $row): ?>
         <tr>
-            <th>
-                <button type="button" data-row-id="<?php
-                    echo $rowId++ ?>" class="btn btn-primary btn-xs <?php echo $this->btnEditRowClass ?>">
+            <th data-row-id="<?php echo $rowId++ ?>">
+                <button type="button" class="btn btn-primary btn-xs <?php echo $this->btnEditRowClass ?>">
                     <span class="glyphicon glyphicon-edit"></span>
+                </button>
+                <button type="button" class="btn btn-danger btn-xs <?php echo $this->btnDeleteRowClass ?>">
+                    <span class="glyphicon glyphicon-remove"></span>
                 </button>
             </th>
 <?php foreach($row['cols'] as $col): ?>

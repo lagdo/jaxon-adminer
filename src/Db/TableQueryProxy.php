@@ -360,4 +360,96 @@ class TableQueryProxy
         $fields = $entries;
         return \compact('main_actions', 'table_name', 'error', 'fields');
     }
+
+    /**
+     * Insert a new item in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function insertItem(string $table, array $queryOptions)
+    {
+        global $adminer, $driver, $error;
+
+        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+
+        // From edit.inc.php
+        $set = [];
+        foreach($fields as $name => $field)
+        {
+            $val = \adminer\process_input($field, $queryOptions);
+            if($val !== false && $val !== null)
+            {
+                $set[\adminer\idf_escape($name)] = $val;
+            }
+        }
+
+        $result = $driver->insert($table, $set);
+        $lastId = ($result ? \adminer\last_id() : 0);
+        $message = \adminer\lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
+
+        return \compact('result', 'message', 'error');
+    }
+
+    /**
+     * Update one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function updateItem(string $table, array $queryOptions)
+    {
+        global $adminer, $driver, $error;
+
+        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+
+        // From edit.inc.php
+        $indexes = \adminer\indexes($table);
+        $unique_array = \adminer\unique_array($queryOptions["where"], $indexes);
+        $query_where = "\nWHERE $where";
+
+        $set = [];
+        foreach($fields as $name => $field)
+        {
+            $val = \adminer\process_input($field, $queryOptions);
+            if($val !== false && $val !== null)
+            {
+                $set[\adminer\idf_escape($name)] = $val;
+            }
+        }
+
+        $result = $driver->update($table, $set, $query_where, !$unique_array);
+        $message = \adminer\lang('Item has been updated.');
+
+        return \compact('result', 'message', 'error');
+    }
+
+    /**
+     * Delete one or more items in a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function deleteItem(string $table, array $queryOptions)
+    {
+        global $adminer, $driver, $error;
+
+        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+
+        // From edit.inc.php
+        $indexes = \adminer\indexes($table);
+        $unique_array = \adminer\unique_array($queryOptions["where"], $indexes);
+        $query_where = "\nWHERE $where";
+
+        $result = $driver->delete($table, $query_where, !$unique_array);
+        $message = \adminer\lang('Item has been deleted.');
+
+        return \compact('result', 'message', 'error');
+    }
 }

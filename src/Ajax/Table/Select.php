@@ -147,16 +147,22 @@ class Select extends AdminerCallable
 
         $resultsId = 'adminer-table-select-results';
         $btnEditRowClass = 'adminer-table-select-row-edit';
+        $btnDeleteRowClass = 'adminer-table-select-row-delete';
         $content = $this->render('table/select/results', [
             'rowIds' => $rowIds,
             'btnEditRowClass' => $btnEditRowClass,
+            'btnDeleteRowClass' => $btnDeleteRowClass,
         ]);
         $this->response->html($resultsId, $content);
 
         // Set button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
             ->click($this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
-                \jq()->attr('data-row-id'), \pm()->js("rowIds")));
+                \jq()->parent()->attr('data-row-id'), \pm()->js("rowIds")));
+        $this->jq(".$btnDeleteRowClass", "#$resultsId")
+            ->click($this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
+                \jq()->parent()->attr('data-row-id'), \pm()->js("rowIds"))
+                ->confirm(\adminer\lang('Delete this item?')));
 
         return $this->response;
     }
