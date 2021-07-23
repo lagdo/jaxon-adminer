@@ -98,7 +98,7 @@ if ($_POST && !$error) {
 			$set = array();
 			if (!$_POST["delete"]) {
 				foreach ($columns as $name => $val) { //! should check also for edit or insert privileges
-					$val = process_input($fields[$name]);
+					$val = process_input($fields[$name], $_POST);
 					if ($val !== null && ($_POST["clone"] || $val !== false)) {
 						$set[idf_escape($name)] = ($val !== false ? $val : idf_escape($name));
 					}

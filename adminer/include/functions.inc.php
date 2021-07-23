@@ -1018,14 +1018,15 @@ function input($field, $value, $function) {
 }
 
 /** Process edit input field
-* @param one field from fields()
+* @param array one field from fields()
+* @param array the user inputs
 * @return string or false to leave the original value
 */
-function process_input($field) {
+function process_input($field, $inputs) {
 	global $adminer, $driver;
 	$idf = bracket_escape($field["field"]);
-	$function = $_POST["function"][$idf];
-	$value = $_POST["fields"][$idf];
+	$function = $inputs["function"][$idf] ?? '';
+	$value = $inputs["fields"][$idf];
 	if ($field["type"] == "enum") {
 		if ($value == -1) {
 			return false;
