@@ -383,7 +383,8 @@ class TableSelectProxy
         $query = \adminer\h($query);
 
         $main_actions = [
-            'select-back' => \adminer\lang('Back'),
+            'select-exec' => \adminer\lang('Execute'),
+            'select-cancel' => \adminer\lang('Cancel'),
         ];
 
         return \compact('main_actions', 'options', 'query');

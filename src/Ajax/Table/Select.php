@@ -88,7 +88,7 @@ class Select extends AdminerCallable
 
         $options = \pm()->form($this->selectFormId);
         // Set onclick handlers on buttons
-        $this->jq('#adminer-main-action-select-back')
+        $this->jq('#adminer-main-action-select-cancel')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
         $this->jq("#$btnColumnsId")
             ->click($this->rq()->editColumns($server, $database, $schema, $table, $options));
@@ -100,6 +100,8 @@ class Select extends AdminerCallable
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
         $this->jq("#$btnLengthId")
             ->click($this->rq()->setQueryOptions($server, $database, $schema, $table, $options));
+        $this->jq('#adminer-main-action-select-exec')
+            ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
         $this->jq("#$btnExecId")
             ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
         $query = \jq('#' . $this->txtQueryId)->text();
