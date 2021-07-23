@@ -478,7 +478,8 @@ function escape_key($key) {
 function where($where, $fields = array()) {
 	global $connection, $jush;
 	$return = array();
-	foreach ((array) $where["where"] as $key => $val) {
+	$wheres = $where["where"] ?? [];
+	foreach ((array) $wheres as $key => $val) {
 		$key = bracket_escape($key, 1); // 1 - back
 		$column = escape_key($key);
 		$return[] = $column
@@ -491,7 +492,8 @@ function where($where, $fields = array()) {
 			$return[] = "$column = " . q($val) . " COLLATE " . charset($connection) . "_bin";
 		}
 	}
-	foreach ((array) $where["null"] as $key) {
+	$nulls = $where["null"] ?? [];
+	foreach ((array) $nulls as $key) {
 		$return[] = escape_key($key) . " IS NULL";
 	}
 	return implode(" AND ", $return);
