@@ -95,8 +95,8 @@ class Table extends AdminerCallable
             ->confirm("Drop table $table?"));
         $this->jq('#adminer-main-action-select-table')
             ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
-        // $this->jq('#adminer-main-action-insert-table')
-        //     ->click($this->cl(Column::class)->rq()->edit($server, $database, $schema, $table));
+        $this->jq('#adminer-main-action-insert-table')
+            ->click($this->cl(Query::class)->rq()->showInsert($server, $database, $schema, $table));
 
         return $this->response;
     }

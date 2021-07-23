@@ -26,7 +26,7 @@ trait CommandTrait
      */
     protected function command(string $database, string $schema)
     {
-        return $this->commandProxy ?: ($this->commandProxy = new CommandProxy($database));
+        return $this->commandProxy ?: ($this->commandProxy = new CommandProxy($database, $schema));
     }
 
     /**
