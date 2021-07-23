@@ -161,20 +161,16 @@ class TableQueryProxy
     }
 
     /**
-     * Get required data for create/update on tables
+     * Get the table fields
      *
      * @param string $table         The table name
      * @param array  $queryOptions  The query options
      *
      * @return array
      */
-    public function getQueryData(string $table, array $queryOptions = [])
+    private function getFields(string $table, array $queryOptions)
     {
-        global $adminer, $driver, $jush, $token, $types, $error;
-
-        // Default options
-        $queryOptions['clone'] = false;
-        $queryOptions['save'] = false;
+        global $adminer;
 
         // From edit.inc.php
         $fields = \adminer\fields($table);
@@ -197,6 +193,28 @@ class TableQueryProxy
             }
         }
 
+        return [$fields, $where, $update];
+    }
+
+    /**
+     * Get data for insert/update on a table
+     *
+     * @param string $table         The table name
+     * @param array  $queryOptions  The query options
+     *
+     * @return array
+     */
+    public function getQueryData(string $table, array $queryOptions = [])
+    {
+        global $adminer, $driver, $jush, $types, $error;
+
+        // Default options
+        $queryOptions['clone'] = false;
+        $queryOptions['save'] = false;
+
+        list($fields, $where, $update) = $this->getFields($table, $queryOptions);
+
+        // From edit.inc.php
         $row = null;
         if($where)
         {
@@ -281,7 +299,7 @@ class TableQueryProxy
         $error = null;
         if($row === false)
         {
-            $error = \adminer\lang('No rows, dude!!');
+            $error = \adminer\lang('No rows.');
         }
         elseif(!$fields)
         {
@@ -335,8 +353,8 @@ class TableQueryProxy
         }
 
         $main_actions = [
-            'insert-save' => \adminer\lang('Save'),
-            'insert-cancel' => \adminer\lang('Cancel'),
+            'query-save' => \adminer\lang('Save'),
+            'query-cancel' => \adminer\lang('Cancel'),
         ];
 
         $fields = $entries;
