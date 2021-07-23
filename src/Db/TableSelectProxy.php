@@ -405,6 +405,7 @@ class TableSelectProxy
         list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
             $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
 
+        $error = null;
         // From driver.inc.php
         $start = microtime(true);
         $result = $connection->query($query);
@@ -413,7 +414,7 @@ class TableSelectProxy
 
         if(!$result)
         {
-            return null;
+            return ['error' => \adminer\error()];
         }
         // From select.inc.php
         $rows = [];
@@ -427,7 +428,7 @@ class TableSelectProxy
         }
         if(!$rows)
         {
-            return null;
+            return ['error' => \adminer\lang('No rows.')];
         }
         // $backward_keys = $adminer->backwardKeys($table, $table_name);
 
@@ -493,23 +494,27 @@ class TableSelectProxy
                     }
                 }
             }
+
             // Unique identifier to edit returned data.
             // $unique_idf = "";
-            // foreach($unique_array as $key => $val)
-            // {
-            //     if(($jush == "sql" || $jush == "pgsql") &&
-            //         \preg_match('~char|text|enum|set~', $fields[$key]["type"]) && strlen($val) > 64)
-            //     {
-            //         $key = (\strpos($key, '(') ? $key : \adminer\idf_escape($key)); //! columns looking like functions
-            //         $key = "MD5(" . ($jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
-            //             $key : "CONVERT($key USING " . \adminer\charset($connection) . ")") . ")";
-            //         $val = md5($val);
-            //     }
-            //     $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . \adminer\bracket_escape($key) . "]") .
-            //         "=" . \urlencode($val) : "null%5B%5D=" . \urlencode($key));
-            // }
+            $rowIds = [];
+            foreach($unique_array as $key => $val)
+            {
+                $key = \trim($key);
+                if(($jush == "sql" || $jush == "pgsql") &&
+                    \preg_match('~char|text|enum|set~', $fields[$key]["type"]) && strlen($val) > 64)
+                {
+                    $key = (\strpos($key, '(') ? $key : \adminer\idf_escape($key)); //! columns looking like functions
+                    $key = "MD5(" . ($jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
+                        $key : "CONVERT($key USING " . \adminer\charset($connection) . ")") . ")";
+                    $val = \md5($val);
+                }
+                $rowIds[\adminer\bracket_escape($key)] = $val;
+                // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . \adminer\bracket_escape($key) . "]") .
+                //     "=" . \urlencode($val) : \urlencode("null[]") . "=" . \urlencode($key));
+            }
 
-            $result = [];
+            $cols = [];
             foreach($row as $key => $val)
             {
                 if(isset($names[$key]))
@@ -578,12 +583,13 @@ class TableSelectProxy
                     //     $rows[$n][$key] == $row[$key] && !$functions[$key];
                     $text = \preg_match('~text|lob~', $field["type"] ?? '');
 
-                    $result[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);
+                    $cols[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);
                 }
             }
-            $results[] = $result;
+            $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        return \compact('duration', 'headers', 'results');
+        $rows = $results;
+        return \compact('duration', 'headers', 'rows', 'error');
     }
 }

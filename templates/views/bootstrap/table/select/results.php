@@ -7,11 +7,16 @@
         </tr>
     </thead>
     <tbody>
-<?php foreach($this->results as $results): ?>
+<?php $rowId = 0; foreach($this->rows as $row): ?>
         <tr>
-            <th></th>
-<?php foreach($results as $result): ?>
-            <td><?php echo $result['val'] ?></td>
+            <th>
+                <button type="button" data-row-id="<?php
+                    echo $rowId++ ?>" class="btn btn-primary btn-xs <?php echo $this->btnEditRowClass ?>">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button>
+            </th>
+<?php foreach($row['cols'] as $col): ?>
+            <td><?php echo $col['val'] ?></td>
 <?php endforeach ?>
         </tr>
 <?php endforeach ?>

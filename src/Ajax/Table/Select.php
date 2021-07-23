@@ -126,9 +126,37 @@ class Select extends AdminerCallable
         string $table, array $options)
     {
         $results = $this->dbProxy->execSelect($server, $database, $schema, $table, $options);
+        // Show the error
+        if(($results['error']))
+        {
+            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            return $this->response;
+        }
+        // Make data available to views
+        $this->view()->shareValues($results);
 
-        $content = $this->render('table/select/results', $results);
-        $this->response->html('adminer-table-select-results', $content);
+        // Set ids for row update/delete
+        $rowIds = [];
+        foreach($results['rows'] as $row)
+        {
+            $rowIds[] = $row["ids"];
+        }
+        // Note: don't use the var keyword when setting a variable,
+        // because it will not make the variable globally accessible.
+        $this->response->script("rowIds = JSON.parse('" . json_encode($rowIds) . "')");
+
+        $resultsId = 'adminer-table-select-results';
+        $btnEditRowClass = 'adminer-table-select-row-edit';
+        $content = $this->render('table/select/results', [
+            'rowIds' => $rowIds,
+            'btnEditRowClass' => $btnEditRowClass,
+        ]);
+        $this->response->html($resultsId, $content);
+
+        // Set button event handlers
+        $this->jq(".$btnEditRowClass", "#$resultsId")
+            ->click($this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
+                \jq()->attr('data-row-id'), \pm()->js("rowIds")));
 
         return $this->response;
     }
