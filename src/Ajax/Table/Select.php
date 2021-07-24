@@ -157,9 +157,9 @@ class Select extends AdminerCallable
 
         // The Jaxon ajax calls
         $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
-            \pm()->js("rowIds[rowId]"));
+            \pm()->js("rowIds[rowId]"), $options);
         $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-            \pm()->js("rowIds[rowId]"))->confirm(\adminer\lang('Delete this item?'));
+            \pm()->js("rowIds[rowId]"), $options)->confirm(\adminer\lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);

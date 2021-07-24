@@ -95,10 +95,12 @@ class Query extends AdminerCallable
      * @param string $schema        The schema name
      * @param string $table         The table name
      * @param array  $rowIds        The row identifiers
+     * @param array  $selects       The select options
      *
      * @return \Jaxon\Response\Response
      */
-    public function showUpdate(string $server, string $database, string $schema, string $table, array $rowIds)
+    public function showUpdate(string $server, string $database, string $schema,
+        string $table, array $rowIds, array $selects)
     {
         $queryData = $this->dbProxy->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
@@ -120,10 +122,10 @@ class Query extends AdminerCallable
         $options = \pm()->form($this->queryFormId);
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
-            ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options)
+            ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options, $selects)
             ->confirm(\adminer\lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
-            ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
+            ->click($this->rq()->backToSelect($server, $database, $schema, $table, $selects));
 
         return $this->response;
     }
@@ -137,11 +139,12 @@ class Query extends AdminerCallable
      * @param string $table         The table name
      * @param array  $rowIds        The row selector
      * @param array  $options       The query options
+     * @param array  $selects       The select options
      *
      * @return \Jaxon\Response\Response
      */
     public function execUpdate(string $server, string $database, string $schema,
-        string $table, array $rowIds, array $options)
+        string $table, array $rowIds, array $options, array $selects)
     {
         $options['where'] = $rowIds['where'];
         $options['null'] = $rowIds['null'];
@@ -154,7 +157,7 @@ class Query extends AdminerCallable
             return $this->response;
         }
         $this->response->dialog->success($results['message'], \adminer\lang('Success'));
-        $this->cl(Select::class)->show($server, $database, $schema, $table);
+        $this->backToSelect($server, $database, $schema, $table, $selects);
 
         return $this->response;
     }
@@ -167,10 +170,12 @@ class Query extends AdminerCallable
      * @param string $schema        The schema name
      * @param string $table         The table name
      * @param array  $rowIds        The row identifiers
+     * @param array  $selects       The select options
      *
      * @return \Jaxon\Response\Response
      */
-    public function execDelete(string $server, string $database, string $schema, string $table, array $rowIds)
+    public function execDelete(string $server, string $database, string $schema,
+        string $table, array $rowIds, array $selects)
     {
         $results = $this->dbProxy->deleteItem($server, $database, $schema, $table, $rowIds);
 
@@ -181,7 +186,27 @@ class Query extends AdminerCallable
             return $this->response;
         }
         $this->response->dialog->success($results['message'], \adminer\lang('Success'));
-        $this->cl(Select::class)->show($server, $database, $schema, $table);
+        $this->backToSelect($server, $database, $schema, $table, $selects);
+
+        return $this->response;
+    }
+
+    /**
+     * Get back to the select query from which the update or delete was called
+     *
+     * @param string $server        The database server
+     * @param string $database      The database name
+     * @param string $schema        The schema name
+     * @param string $table         The table name
+     * @param array  $options       The query options
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function backToSelect(string $server, string $database, string $schema, string $table, array $options)
+    {
+        $select = $this->cl(Select::class);
+        $select->show($server, $database, $schema, $table);
+        $select->execSelect($server, $database, $schema, $table, $options);
 
         return $this->response;
     }
