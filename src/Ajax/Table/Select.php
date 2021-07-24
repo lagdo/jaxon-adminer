@@ -155,14 +155,21 @@ class Select extends AdminerCallable
         ]);
         $this->response->html($resultsId, $content);
 
-        // Set button event handlers
+        // The Jaxon ajax calls
+        $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
+            \pm()->js("rowIds[rowId]"));
+        $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
+            \pm()->js("rowIds[rowId]"))->confirm(\adminer\lang('Delete this item?'));
+
+        // Wrap the ajax calls into functions
+        $this->response->setFunction('updateRowItem', 'rowId', $updateCall);
+        $this->response->setFunction('deleteRowItem', 'rowId', $deleteCall);
+
+        // Set the functions as button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
-            ->click($this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
-                \jq()->parent()->attr('data-row-id'), \pm()->js("rowIds")));
+            ->click(\rq()->func('updateRowItem', \jq()->parent()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
-            ->click($this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-                \jq()->parent()->attr('data-row-id'), \pm()->js("rowIds"))
-                ->confirm(\adminer\lang('Delete this item?')));
+            ->click(\rq()->func('deleteRowItem', \jq()->parent()->attr('data-row-id')));
 
         return $this->response;
     }

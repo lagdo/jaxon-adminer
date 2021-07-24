@@ -94,15 +94,12 @@ class Query extends AdminerCallable
      * @param string $database      The database name
      * @param string $schema        The schema name
      * @param string $table         The table name
-     * @param integer $rowId        The selected row
-     * @param array  $rowIds        The row selectors
+     * @param array  $rowIds        The row identifiers
      *
      * @return \Jaxon\Response\Response
      */
-    public function showUpdate(string $server, string $database, string $schema,
-        string $table, int $rowId, array $rowIds)
+    public function showUpdate(string $server, string $database, string $schema, string $table, array $rowIds)
     {
-        $rowIds = $rowIds[$rowId];
         $queryData = $this->dbProxy->getQueryData($server, $database, $schema, $table, $rowIds, 'Edit item');
         // Show the error
         if(($queryData['error']))
@@ -169,15 +166,12 @@ class Query extends AdminerCallable
      * @param string $database      The database name
      * @param string $schema        The schema name
      * @param string $table         The table name
-     * @param integer $rowId        The selected row
-     * @param array  $rowIds        The row selectors
+     * @param array  $rowIds        The row identifiers
      *
      * @return \Jaxon\Response\Response
      */
-    public function execDelete(string $server, string $database, string $schema,
-        string $table, int $rowId, array $rowIds)
+    public function execDelete(string $server, string $database, string $schema, string $table, array $rowIds)
     {
-        $rowIds = $rowIds[$rowId];
         $results = $this->dbProxy->deleteItem($server, $database, $schema, $table, $rowIds);
 
         // Show the error
