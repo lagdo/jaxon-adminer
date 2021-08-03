@@ -140,20 +140,23 @@ class TableQueryProxy
         }
         else
         {
+            $unsigned = $field["unsigned"] ?? false;
             // int(3) is only a display hint
             $maxlength = (!\preg_match('~int~', $field["type"]) &&
                 \preg_match('~^(\d+)(,(\d+))?$~', $field["length"], $match) ?
                 ((\preg_match("~binary~", $field["type"]) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
-                (($match[2] ?? false) && !$field["unsigned"] ? 1 : 0)) :
-                ($types[$field["type"]] ? $types[$field["type"]] + ($field["unsigned"] ? 0 : 1) : 0));
+                (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
+                ($types[$field["type"]] ? $types[$field["type"]] + ($unsigned ? 0 : 1) : 0));
             if($jush == 'sql' && \adminer\min_version(5.6) && \preg_match('~time~', $field["type"]))
             {
                 $maxlength += 7; // microtime
             }
-            // type='date' and type='time' display localized value which may be confusing, type='datetime' uses 'T' as date and time separator
-            $entry['input']['value'] = "<input" . ((!$has_function || $function === "") && \preg_match('~(?<!o)int(?!er)~', $field["type"]) &&
-                !\preg_match('~\[\]~', $field["full_type"]) ? " type='number'" : "") . " value='" . \adminer\h($value) . "'" .
-                ($maxlength ? " data-maxlength='$maxlength'" : "") .
+            // type='date' and type='time' display localized value which may be confusing,
+            // type='datetime' uses 'T' as date and time separator
+            $entry['input']['value'] = "<input" . ((!$has_function || $function === "") &&
+                \preg_match('~(?<!o)int(?!er)~', $field["type"]) &&
+                !\preg_match('~\[\]~', $field["full_type"]) ? " type='number'" : "") . " value='" .
+                \adminer\h($value) . "'" . ($maxlength ? " data-maxlength='$maxlength'" : "") .
                 (\preg_match('~char|binary~', $field["type"]) && $maxlength > 20 ? " size='40'" : "") . "$attrs>";
         }
 
@@ -186,8 +189,9 @@ class TableQueryProxy
         $update = $where;
         foreach($fields as $name => $field)
         {
+            $generated = $field["generated"] ?? false;
             if(!isset($field["privileges"][$update ? "update" : "insert"]) ||
-                $adminer->fieldName($field) == "" || $field["generated"])
+                $adminer->fieldName($field) == "" || $generated)
             {
                 unset($fields[$name]);
             }
