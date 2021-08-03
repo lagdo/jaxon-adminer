@@ -5,36 +5,36 @@ $row = $_POST;
 $row["fields"] = (array) $row["fields"];
 
 if ($_POST && !process_fields($row["fields"]) && !$error) {
-	$orig = routine($_GET["procedure"], $routine);
-	$temp_name = "$row[name]_adminer_" . uniqid();
-	if ($_POST["drop"]) {
-		drop_only(
-			"DROP $routine " . routine_id($PROCEDURE, $orig),
-			substr(ME, 0, -1),
-			lang('Routine has been dropped.')
-		);
-	} else {
-		drop_create(
-			"DROP $routine " . routine_id($PROCEDURE, $orig),
-			create_routine($routine, $row),
-			"DROP $routine " . routine_id($row["name"], $row),
-			create_routine($routine, array("name" => $temp_name) + $row),
-			"DROP $routine " . routine_id($temp_name, $row),
-			substr(ME, 0, -1),
-			lang('Routine has been dropped.'),
-			lang('Routine has been altered.'),
-			lang('Routine has been created.'),
-			$PROCEDURE,
-			$row["name"]
-		);
-	}
+    $orig = routine($_GET["procedure"], $routine);
+    $temp_name = "$row[name]_adminer_" . uniqid();
+    if ($_POST["drop"]) {
+        drop_only(
+            "DROP $routine " . routine_id($PROCEDURE, $orig),
+            substr(ME, 0, -1),
+            lang('Routine has been dropped.')
+        );
+    } else {
+        drop_create(
+            "DROP $routine " . routine_id($PROCEDURE, $orig),
+            create_routine($routine, $row),
+            "DROP $routine " . routine_id($row["name"], $row),
+            create_routine($routine, array("name" => $temp_name) + $row),
+            "DROP $routine " . routine_id($temp_name, $row),
+            substr(ME, 0, -1),
+            lang('Routine has been dropped.'),
+            lang('Routine has been altered.'),
+            lang('Routine has been created.'),
+            $PROCEDURE,
+            $row["name"]
+        );
+    }
 }
 
 page_header(($PROCEDURE != "" ? (isset($_GET["function"]) ? lang('Alter function') : lang('Alter procedure')) . ": " . h($PROCEDURE) : (isset($_GET["function"]) ? lang('Create function') : lang('Create procedure'))), $error);
 
 if (!$_POST && $PROCEDURE != "") {
-	$row = routine($_GET["procedure"], $routine);
-	$row["name"] = $PROCEDURE;
+    $row = routine($_GET["procedure"], $routine);
+    $row["name"] = $PROCEDURE;
 }
 
 $collations = get_vals("SHOW CHARACTER SET");
@@ -51,8 +51,8 @@ $routine_languages = routine_languages();
 <?php
 edit_fields($row["fields"], $collations, $routine);
 if (isset($_GET["function"])) {
-	echo "<tr><td>" . lang('Return type');
-	edit_type("returns", $row["returns"], $collations, array(), ($jush == "pgsql" ? array("void", "trigger") : array()));
+    echo "<tr><td>" . lang('Return type');
+    edit_type("returns", $row["returns"], $collations, array(), ($jush == "pgsql" ? array("void", "trigger") : array()));
 }
 ?>
 </table>

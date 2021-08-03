@@ -5,28 +5,28 @@ $trigger_options = trigger_options();
 $row = (array) trigger($name) + array("Trigger" => $TABLE . "_bi");
 
 if ($_POST) {
-	if (!$error && in_array($_POST["Timing"], $trigger_options["Timing"]) && in_array($_POST["Event"], $trigger_options["Event"]) && in_array($_POST["Type"], $trigger_options["Type"])) {
-		// don't use drop_create() because there may not be more triggers for the same action
-		$on = " ON " . table($TABLE);
-		$drop = "DROP TRIGGER " . idf_escape($name) . ($jush == "pgsql" ? $on : "");
-		$location = ME . "table=" . urlencode($TABLE);
-		if ($_POST["drop"]) {
-			query_redirect($drop, $location, lang('Trigger has been dropped.'));
-		} else {
-			if ($name != "") {
-				queries($drop);
-			}
-			queries_redirect(
-				$location,
-				($name != "" ? lang('Trigger has been altered.') : lang('Trigger has been created.')),
-				queries(create_trigger($on, $_POST))
-			);
-			if ($name != "") {
-				queries(create_trigger($on, $row + array("Type" => reset($trigger_options["Type"]))));
-			}
-		}
-	}
-	$row = $_POST;
+    if (!$error && in_array($_POST["Timing"], $trigger_options["Timing"]) && in_array($_POST["Event"], $trigger_options["Event"]) && in_array($_POST["Type"], $trigger_options["Type"])) {
+        // don't use drop_create() because there may not be more triggers for the same action
+        $on = " ON " . table($TABLE);
+        $drop = "DROP TRIGGER " . idf_escape($name) . ($jush == "pgsql" ? $on : "");
+        $location = ME . "table=" . urlencode($TABLE);
+        if ($_POST["drop"]) {
+            query_redirect($drop, $location, lang('Trigger has been dropped.'));
+        } else {
+            if ($name != "") {
+                queries($drop);
+            }
+            queries_redirect(
+                $location,
+                ($name != "" ? lang('Trigger has been altered.') : lang('Trigger has been created.')),
+                queries(create_trigger($on, $_POST))
+            );
+            if ($name != "") {
+                queries(create_trigger($on, $row + array("Type" => reset($trigger_options["Type"]))));
+            }
+        }
+    }
+    $row = $_POST;
 }
 
 page_header(($name != "" ? lang('Alter trigger') . ": " . h($name) : lang('Create trigger')), $error, array("table" => $TABLE));
