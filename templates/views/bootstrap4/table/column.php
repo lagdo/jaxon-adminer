@@ -1,5 +1,5 @@
 <?php if(isset($this->class)): ?>
-        <div class="form-group <?php echo $this->class ?>" data-index="<?php
+        <div class="form-group row <?php echo $this->class ?>" data-index="<?php
             echo $this->index ?>" id="<?php echo sprintf('%s-%02d', $this->class, $this->index) ?>">
 <?php endif ?>
         <div class="col-md-12"><div class="row">
@@ -104,12 +104,14 @@
 <?php endif ?>
             </div>
             <div class="col-md-2 adminer-table-column-default second-line">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <input type="checkbox" value="1" name="<?php
-                            echo $this->prefixFields ?>[has_default]" data-field="has_default" <?php
-                            if($this->field['has_default']): ?>checked <?php endif ?>/>
-                    </span>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <input type="checkbox" value="1" name="<?php
+                                echo $this->prefixFields ?>[has_default]" data-field="has_default" <?php
+                                if($this->field['has_default']): ?>checked <?php endif ?>/>
+                        </div>
+                    </div>
                     <input class="form-control" name="<?php
                         echo $this->prefixFields ?>[default]" data-field="default" value="<?php
                         echo $this->field['default'] ?? '' ?>" placeholder="<?php
@@ -117,22 +119,24 @@
                 </div>
             </div>
             <div class="col-md-2 adminer-table-column-buttons second-line" data-index="<?php echo $this->index ?>">
+                <div class="btn-group" role="group">
 <?php if($this->support['move_col']): ?>
-                <button type="button" class="btn btn-primary btn-xs adminer-table-column-add">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-primary btn-xs adminer-table-column-up">
-                    <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-primary btn-xs adminer-table-column-down">
-                    <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-                </button>
+                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-add">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-up">
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-down">
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
 <?php endif ?>
 <?php if($this->support['drop_col']): ?>
-                <button type="button" class="btn btn-primary btn-xs adminer-table-column-del">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </button>
+                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-del">
+                        <i class="bi bi-x"></i>
+                    </button>
 <?php endif ?>
+                </div>
             </div>
             <!-- End second line -->
         </div></div>

@@ -38,13 +38,14 @@ class Import extends AdminerCallable
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';
         $sqlFilesBtnId = 'adminer-import-sql-files-btn';
+        $sqlChooseBtnId = 'adminer-import-choose-files-btn';
         $sqlFilesDivId = 'adminer-import-sql-files-wrapper';
         $sqlFilesInputId = 'adminer-import-sql-files-input';
         $content = $this->render('sql/import', \compact('formId', 'sqlFilesBtnId',
-            'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId'));
+            'sqlChooseBtnId', 'webFileBtnId', 'sqlFilesDivId', 'sqlFilesInputId'));
 
         $this->response->html($this->package->getDbContentId(), $content);
-        $this->response->script("jaxon.adminer.setFileUpload('#$sqlFilesDivId')");
+        $this->response->script("jaxon.adminer.setFileUpload('#$sqlFilesDivId', '#$sqlChooseBtnId', '#$sqlFilesInputId')");
 
         $this->jq("#$webFileBtnId")->click($this->rq()->executeWebFile($server, $database));
         $this->jq("#$sqlFilesBtnId")

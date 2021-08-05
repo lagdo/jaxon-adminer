@@ -18,7 +18,11 @@ jaxon.adminer = {
                 echo $this->containerId ?>').prop('checked', this.checked);
         });
     },
-    setFileUpload: function(container) {
+    setFileUpload: function(container, buttonId, fileInputId) {
+        // Trigger a click on the hidden file select component when the user clicks on the button.
+        $(buttonId).click(function() {
+            $(fileInputId).trigger("click");
+        });
         $(container).on('change', ':file', function() {
             let fileInput = $(this),
                 numFiles = fileInput.get(0).files ? fileInput.get(0).files.length : 1,

@@ -19,7 +19,7 @@
             </div>
 <?php endif ?>
 <?php if($this->collations): ?>
-            <div class="col-md-2 adminer-edit-table-collation">
+            <div class="col-md-3 adminer-edit-table-collation">
                 <select name="collation" class="form-control">
                     <option value="" selected>(collation)</option>
 <?php foreach($this->collations as $group => $collations): ?>
@@ -50,7 +50,7 @@
             <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
             <div class="col-md-2 adminer-table-column-buttons-header">
 <?php if($this->support['columns']): ?>
-                <button type="button" class="btn btn-primary btn-xs" id="adminer-table-column-add">
+                <button type="button" class="btn btn-primary btn-sm" id="adminer-table-column-add">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>
 <?php endif ?>

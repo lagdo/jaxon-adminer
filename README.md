@@ -21,9 +21,9 @@ Features
 - [x] Execute requests and display results.
 - [x] Export databases to an sql file.
 - [x] Import databases from one or more sql files.
-- [ ] Connect to other database types.
-- [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one.
-- [ ] Improve the Adminer code integration.
+- [x] Connect to other database types.
+- [ ] Add others UI frameworks than Bootstrap, and let the user choose his preferred one (partially implemented, the user can choose between Bootstrap 3 and 4).
+- [ ] Improve the Adminer code base (work in progress, see the [https://github.com/lagdo/jaxon-adminer-drivers](https://github.com/lagdo/jaxon-adminer-drivers) repo).
 - [ ] Add tests
 
 Howtos

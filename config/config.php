@@ -24,7 +24,7 @@ return [
             'renderer' => 'jaxon',
             'template' => [
                 'option' => 'template',
-                'default' => 'bootstrap',
+                'default' => 'bootstrap3',
             ],
         ],
         // 'adminer_views' => [

@@ -15,15 +15,15 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="checkbox">
-                    <label><input type="checkbox" name="error_stops" /><?php
-                        echo $this->labels['error_stops'] ?></label>
+                <div class="input-group">
+                    <span class="input-group-addon"><input type="checkbox" name="error_stops" /></span>
+                    <input type="text" class="form-control" placeholder="<?php echo $this->labels['error_stops'] ?>" readonly />
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="checkbox">
-                    <label><input type="checkbox" name="only_errors" /><?php
-                        echo $this->labels['only_errors'] ?></label>
+                <div class="input-group">
+                    <span class="input-group-addon"><input type="checkbox" name="only_errors" /></span>
+                    <input type="text" class="form-control" placeholder="<?php echo $this->labels['only_errors'] ?>" readonly />
                 </div>
             </div>
             <div class="col-md-2">

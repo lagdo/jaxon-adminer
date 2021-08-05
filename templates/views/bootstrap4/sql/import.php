@@ -1,10 +1,10 @@
 <div class="col-md-12" id="adminer-command-details">
 </div>
 <div class="col-md-12">
-    <form class="form-horizontal" role="form" id="<?php echo $this->formId ?>">
+    <form id="<?php echo $this->formId ?>">
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
+                <div class="form-group row">
                     <label class="col-md-4"><?php echo $this->labels['file_upload'] ?></label>
 <?php if(isset($this->contents['upload'])): ?>
                     <div class="col-md-8">
@@ -16,24 +16,23 @@
                     </div>
 <?php endif ?>
                 </div>
-                <div class="form-group">
+                <div class="form-group row">
 <?php if(isset($this->contents['upload'])): ?>
                     <label for="sql_files" class="col-md-2">&nbsp;</label>
                     <div class="col-md-10">
-                        <div class="input-group" id="<?php echo $this->sqlFilesDivId ?>">
-                            <label class="input-group-btn">
-                                <span class="btn btn-primary" style="margin:0">
-                                    <?php echo $this->labels['select'] ?>&hellip;
-                                    <input type="file" name="sql_files[]" id="<?php
-                                        echo $this->sqlFilesInputId ?>" style="display: none;" multiple>
-                                </span>
-                            </label>
+                        <div class="input-group mb-3" id="<?php echo $this->sqlFilesDivId ?>">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-primary" type="button" id="<?php
+                                    echo $this->sqlChooseBtnId ?>"><?php echo $this->labels['select'] ?>&hellip;</button>
+                            </div>
+                            <input type="file" name="sql_files[]" id="<?php
+                                echo $this->sqlFilesInputId ?>" style="display: none;" multiple>
                             <input type="text" class="form-control" readonly />
                         </div>
                     </div>
 <?php endif ?>
                 </div>
-                <div class="form-group">
+                <div class="form-group row">
                     <div class="col-md-4 col-md-offset-2">
                         <button class="btn btn-primary btn-block" type="button" id="<?php
                             echo $this->sqlFilesBtnId ?>" href="javascript:void(0)"><?php
@@ -43,20 +42,20 @@
             </div>
 <?php if(isset($this->contents['path'])): ?>
             <div class="col-md-6">
-                <div class="form-group">
+                <div class="form-group row">
                     <label class="col-md-4"><?php echo $this->labels['from_server'] ?></label>
                     <div class="col-md-8">
                         <?php echo $this->labels['path'] ?>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group row">
                     <label class="col-md-2">&nbsp;</label>
                     <div class="col-md-10">
                     <input type="text" class="form-control" value="<?php
                         echo $this->contents['path'] ?>" readonly />
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group row">
                     <div class="col-md-4 col-md-offset-2">
                         <button class="btn btn-primary btn-block" type="button" id="<?php
                             echo $this->webFileBtnId ?>" href="javascript:void(0)"><?php
@@ -68,17 +67,21 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="form-group">
+                <div class="form-group row">
                     <div class="col-md-3 col-md-offset-3">
-                        <div class="checkbox">
-                            <label><input type='checkbox' name='error_stops' value='1' checked /><?php
-                                echo $this->labels['error_stops'] ?></label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><input type="checkbox" name="error_stops" value="1" checked /></div>
+                            </div>
+                            <input type="text" class="form-control" placeholder="<?php echo $this->labels['error_stops'] ?>" readonly />
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="checkbox">
-                            <label><input type='checkbox' name='only_errors' value='1' checked /><?php
-                                echo $this->labels['only_errors'] ?></label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><input type="checkbox" name="only_errors" value="1" checked /></div>
+                            </div>
+                            <input type="text" class="form-control" placeholder="<?php echo $this->labels['only_errors'] ?>" readonly />
                         </div>
                     </div>
                 </div>
