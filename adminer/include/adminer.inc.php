@@ -98,9 +98,9 @@ class Adminer {
     /** Get Content Security Policy headers
     * @return array of arrays with directive name in key, allowed sources in value
     */
-    function csp() {
-        return csp();
-    }
+    // function csp() {
+    //     return csp();
+    // }
 
     /** Print HTML code inside <head>
     * @return bool true to link favicon.ico and adminer.css if exists

@@ -112,8 +112,8 @@ if ($adminer->operators === null) {
 // );
 
 include __DIR__ . "/version.inc.php";
-include __DIR__ . "/design.inc.php";
-include __DIR__ . "/xxtea.inc.php";
+// include __DIR__ . "/design.inc.php";
+// include __DIR__ . "/xxtea.inc.php";
 // include __DIR__ . "/auth.inc.php";
 include __DIR__ . "/editing.inc.php";
 // include __DIR__ . "/connect.inc.php";

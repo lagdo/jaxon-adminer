@@ -11,4 +11,3 @@
 */
 
 include __DIR__ . "/include/bootstrap.inc.php";
-include __DIR__ . "/include/tmpfile.inc.php";

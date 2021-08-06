@@ -157,7 +157,7 @@ class Proxy
         // );
 
         // Run the authentication code, from auth.inc.php.
-        \adminer\set_password($vendor, $server, $username, $password);
+        // \adminer\set_password($vendor, $server, $username, $password);
         // $_SESSION["db"][$vendor][$server][$username][$database] = true;
         if(preg_match('~^\s*([-+]?\d+)~', $port, $match) && ($match[1] < 1024 || $match[1] > 65535)) {
             // is_numeric('80#') would still connect to port 80
