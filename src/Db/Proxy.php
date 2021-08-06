@@ -142,7 +142,7 @@ class Proxy
 
         // Load the adminer code, and discard the outputs
         \ob_start();
-        include __DIR__ . '/../../adminer/jaxon.php';
+        include __DIR__ . '/../../adminer/include/bootstrap.inc.php';
         \ob_end_clean();
 
         // From bootstrap.inc.php
