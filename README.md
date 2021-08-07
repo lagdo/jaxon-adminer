@@ -29,7 +29,7 @@ Features
 Howtos
 ------
 
-This blog post on the `Jaxon` website explains how to install `Jaxon Adminer` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the  `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
+This blog post on the `Jaxon` website explains how to install `Jaxon Adminer` on [Voyager](https://voyager-docs.devdojo.com), an admin panel based on the `Laravel` framework: [In english](https://www.jaxon-php.org/blog/2021/03/install-jaxon-adminer-on-voyager.html), and [in french](https://www.jaxon-php.org/blog/2021/03/installer-jaxon-adminer-dans-voyager.html).
 
 Documentation
 -------------
@@ -252,13 +252,47 @@ A directory where the exported files are going to be saved must then be defined 
 ```
 The web server needs to be setup to serve the files in the `dir` from `url`.
 
-Notes
------
+Change the UI framework
+-----------------------
 
-The HTML code of the package uses the [Bootstrap 3](https://getbootstrap.com/) CSS framework, qui which must also be included in the page.
-It is entirely contained in a `<div class="row">` tag.
+Starting from version 0.6, this package is designed to support multiple UI frameworks, and multiple templates.
 
-Support for other UI frameworks will be added in future releases.
+The current template is set using the `template` option, and it default value is `bootstrap3`.
+
+```php
+    'app' => [
+        'packages' => [
+            Lagdo\Adminer\Package::class => [
+                'template' => 'bootstrap3',
+                'servers' => [
+                    'first_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                    'second_server' => [
+                        'name' => '',     // The name to be displayed in the dashboard UI
+                        'driver' => '',   // mysql, pgsql, sqlite, mongo, oracle, mssql or elastic.
+                        'host' => '',     // The database host name or address.
+                        'port' => 0,      // The database port
+                        'username' => '', // The database user credentials
+                        'password' => '', // The database user credentials
+                    ],
+                ],
+            ],
+        ],
+    ],
+```
+
+The following UI frameworks are supported:
+
+- [Bootstrap 3](https://getbootstrap.com/) (`bootstrap3`)
+- [Bootstrap 4](https://getbootstrap.com/) (`bootstrap4`)
+
+Mre UI frameworks will be added in future releases.
 
 Contribute
 ----------
