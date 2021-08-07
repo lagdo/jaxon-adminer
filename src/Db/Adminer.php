@@ -101,8 +101,12 @@ class Adminer implements AdminerInterface
     /**
      * @inheritDoc
      */
-    public function apply_queries($query, $tables, $escape = 'table')
+    public function apply_queries($query, $tables, $escape = null)
     {
+        if(!$escape)
+        {
+            $escape = function($table) { return $this->server->table($table); };
+        }
         foreach ($tables as $table) {
             if (!$this->queries("$query " . $escape($table))) {
                 return false;
@@ -233,7 +237,7 @@ class Adminer implements AdminerInterface
      */
     public function is_shortable($field)
     {
-        return preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field["type"]);
+        return preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field["type"] ?? '');
     }
 
     /**
@@ -379,8 +383,9 @@ class Adminer implements AdminerInterface
         if (!$set && preg_match('~\butf8mb4~i', $create))
         {
             $set = true;
-            echo "SET NAMES " . $this->server->charset() . ";\n\n";
+            return "SET NAMES " . $this->server->charset() . ";\n\n";
         }
+        return '';
     }
 
     /**
@@ -441,6 +446,9 @@ class Adminer implements AdminerInterface
      */
     public function process_length($length)
     {
+        if (!$length) {
+            return "";
+        }
         return (preg_match("~^\\s*\\(?\\s*$enum_length(?:\\s*,\\s*$enum_length)*+\\s*\\)?\\s*\$~", $length) &&
             preg_match_all("~$enum_length~", $length, $matches) ? "(" . implode(",", $matches[0]) . ")" :
             preg_replace('~^[0-9].*~', '(\0)', preg_replace('~[^-0-9,+()[\]]~', '', $length))
@@ -452,10 +460,14 @@ class Adminer implements AdminerInterface
      */
     public function process_type($field, $collate = "COLLATE")
     {
+        $values = [
+            'unsigned' => $field["unsigned"] ?? null,
+            'collation' => $field["collation"] ?? null,
+        ];
         return " $field[type]" . $this->process_length($field["length"]) .
-            (preg_match($this->number_type(), $field["type"]) && in_array($field["unsigned"], $unsigned) ?
-            " $field[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field["type"]) &&
-            $field["collation"] ? " $collate " . $this->server->q($field["collation"]) : "")
+            (preg_match($this->number_type(), $field["type"]) && in_array($values["unsigned"], $this->server->unsigned) ?
+            " $values[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field["type"]) &&
+            $values["collation"] ? " $collate " . $this->server->q($values["collation"]) : "")
         ;
     }
 
@@ -478,11 +490,11 @@ class Adminer implements AdminerInterface
     /**
      * @inheritDoc
      */
-    public function process_input($field)
+    public function process_input($field, $inputs)
     {
         $idf = $this->bracket_escape($field["field"]);
-        $function = $_POST["function"][$idf];
-        $value = $_POST["fields"][$idf];
+        $function = $inputs["function"][$idf] ?? '';
+        $value = $inputs["fields"][$idf];
         if ($field["type"] == "enum") {
             if ($value == -1) {
                 return false;
@@ -606,8 +618,8 @@ class Adminer implements AdminerInterface
         foreach ($this->server->table_status('', true) as $table_name => $table) {
             if ($table_name != $self && $this->server->fk_support($table)) {
                 foreach ($this->server->fields($table_name) as $field) {
-                    if ($field["primary"]) {
-                        if ($return[$table_name]) { // multi column primary key
+                    if (isset($field["primary"])) {
+                        if (isset($return[$table_name])) { // multi column primary key
                             unset($return[$table_name]);
                             break;
                         }
@@ -625,7 +637,8 @@ class Adminer implements AdminerInterface
     public function where($where, $fields = [])
     {
         $return = [];
-        foreach ((array) $where["where"] as $key => $val) {
+        $wheres = $where["where"] ?? [];
+        foreach ((array) $wheres as $key => $val) {
             $key = $this->bracket_escape($key, 1); // 1 - back
             $column = $this->escape_key($key);
             $return[] = $column
@@ -641,7 +654,8 @@ class Adminer implements AdminerInterface
                 $return[] = "$column = " . $this->server->q($val) . " COLLATE " . $this->server->charset() . "_bin";
             }
         }
-        foreach ((array) $where["null"] as $key) {
+        $nulls = $where["null"] ?? [];
+        foreach ((array) $nulls as $key) {
             $return[] = $this->escape_key($key) . " IS NULL";
         }
         return implode(" AND ", $return);

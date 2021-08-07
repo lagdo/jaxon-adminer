@@ -165,7 +165,7 @@ class TableSelectProxy
     {
         // From driver.inc.php
 		$is_group = (\count($group) < \count($select));
-		$query = $this->adminer->selectQueryBuild($select, $where, $group, $order, $limit, $page);
+		$query = $this->adminer->buildSelectQuery($select, $where, $group, $order, $limit, $page);
         if(!$query)
         {
 			$query = "SELECT" . $this->server->limit(

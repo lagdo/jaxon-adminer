@@ -52,7 +52,7 @@ class DatabaseProxy
         // Get the schema lists
         if($this->finalSchemas === null)
         {
-            $this->finalSchemas = $this->adminer->schemas();
+            $this->finalSchemas = $this->server->schemas();
             if(\is_array($this->userSchemas))
             {
                 // Only keep schemas that appear in the config.
