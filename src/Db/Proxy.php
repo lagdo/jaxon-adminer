@@ -109,21 +109,20 @@ class Proxy
             return $options;
         }
 
-        // Fixes
-        // define("SID", \session_id());
-
         $host = $options['host'];
-        $port = $options['port'];
+        $port = $options['port'] ?? ''; // Optional
         $username = $options["username"];
         $password = $options["password"];
+        $driver = $options['driver'];
 
-        // Simulate an actual request to Adminer
-        $vendor = $options['driver'];
-        $server = $host;
-        // $_GET[$vendor] = $server;
-        // $_GET['username'] = $username;
+        // Append the port to the host if it is defined.
+        if(($port))
+        {
+            $host .= ":$port";
+        }
 
-        $this->adminer = new Adminer(["$host:$port", $username, $password], $vendor);
+        // The Adminer constructor connects to the database.
+        $this->adminer = new Adminer([$host, $username, $password], $driver);
         $this->server = $this->adminer->server;
         $this->connection = $this->adminer->connection;
         $this->driver = $this->adminer->driver;

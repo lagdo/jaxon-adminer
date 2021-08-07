@@ -13,21 +13,6 @@ class Adminer implements AdminerInterface
     use AdminerTrait;
 
     /**
-     * @var ServerInterface
-     */
-    public $server;
-
-    /**
-     * @var DriverInterface
-     */
-    public $driver;
-
-    /**
-     * @var ConnectionInterface
-     */
-    public $connection;
-
-    /**
      * @var array
      */
     public $credentials;
@@ -41,9 +26,7 @@ class Adminer implements AdminerInterface
     public function __construct(array $credentials, $vendor)
     {
         $this->credentials = $credentials;
-        $this->server = $this->getDbServer($this, $vendor);
-        $this->connection = $this->server->connect();
-        $this->driver = $this->server->getDriver();
+        $this->connect($this, $vendor);
     }
 
     /**
@@ -61,7 +44,7 @@ class Adminer implements AdminerInterface
      */
     public function lang($idf)
     {
-        return \call_user_func_array("adminer\\lang", \func_get_args());
+        return \call_user_func_array("\\adminer\\lang", \func_get_args());
     }
 
     /**
