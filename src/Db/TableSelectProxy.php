@@ -9,6 +9,8 @@ use Exception;
  */
 class TableSelectProxy
 {
+    use ProxyTrait;
+
     /**
      * Print columns box in select
      * @param array result of selectColumnsProcess()[0]
@@ -17,13 +19,12 @@ class TableSelectProxy
      */
     private function getColumnsOptions($select, $columns)
     {
-        global $functions, $grouping;
         return [
             'select' => $select,
             'values' => (array)$_GET["columns"],
             'columns' => $columns,
-            'functions' => $functions,
-            'grouping' => $grouping,
+            'functions' => $this->server->functions,
+            'grouping' => $this->server->grouping,
         ];
     }
 
@@ -36,8 +37,6 @@ class TableSelectProxy
      */
     private function getFiltersOptions($where, $columns, $indexes)
     {
-        global $adminer;
-
         $fulltexts = [];
         foreach($indexes as $i => $index)
         {
@@ -48,7 +47,7 @@ class TableSelectProxy
             'values' => (array)$_GET["where"],
             'columns' => $columns,
             'indexes' => $indexes,
-            'operators' => $adminer->operators,
+            'operators' => $this->adminer->operators,
             'fulltexts' => $fulltexts,
         ];
     }
@@ -85,7 +84,7 @@ class TableSelectProxy
      */
     private function getLimitOptions($limit)
     {
-        return ['value' => \adminer\h($limit)];
+        return ['value' => $this->adminer->h($limit)];
     }
 
     /**
@@ -99,7 +98,7 @@ class TableSelectProxy
         {
             return null;
         }
-        return ['value' => \adminer\h($text_length)];
+        return ['value' => $this->adminer->h($text_length)];
     }
 
     /**
@@ -128,7 +127,7 @@ class TableSelectProxy
      */
     private function getCommandOptions()
     {
-        return !\adminer\information_schema(DB);
+        return !$this->server->information_schema(DB);
     }
 
     /**
@@ -137,7 +136,7 @@ class TableSelectProxy
      */
     private function getImportOptions()
     {
-        return !\adminer\information_schema(DB);
+        return !$this->server->information_schema(DB);
     }
 
     /**
@@ -165,14 +164,13 @@ class TableSelectProxy
     private function buildSelectQuery($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
     {
         // From driver.inc.php
-        global $adminer, $jush;
 		$is_group = (\count($group) < \count($select));
-		$query = $adminer->selectQueryBuild($select, $where, $group, $order, $limit, $page);
+		$query = $this->adminer->selectQueryBuild($select, $where, $group, $order, $limit, $page);
         if(!$query)
         {
-			$query = "SELECT" . \adminer\limit(
-                ($page != "last" && $limit != "" && $group && $is_group && $jush == "sql" ?
-                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . \adminer\table($table),
+			$query = "SELECT" . $this->server->limit(
+                ($page != "last" && $limit != "" && $group && $is_group && $this->server->jush == "sql" ?
+                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->server->table($table),
                 ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $is_group ?
                     "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
 				($limit != "" ? +$limit : null),
@@ -195,8 +193,6 @@ class TableSelectProxy
      */
     private function prepareSelect(string $table, array &$queryOptions = [])
     {
-        global $adminer, $driver, $connection;
-
         if(!isset($queryOptions['columns']))
         {
             $queryOptions['columns'] = [];
@@ -226,10 +222,10 @@ class TableSelectProxy
         $_GET['page'] = $page;
 
         // From select.inc.php
-        $table_status = \adminer\table_status1($table);
-        $indexes = \adminer\indexes($table);
-        $fields = \adminer\fields($table);
-        $foreign_keys = \adminer\column_foreign_keys($table);
+        $table_status = $this->server->table_status1($table);
+        $indexes = $this->server->indexes($table);
+        $fields = $this->server->fields($table);
+        $foreign_keys = $this->adminer->column_foreign_keys($table);
         $oid = $table_status["Oid"] ?? null;
 
         $rights = []; // privilege => 0
@@ -237,23 +233,23 @@ class TableSelectProxy
         $text_length = null;
         foreach($fields as $key => $field)
         {
-            $name = $adminer->fieldName($field);
+            $name = $this->adminer->fieldName($field);
             if(isset($field["privileges"]["select"]) && $name != "")
             {
                 $columns[$key] = \html_entity_decode(\strip_tags($name), ENT_QUOTES);
-                if(\adminer\is_shortable($field))
+                if($this->adminer->is_shortable($field))
                 {
-                    $text_length = $adminer->selectLengthProcess();
+                    $text_length = $this->adminer->selectLengthProcess();
                 }
             }
             $rights += $field["privileges"];
         }
 
-        list($select, $group) = $adminer->selectColumnsProcess($columns, $indexes);
+        list($select, $group) = $this->adminer->selectColumnsProcess($columns, $indexes);
         $is_group = \count($group) < \count($select);
-        $where = $adminer->selectSearchProcess($fields, $indexes);
-        $order = $adminer->selectOrderProcess($fields, $indexes);
-        $limit = $adminer->selectLimitProcess();
+        $where = $this->adminer->selectSearchProcess($fields, $indexes);
+        $order = $this->adminer->selectOrderProcess($fields, $indexes);
+        $limit = $this->adminer->selectLimitProcess();
 
         // if($_GET["val"] && is_ajax()) {
         //     header("Content-Type: text/plain; charset=utf-8");
@@ -261,7 +257,7 @@ class TableSelectProxy
         //         $as = convert_field($fields[key($row)]);
         //         $select = array($as ? $as : idf_escape(key($row)));
         //         $where[] = where_check($unique_idf, $fields);
-        //         $return = $driver->select($table, $select, $where, $select);
+        //         $return = $this->driver->select($table, $select, $where, $select);
         //         if($return) {
         //             echo reset($return->fetch_row());
         //         }
@@ -278,7 +274,7 @@ class TableSelectProxy
                 $unselected = ($select ? $primary : []);
                 foreach($unselected as $key => $val)
                 {
-                    if(\in_array(\adminer\idf_escape($key), $select))
+                    if(\in_array($this->server->idf_escape($key), $select))
                     {
                         unset($unselected[$key]);
                     }
@@ -292,7 +288,7 @@ class TableSelectProxy
             $indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];
         }
 
-        $table_name = $adminer->tableName($table_status);
+        $table_name = $this->adminer->tableName($table_status);
 
         // $set = null;
         // if(isset($rights["insert"]) || !support("table")) {
@@ -301,21 +297,21 @@ class TableSelectProxy
         //         if($foreign_keys[$val["col"]] && count($foreign_keys[$val["col"]]) == 1 && ($val["op"] == "="
         //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
         //         )) {
-        //             $set .= "&set" . urlencode("[" . bracket_escape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //             $set .= "&set" . urlencode("[" . $this->adminer->bracket_escape($val["col"]) . "]") . "=" . urlencode($val["val"]);
         //         }
         //     }
         // }
-        // $adminer->selectLinks($table_status, $set);
+        // $this->adminer->selectLinks($table_status, $set);
 
-        if(!$columns && \adminer\support("table"))
+        if(!$columns && $this->server->support("table"))
         {
-            throw new Exception(\adminer\lang('Unable to select the table') .
-                ($fields ? "." : ": " . \adminer\error()));
+            throw new Exception($this->adminer->lang('Unable to select the table') .
+                ($fields ? "." : ": " . $this->server->error()));
         }
 
         if($page == "last")
         {
-            $found_rows = $connection->result(\adminer\count_rows($table, $where, $is_group, $group));
+            $found_rows = $this->connection->result($this->adminer->count_rows($table, $where, $is_group, $group));
             $page = \floor(\max(0, $found_rows - 1) / $limit);
         }
 
@@ -333,7 +329,7 @@ class TableSelectProxy
         if(!$select2)
         {
             $select2[] = "*";
-            $convert_fields = \adminer\convert_fields($columns, $fields, $select);
+            $convert_fields = $this->adminer->convert_fields($columns, $fields, $select);
             if($convert_fields)
             {
                 $select2[] = \substr($convert_fields, 2);
@@ -341,8 +337,8 @@ class TableSelectProxy
         }
         foreach($select as $key => $val)
         {
-            $field = $fields[\adminer\idf_unescape($val)] ?? null;
-            if($field && ($as = \adminer\convert_field($field)))
+            $field = $fields[$this->server->idf_unescape($val)] ?? null;
+            if($field && ($as = $this->server->convert_field($field)))
             {
                 $select2[$key] = "$as AS $val";
             }
@@ -351,17 +347,17 @@ class TableSelectProxy
         {
             foreach($unselected as $key => $val)
             {
-                $select2[] = \adminer\idf_escape($key);
+                $select2[] = $this->server->idf_escape($key);
                 if($group2)
                 {
-                    $group2[] = \adminer\idf_escape($key);
+                    $group2[] = $this->server->idf_escape($key);
                 }
             }
         }
 
         // $print = true; // Output the SQL select query
         // ob_start();
-        // $result = $driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
+        // $result = $this->driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
         // $query = ob_get_clean();
 		$query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
@@ -380,11 +376,11 @@ class TableSelectProxy
     {
         list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
             $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
-        $query = \adminer\h($query);
+        $query = $this->adminer->h($query);
 
         $main_actions = [
-            'select-exec' => \adminer\lang('Execute'),
-            'select-cancel' => \adminer\lang('Cancel'),
+            'select-exec' => $this->adminer->lang('Execute'),
+            'select-cancel' => $this->adminer->lang('Cancel'),
         ];
 
         return \compact('main_actions', 'options', 'query');
@@ -400,27 +396,25 @@ class TableSelectProxy
      */
     public function execSelect(string $table, array $queryOptions)
     {
-        global $adminer, $connection, $driver, $jush;
-
         list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
             $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
 
         $error = null;
         // From driver.inc.php
         $start = microtime(true);
-        $result = $connection->query($query);
+        $result = $this->connection->query($query);
         // From adminer.inc.php
-        $duration = \adminer\format_time($start); // Compute and format the duration
+        $duration = $this->adminer->format_time($start); // Compute and format the duration
 
         if(!$result)
         {
-            return ['error' => \adminer\error()];
+            return ['error' => $this->server->error()];
         }
         // From select.inc.php
         $rows = [];
         while(($row = $result->fetch_assoc()))
         {
-            if($page && $jush == "oracle")
+            if($page && $this->server->jush == "oracle")
             {
                 unset($row["RNUM"]);
             }
@@ -428,9 +422,9 @@ class TableSelectProxy
         }
         if(!$rows)
         {
-            return ['error' => \adminer\lang('No rows.')];
+            return ['error' => $this->adminer->lang('No rows.')];
         }
-        // $backward_keys = $adminer->backwardKeys($table, $table_name);
+        // $backward_keys = $this->adminer->backwardKeys($table, $table_name);
 
         // Results headers
         $headers = [
@@ -448,17 +442,17 @@ class TableSelectProxy
                 $val = $queryOptions["columns"][key($select)] ?? [];
                 $fun = $val["fun"] ?? '';
                 $field = $fields[$select ? ($val ? $val["col"] : current($select)) : $key];
-                $name = ($field ? $adminer->fieldName($field, $rank) : ($fun ? "*" : $key));
+                $name = ($field ? $this->adminer->fieldName($field, $rank) : ($fun ? "*" : $key));
                 $header = \compact('val', 'field', 'name');
                 if($name != "") {
                     $rank++;
                     $names[$key] = $name;
-                    $column = \adminer\idf_escape($key);
+                    $column = $this->server->idf_escape($key);
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
-                    $header['key'] = \adminer\h(\adminer\bracket_escape($key));
-                    $header['sql'] = \adminer\apply_sql_function($fun, $name); //! columns looking like functions
+                    $header['key'] = $this->adminer->h($this->adminer->bracket_escape($key));
+                    $header['sql'] = $this->adminer->apply_sql_function($fun, $name); //! columns looking like functions
                 }
                 $functions[$key] = $fun;
                 next($select);
@@ -479,9 +473,9 @@ class TableSelectProxy
         // }
 
         $results = [];
-        foreach($adminer->rowDescriptions($rows, $foreign_keys) as $n => $row)
+        foreach($this->adminer->rowDescriptions($rows, $foreign_keys) as $n => $row)
         {
-            $unique_array = \adminer\unique_array($rows[$n], $indexes);
+            $unique_array = $this->adminer->unique_array($rows[$n], $indexes);
             if(!$unique_array)
             {
                 $unique_array = [];
@@ -504,23 +498,23 @@ class TableSelectProxy
             foreach($unique_array as $key => $val)
             {
                 $key = \trim($key);
-                if(($jush == "sql" || $jush == "pgsql") &&
+                if(($this->server->jush == "sql" || $this->server->jush == "pgsql") &&
                     \preg_match('~char|text|enum|set~', $fields[$key]["type"]) && strlen($val) > 64)
                 {
-                    $key = (\strpos($key, '(') ? $key : \adminer\idf_escape($key)); //! columns looking like functions
-                    $key = "MD5(" . ($jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
-                        $key : "CONVERT($key USING " . \adminer\charset($connection) . ")") . ")";
+                    $key = (\strpos($key, '(') ? $key : $this->server->idf_escape($key)); //! columns looking like functions
+                    $key = "MD5(" . ($this->server->jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
+                        $key : "CONVERT($key USING " . $this->server->charset() . ")") . ")";
                     $val = \md5($val);
                 }
                 if($val !== null)
                 {
-                    $rowIds['where'][\adminer\bracket_escape($key)] = $val;
+                    $rowIds['where'][$this->adminer->bracket_escape($key)] = $val;
                 }
                 else
                 {
-                    $rowIds['null'][] = \adminer\bracket_escape($key);
+                    $rowIds['null'][] = $this->adminer->bracket_escape($key);
                 }
-                // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . \adminer\bracket_escape($key) . "]") .
+                // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . $this->adminer->bracket_escape($key) . "]") .
                 //     "=" . \urlencode($val) : \urlencode("null[]") . "=" . \urlencode($key));
             }
 
@@ -530,67 +524,16 @@ class TableSelectProxy
                 if(isset($names[$key]))
                 {
                     $field = $fields[$key] ?? [];
-                    $val = $driver->value($val, $field);
+                    $val = $this->driver->value($val, $field);
                     if($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != ""))
                     {
                         //! filled e-mails can be contained on other pages
-                        $email_fields[$key] = (\adminer\is_mail($val) ? $names[$key] : "");
+                        $email_fields[$key] = ($this->adminer->is_mail($val) ? $names[$key] : "");
                     }
 
                     $link = "";
-                    // if(\preg_match('~blob|bytea|raw|file~', $field["type"] ?? '') && $val != "")
-                    // {
-                    //     $link = ME . 'download=' . \urlencode($table) . '&field=' . \urlencode($key) . $unique_idf;
-                    // }
-                    // if(!$link && $val !== null)
-                    // {
-                    //     // link related items
-                    //     foreach((array) $foreign_keys[$key] as $foreign_key)
-                    //     {
-                    //         if(\count($foreign_keys[$key]) == 1 || \end($foreign_key["source"]) == $key)
-                    //         {
-                    //             $link = "";
-                    //             foreach($foreign_key["source"] as $i => $source)
-                    //             {
-                    //                 $link .= \adminer\where_link($i, $foreign_key["target"][$i], $rows[$n][$source]);
-                    //             }
-                    //             // InnoDB supports non-UNIQUE keys
-                    //             $link = ($foreign_key["db"] != "" ? \preg_replace('~([?&]db=)[^&]+~', '\1' .
-                    //                 \urlencode($foreign_key["db"]), ME) : ME) . 'select=' . \urlencode($foreign_key["table"]) . $link;
-                    //             if($foreign_key["ns"])
-                    //             {
-                    //                 $link = \preg_replace('~([?&]ns=)[^&]+~', '\1' . \urlencode($foreign_key["ns"]), $link);
-                    //             }
-                    //             if(\count($foreign_key["source"]) == 1)
-                    //             {
-                    //                 break;
-                    //             }
-                    //         }
-                    //     }
-                    // }
-                    // if($key == "COUNT(*)")
-                    // {
-                    //     //! columns looking like functions
-                    //     $link = ME . "select=" . \urlencode($table);
-                    //     $i = 0;
-                    //     foreach((array) $_GET["where"] as $v)
-                    //     {
-                    //         if(!\array_key_exists($v["col"], $unique_array))
-                    //         {
-                    //             $link .= \adminer\where_link($i++, $v["col"], $v["val"], $v["op"]);
-                    //         }
-                    //     }
-                    //     foreach($unique_array as $k => $v)
-                    //     {
-                    //         $link .= \adminer\where_link($i++, $k, $v);
-                    //     }
-                    // }
 
-                    $val = \adminer\select_value($val, $link, $field, $text_length);
-                    // $id = \adminer\h("val[$unique_idf][" . \adminer\bracket_escape($key) . "]");
-                    // $value = $_POST["val"][$unique_idf][\adminer\bracket_escape($key)];
-                    // $editable = !\is_array($row[$key]) && \adminer\is_utf8($val) &&
-                    //     $rows[$n][$key] == $row[$key] && !$functions[$key];
+                    $val = $this->adminer->select_value($val, $link, $field, $text_length);
                     $text = \preg_match('~text|lob~', $field["type"] ?? '');
 
                     $cols[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);

@@ -26,7 +26,12 @@ trait CommandTrait
      */
     protected function command(string $database, string $schema)
     {
-        return $this->commandProxy ?: ($this->commandProxy = new CommandProxy($database, $schema));
+        if(!$this->commandProxy)
+        {
+            $this->commandProxy = new CommandProxy($database, $schema);
+            $this->commandProxy->init($this);
+        }
+        return $this->commandProxy;
     }
 
     /**
@@ -47,14 +52,14 @@ trait CommandTrait
         {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = \adminer\lang('SQL command');
+        $breadcrumbs[] = $this->adminer->lang('SQL command');
         $this->setBreadcrumbs($breadcrumbs);
 
         $labels = [
-            'execute' => \adminer\lang('Execute'),
-            'limit_rows' => \adminer\lang('Limit rows'),
-            'error_stops' => \adminer\lang('Stop on error'),
-            'only_errors' => \adminer\lang('Show only errors'),
+            'execute' => $this->adminer->lang('Execute'),
+            'limit_rows' => $this->adminer->lang('Limit rows'),
+            'error_stops' => $this->adminer->lang('Stop on error'),
+            'only_errors' => $this->adminer->lang('Show only errors'),
         ];
 
         return ['labels' => $labels];

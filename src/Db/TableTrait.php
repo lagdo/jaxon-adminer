@@ -23,7 +23,12 @@ trait TableTrait
      */
     protected function table()
     {
-        return $this->tableProxy ?: ($this->tableProxy = new TableProxy());
+        if(!$this->tableProxy)
+        {
+            $this->tableProxy = new TableProxy();
+            $this->tableProxy->init($this);
+        }
+        return $this->tableProxy;
     }
 
     /**
@@ -40,7 +45,7 @@ trait TableTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables'), $table]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Tables'), $table]);
 
         return $this->table()->getTableInfo($table);
     }
@@ -123,15 +128,15 @@ trait TableTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $breadcrumbs = [$options['name'], $database, \adminer\lang('Tables')];
+        $breadcrumbs = [$options['name'], $database, $this->adminer->lang('Tables')];
         if(($table))
         {
             $breadcrumbs[] = $table;
-            $breadcrumbs[] = \adminer\lang('Alter table');
+            $breadcrumbs[] = $this->adminer->lang('Alter table');
         }
         else
         {
-            $breadcrumbs[] = \adminer\lang('Create table');
+            $breadcrumbs[] = $this->adminer->lang('Create table');
         }
         $this->setBreadcrumbs($breadcrumbs);
 

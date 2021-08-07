@@ -23,7 +23,12 @@ trait UserTrait
      */
     protected function user()
     {
-        return $this->userProxy ?: ($this->userProxy = new UserProxy());
+        if(!$this->userProxy)
+        {
+            $this->userProxy = new UserProxy();
+            $this->userProxy->init($this);
+        }
+        return $this->userProxy;
     }
 
     /**
@@ -39,7 +44,7 @@ trait UserTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], \adminer\lang('Privileges')]);
+        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Privileges')]);
 
         return $this->user()->getPrivileges($database);
     }

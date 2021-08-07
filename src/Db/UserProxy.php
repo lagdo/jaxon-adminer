@@ -9,6 +9,8 @@ use Exception;
  */
 class UserProxy
 {
+    use ProxyTrait;
+
     /**
      * The user password
      *
@@ -26,14 +28,12 @@ class UserProxy
      */
     protected function fetchUserGrants($user = '', $host = '')
     {
-        global $connection;
-
         // From user.inc.php
         $grants = [];
 
         //! use information_schema for MySQL 5 - column names in column privileges are not escaped
-        if(($result = $connection->query("SHOW GRANTS FOR " .
-            \adminer\q($user) . "@" . \adminer\q($host))))
+        if(($result = $this->connection->query("SHOW GRANTS FOR " .
+            $this->server->q($user) . "@" . $this->server->q($host))))
         {
             while($row = $result->fetch_row())
             {
@@ -79,7 +79,7 @@ class UserProxy
                 "All privileges" => "",
             ],
         ];
-        foreach(\adminer\get_rows("SHOW PRIVILEGES") as $row)
+        foreach($this->adminer->get_rows("SHOW PRIVILEGES") as $row)
         {
             // Context of "Grant option" privilege is set to empty string
             $contexts = \explode(",", ($row["Privilege"] == "Grant option" ? "" : $row["Context"]));
@@ -116,11 +116,11 @@ class UserProxy
         $privileges = [];
         $contexts = [
             "" => "",
-            "Server Admin" => \adminer\lang('Server'),
-            "Databases" => \adminer\lang('Database'),
-            "Tables" => \adminer\lang('Table'),
-            "Columns" => \adminer\lang('Column'),
-            "Procedures" => \adminer\lang('Routine'),
+            "Server Admin" => $this->adminer->lang('Server'),
+            "Databases" => $this->adminer->lang('Database'),
+            "Tables" => $this->adminer->lang('Table'),
+            "Columns" => $this->adminer->lang('Column'),
+            "Procedures" => $this->adminer->lang('Routine'),
         ];
         foreach($contexts as $context => $desc)
         {
@@ -128,14 +128,14 @@ class UserProxy
             {
                 $detail = [
                     $desc,
-                    \adminer\h($privilege),
+                    $this->adminer->h($privilege),
                 ];
                 // echo "<tr><td" . ($desc ? ">$desc<td" : " colspan='2'") .
                 //     ' lang="en" title="' . h($comment) . '">' . h($privilege);
                 $i = 0;
                 foreach($grants as $object => $grant)
                 {
-                    $name = "'grants[$i][" . \adminer\h(strtoupper($privilege)) . "]'";
+                    $name = "'grants[$i][" . $this->adminer->h(strtoupper($privilege)) . "]'";
                     $value = $grant[\strtoupper($privilege)] ?? false;
                     if ($context == "Server Admin" && $object != (isset($grants["*.*"]) ? "*.*" : ".*"))
                     {
@@ -144,18 +144,12 @@ class UserProxy
                     // elseif(isset($_GET["grant"]))
                     // {
                     //     $detail[] = "<select name=$name><option><option value='1'" .
-                    //         ($value ? " selected" : "") . ">" . \adminer\lang('Grant') .
+                    //         ($value ? " selected" : "") . ">" . $this->adminer->lang('Grant') .
                     //         "<option value='0'" . ($value == "0" ? " selected" : "") . ">" .
-                    //         \adminer\lang('Revoke') . "</select>";
+                    //         $this->adminer->lang('Revoke') . "</select>";
                     // }
                     else
                     {
-                        // $detail[] = "<label class='block'><input type='checkbox' name=$name value='1'" .
-                        //     ($value ? " checked" : "") . ($privilege == "All privileges" ? " id='grants-$i-all'>"
-                        //     //! uncheck all except grant if all is checked
-                        //     : ">" . ($privilege == "Grant option" ? "" :
-                        //     \adminer\script("qsl('input').onclick = function ()" .
-                        //     "{ if (this.checked) formUncheck('grants-$i-all'); };"))) . "</label>";
                         $detail[] = "<input type='checkbox' name=$name" . ($value ? " checked />" : " />");
                     }
                     $i++;
@@ -177,34 +171,32 @@ class UserProxy
      */
     public function getPrivileges($database = '')
     {
-        global $connection;
-
         $main_actions = [
-            'add-user' => \adminer\lang('Create user'),
+            'add-user' => $this->adminer->lang('Create user'),
         ];
 
         $headers = [
-            \adminer\lang('Username'),
-            \adminer\lang('Server'),
+            $this->adminer->lang('Username'),
+            $this->adminer->lang('Server'),
             '',
             '',
         ];
 
         // From privileges.inc.php
-        $result = $connection->query("SELECT User, Host FROM mysql." .
-            ($database == "" ? "user" : "db WHERE " . q($database) . " LIKE Db") .
+        $result = $this->connection->query("SELECT User, Host FROM mysql." .
+            ($database == "" ? "user" : "db WHERE " . $this->server->q($database) . " LIKE Db") .
             " ORDER BY Host, User");
         $grant = $result;
         if(!$result) {
             // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
-            $result = $connection->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
+            $result = $this->connection->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
                 "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
         }
         $details = [];
         while ($row = $result->fetch_assoc()) {
             $details[] = [
-                'user' => \adminer\h($row["User"]),
-                'host' => \adminer\h($row["Host"]),
+                'user' => $this->adminer->h($row["User"]),
+                'host' => $this->adminer->h($row["Host"]),
             ];
         }
 
@@ -228,8 +220,8 @@ class UserProxy
         $grants = [".*" => []];
 
         $headers = [
-            \adminer\lang('Contexts'),
-            \adminer\lang('Privileges'),
+            $this->adminer->lang('Contexts'),
+            $this->adminer->lang('Privileges'),
         ];
         $i = 0;
         foreach($grants as $object => $grant)
@@ -237,7 +229,7 @@ class UserProxy
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . \adminer\h($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->adminer->h($object) . '" autocapitalize="off" />';
             $i++;
         }
 
@@ -245,19 +237,19 @@ class UserProxy
 
         $user = [
             'host' => [
-                'label' => \adminer\lang('Server'),
+                'label' => $this->adminer->lang('Server'),
                 'value' => '',
             ],
             'name' => [
-                'label' => \adminer\lang('Username'),
+                'label' => $this->adminer->lang('Username'),
                 'value' => '',
             ],
             'pass' => [
-                'label' => \adminer\lang('Password'),
+                'label' => $this->adminer->lang('Password'),
                 'value' => '',
             ],
             'hashed' => [
-                'label' => \adminer\lang('Hashed'),
+                'label' => $this->adminer->lang('Hashed'),
                 'value' => false,
             ],
         ];
@@ -285,8 +277,8 @@ class UserProxy
         }
 
         $headers = [
-            \adminer\lang('Contexts'),
-            \adminer\lang('Privileges'),
+            $this->adminer->lang('Contexts'),
+            $this->adminer->lang('Privileges'),
         ];
         $i = 0;
         foreach($grants as $object => $grant)
@@ -294,7 +286,7 @@ class UserProxy
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . \adminer\h($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->adminer->h($object) . '" autocapitalize="off" />';
             $i++;
         }
 
@@ -302,19 +294,19 @@ class UserProxy
 
         $user = [
             'host' => [
-                'label' => \adminer\lang('Server'),
+                'label' => $this->adminer->lang('Server'),
                 'value' => $host,
             ],
             'name' => [
-                'label' => \adminer\lang('Username'),
+                'label' => $this->adminer->lang('Username'),
                 'value' => $user,
             ],
             'pass' => [
-                'label' => \adminer\lang('Password'),
+                'label' => $this->adminer->lang('Password'),
                 'value' => $this->password,
             ],
             'hashed' => [
-                'label' => \adminer\lang('Hashed'),
+                'label' => $this->adminer->lang('Hashed'),
                 'value' => ($this->password != ''),
             ],
         ];

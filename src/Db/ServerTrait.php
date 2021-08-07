@@ -25,7 +25,12 @@ trait ServerTrait
      */
     protected function server(array $options)
     {
-        return $this->serverProxy ?: ($this->serverProxy = new ServerProxy($options));
+        if(!$this->serverProxy)
+        {
+            $this->serverProxy = new ServerProxy($options);
+            $this->serverProxy->init($this);
+        }
+        return $this->serverProxy;
     }
 
     /**
@@ -68,7 +73,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], \adminer\lang('Databases')]);
+        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Databases')]);
 
         return $this->server($options)->getDatabases();
     }
@@ -84,7 +89,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], \adminer\lang('Process list')]);
+        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Process list')]);
 
         return $this->server($options)->getProcesses();
     }
@@ -100,7 +105,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], \adminer\lang('Variables')]);
+        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Variables')]);
 
         return $this->server($options)->getVariables();
     }
@@ -116,7 +121,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], \adminer\lang('Status')]);
+        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Status')]);
 
         return $this->server($options)->getStatus();
     }

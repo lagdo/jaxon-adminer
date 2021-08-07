@@ -9,17 +9,17 @@ use Exception;
  */
 class TableQueryProxy
 {
+    use ProxyTrait;
+
     /**
      * Get data for an input field
      */
     protected function getFieldInput($table, $field, $value, $function, $save)
     {
-        global $adminer, $types, $jush;
-
         // From functions.inc.php (function input($field, $value, $function))
-        $name = \adminer\h(\adminer\bracket_escape($field["field"]));
+        $name = $this->adminer->h($this->adminer->bracket_escape($field["field"]));
         $entry = [
-            'type' => \adminer\h($field["full_type"]),
+            'type' => $this->adminer->h($field["full_type"]),
             'name' => $name,
             'field' => [
                 'type' => $field['type'],
@@ -36,12 +36,12 @@ class TableQueryProxy
             $value = \call_user_func_array('json_encode', $args); //! requires PHP 5.2
             $function = "json";
         }
-        $reset = ($jush == "mssql" && $field["auto_increment"]);
+        $reset = ($this->server->jush == "mssql" && $field["auto_increment"]);
         if($reset && !$save)
         {
             $function = null;
         }
-        $functions = ($reset ? ["orig" => \adminer\lang('original')] : []) + $adminer->editFunctions($field);
+        $functions = ($reset ? ["orig" => $this->adminer->lang('original')] : []) + $this->adminer->editFunctions($field);
 
         // Input for functions
         $has_function = (\in_array($function, $functions) || isset($functions[$function]));
@@ -49,7 +49,7 @@ class TableQueryProxy
         {
             $entry['functions'] = [
                 'type' => 'name',
-                'name' => \adminer\h($functions[""] ?? ''),
+                'name' => $this->adminer->h($functions[""] ?? ''),
             ];
         }
         elseif(\count($functions) > 1)
@@ -65,7 +65,7 @@ class TableQueryProxy
         {
             $entry['functions'] = [
                 'type' => 'name',
-                'name' => \adminer\h(\reset($functions)),
+                'name' => $this->adminer->h(\reset($functions)),
             ];
         }
 
@@ -88,13 +88,13 @@ class TableQueryProxy
             \preg_match_all("~'((?:[^']|'')*)'~", $field["length"], $matches);
             $return = ($empty !== null ? "<label><input type='radio'$attrs value='$empty'" .
                 ((\is_array($value) ? \in_array($empty, $value) : $value === 0) ? " checked" : "") .
-                "><i>" . \adminer\lang('empty') . "</i></label>" : "");
+                "><i>" . $this->adminer->lang('empty') . "</i></label>" : "");
             foreach($matches[1] as $i => $val)
             {
                 $val = \stripcslashes(\str_replace("''", "'", $val));
                 $checked = (\is_int($value) ? $value == $i+1 : (\is_array($value) ? \in_array($i+1, $value) : $value === $val));
                 $entry['input']['value'][] = "<label><input type='radio'$attrs value='" . ($i+1) . "'" .
-                    ($checked ? ' checked' : '') . '>' . \adminer\h($adminer->editVal($val, $field)) . '</label>';
+                    ($checked ? ' checked' : '') . '>' . $this->adminer->h($this->adminer->editVal($val, $field)) . '</label>';
             }
         }
         elseif(\preg_match('~bool~', $field["type"]))
@@ -114,16 +114,16 @@ class TableQueryProxy
                 $val = \stripcslashes(\str_replace("''", "'", $val));
                 $checked = (\is_int($value) ? ($value >> $i) & 1 : \in_array($val, \explode(",", $value), true));
                 $entry['input']['value'][] = "<label><input type='checkbox' name='fields[$name][$i]' value='" . (1 << $i) . "'" .
-                    ($checked ? ' checked' : '') . ">" . \adminer\h($adminer->editVal($val, $field)) . '</label>';
+                    ($checked ? ' checked' : '') . ">" . $this->adminer->h($this->adminer->editVal($val, $field)) . '</label>';
             }
         }
-        elseif(\preg_match('~blob|bytea|raw|file~', $field["type"]) && \adminer\ini_bool("file_uploads"))
+        elseif(\preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->adminer->ini_bool("file_uploads"))
         {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
         }
         elseif(($text = \preg_match('~text|lob|memo~i', $field["type"])) || \preg_match("~\n~", $value))
         {
-            if($text && $jush != "sqlite")
+            if($text && $this->server->jush != "sqlite")
             {
                 $attrs .= " cols='50' rows='12'";
             }
@@ -132,11 +132,11 @@ class TableQueryProxy
                 $rows = \min(12, \substr_count($value, "\n") + 1);
                 $attrs .= " cols='30' rows='$rows'" . ($rows == 1 ? " style='height: 1.2em;'" : ""); // 1.2em - line-height
             }
-            $entry['input']['value'] = "<textarea$attrs>" . \adminer\h($value) . '</textarea>';
+            $entry['input']['value'] = "<textarea$attrs>" . $this->adminer->h($value) . '</textarea>';
         }
         elseif($function == "json" || \preg_match('~^jsonb?$~', $field["type"]))
         {
-            $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" . \adminer\h($value) . '</textarea>';
+            $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" . $this->adminer->h($value) . '</textarea>';
         }
         else
         {
@@ -146,8 +146,8 @@ class TableQueryProxy
                 \preg_match('~^(\d+)(,(\d+))?$~', $field["length"], $match) ?
                 ((\preg_match("~binary~", $field["type"]) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
                 (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
-                ($types[$field["type"]] ? $types[$field["type"]] + ($unsigned ? 0 : 1) : 0));
-            if($jush == 'sql' && \adminer\min_version(5.6) && \preg_match('~time~', $field["type"]))
+                ($this->server->types[$field["type"]] ? $this->server->types[$field["type"]] + ($unsigned ? 0 : 1) : 0));
+            if($this->server->jush == 'sql' && $this->server->min_version(5.6) && \preg_match('~time~', $field["type"]))
             {
                 $maxlength += 7; // microtime
             }
@@ -156,7 +156,7 @@ class TableQueryProxy
             $entry['input']['value'] = "<input" . ((!$has_function || $function === "") &&
                 \preg_match('~(?<!o)int(?!er)~', $field["type"]) &&
                 !\preg_match('~\[\]~', $field["full_type"]) ? " type='number'" : "") . " value='" .
-                \adminer\h($value) . "'" . ($maxlength ? " data-maxlength='$maxlength'" : "") .
+                $this->adminer->h($value) . "'" . ($maxlength ? " data-maxlength='$maxlength'" : "") .
                 (\preg_match('~char|binary~', $field["type"]) && $maxlength > 20 ? " size='40'" : "") . "$attrs>";
         }
 
@@ -173,25 +173,18 @@ class TableQueryProxy
      */
     private function getFields(string $table, array $queryOptions)
     {
-        global $adminer;
-
         // From edit.inc.php
-        $fields = \adminer\fields($table);
-        // $where = (isset($_GET["select"]) ?
-        //     ($_POST["check"] && \count($_POST["check"]) == 1 ?
-        //     \adminer\where_check($_POST["check"][0], $fields) : "") :
-        //     \adminer\where($_GET, $fields));
-        // $update = (isset($_GET["select"]) ? $_POST["edit"] : $where);
+        $fields = $this->server->fields($table);
 
         //!!!! $_GET["select"] is never set here !!!!//
 
-        $where = \adminer\where($queryOptions, $fields);
+        $where = $this->adminer->where($queryOptions, $fields);
         $update = $where;
         foreach($fields as $name => $field)
         {
             $generated = $field["generated"] ?? false;
             if(!isset($field["privileges"][$update ? "update" : "insert"]) ||
-                $adminer->fieldName($field) == "" || $generated)
+                $this->adminer->fieldName($field) == "" || $generated)
             {
                 unset($fields[$name]);
             }
@@ -210,8 +203,6 @@ class TableQueryProxy
      */
     public function getQueryData(string $table, array $queryOptions = [])
     {
-        global $adminer, $driver, $jush, $types, $error;
-
         // Default options
         $queryOptions['clone'] = false;
         $queryOptions['save'] = false;
@@ -227,29 +218,29 @@ class TableQueryProxy
             {
                 if(isset($field["privileges"]["select"]))
                 {
-                    $as = \adminer\convert_field($field);
+                    $as = $this->server->convert_field($field);
                     if($queryOptions["clone"] && $field["auto_increment"])
                     {
                         $as = "''";
                     }
-                    if($jush == "sql" && \preg_match("~enum|set~", $field["type"]))
+                    if($this->server->jush == "sql" && \preg_match("~enum|set~", $field["type"]))
                     {
-                        $as = "1*" . \adminer\idf_escape($name);
+                        $as = "1*" . $this->server->idf_escape($name);
                     }
-                    $select[] = ($as ? "$as AS " : "") . \adminer\idf_escape($name);
+                    $select[] = ($as ? "$as AS " : "") . $this->server->idf_escape($name);
                 }
             }
             $row = [];
-            if(!\adminer\support("table"))
+            if(!$this->server->support("table"))
             {
                 $select = ["*"];
             }
             if($select)
             {
-                $result = $driver->select($table, $select, [$where], $select, [], (isset($_GET["select"]) ? 2 : 1));
+                $result = $this->driver->select($table, $select, [$where], $select, [], (isset($_GET["select"]) ? 2 : 1));
                 if(!$result)
                 {
-                    $error = \adminer\error();
+                    // $error = $this->server->error();
                 }
                 else
                 {
@@ -268,16 +259,16 @@ class TableQueryProxy
             }
         }
 
-        if(!\adminer\support("table") && !$fields)
+        if(!$this->server->support("table") && !$fields)
         {
             if(!$where)
             {
                 // insert
-                $result = $driver->select($table, ["*"], $where, ["*"]);
+                $result = $this->driver->select($table, ["*"], $where, ["*"]);
                 $row = ($result ? $result->fetch_assoc() : false);
                 if(!$row)
                 {
-                    $row = [$driver->primary => ""];
+                    $row = [$this->driver->primary => ""];
                 }
             }
             if($row)
@@ -290,8 +281,8 @@ class TableQueryProxy
                     }
                     $fields[$key] = [
                         "field" => $key,
-                        "null" => ($key != $driver->primary),
-                        "auto_increment" => ($key == $driver->primary)
+                        "null" => ($key != $this->driver->primary),
+                        "auto_increment" => ($key == $this->driver->primary)
                     ];
                 }
             }
@@ -299,21 +290,21 @@ class TableQueryProxy
 
         // From functions.inc.php (function edit_form($table, $fields, $row, $update))
         $entries = [];
-        $table_name = $adminer->tableName(\adminer\table_status1($table, true));
+        $table_name = $this->adminer->tableName($this->server->table_status1($table, true));
         $error = null;
         if($row === false)
         {
-            $error = \adminer\lang('No rows.');
+            $error = $this->adminer->lang('No rows.');
         }
         elseif(!$fields)
         {
-            $error = \adminer\lang('You have no privileges to update this table.');
+            $error = $this->adminer->lang('You have no privileges to update this table.');
         }
         else
         {
             foreach($fields as $name => $field)
             {
-                // $default = $_GET["set"][\adminer\bracket_escape($name)] ?? null;
+                // $default = $_GET["set"][$this->adminer->bracket_escape($name)] ?? null;
                 // if($default === null)
                 // {
                     $default = $field["default"];
@@ -323,7 +314,7 @@ class TableQueryProxy
                     }
                 // }
                 $value = ($row !== null
-                    ? ($row[$name] != "" && $jush == "sql" && \preg_match("~enum|set~", $field["type"])
+                    ? ($row[$name] != "" && $this->server->jush == "sql" && \preg_match("~enum|set~", $field["type"])
                         ? (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name])
                         : (\is_bool($row[$name]) ? +$row[$name] : $row[$name])
                     )
@@ -333,7 +324,7 @@ class TableQueryProxy
                     )
                 );
                 if(!$queryOptions["save"] && \is_string($value)) {
-                    $value = $adminer->editVal($value, $field);
+                    $value = $this->adminer->editVal($value, $field);
                 }
                 $function = ($queryOptions["save"]
                     ? (string) $_POST["function"][$name]
@@ -357,8 +348,8 @@ class TableQueryProxy
         }
 
         $main_actions = [
-            'query-save' => \adminer\lang('Save'),
-            'query-cancel' => \adminer\lang('Cancel'),
+            'query-save' => $this->adminer->lang('Save'),
+            'query-cancel' => $this->adminer->lang('Cancel'),
         ];
 
         $fields = $entries;
@@ -375,24 +366,24 @@ class TableQueryProxy
      */
     public function insertItem(string $table, array $queryOptions)
     {
-        global $adminer, $driver, $error;
-
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
         $set = [];
         foreach($fields as $name => $field)
         {
-            $val = \adminer\process_input($field, $queryOptions);
+            $val = $this->adminer->process_input($field, $queryOptions);
             if($val !== false && $val !== null)
             {
-                $set[\adminer\idf_escape($name)] = $val;
+                $set[$this->server->idf_escape($name)] = $val;
             }
         }
 
-        $result = $driver->insert($table, $set);
-        $lastId = ($result ? \adminer\last_id() : 0);
-        $message = \adminer\lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
+        $result = $this->driver->insert($table, $set);
+        $lastId = ($result ? $this->server->last_id() : 0);
+        $message = $this->adminer->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
+
+        $error = $this->server->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -407,27 +398,27 @@ class TableQueryProxy
      */
     public function updateItem(string $table, array $queryOptions)
     {
-        global $adminer, $driver, $error;
-
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $indexes = \adminer\indexes($table);
-        $unique_array = \adminer\unique_array($queryOptions["where"], $indexes);
+        $indexes = $this->server->indexes($table);
+        $unique_array = $this->adminer->unique_array($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
         $set = [];
         foreach($fields as $name => $field)
         {
-            $val = \adminer\process_input($field, $queryOptions);
+            $val = $this->adminer->process_input($field, $queryOptions);
             if($val !== false && $val !== null)
             {
-                $set[\adminer\idf_escape($name)] = $val;
+                $set[$this->server->idf_escape($name)] = $val;
             }
         }
 
-        $result = $driver->update($table, $set, $query_where, !$unique_array);
-        $message = \adminer\lang('Item has been updated.');
+        $result = $this->driver->update($table, $set, $query_where, !$unique_array);
+        $message = $this->adminer->lang('Item has been updated.');
+
+        $error = $this->server->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -442,17 +433,17 @@ class TableQueryProxy
      */
     public function deleteItem(string $table, array $queryOptions)
     {
-        global $adminer, $driver, $error;
-
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $indexes = \adminer\indexes($table);
-        $unique_array = \adminer\unique_array($queryOptions["where"], $indexes);
+        $indexes = $this->server->indexes($table);
+        $unique_array = $this->adminer->unique_array($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
-        $result = $driver->delete($table, $query_where, !$unique_array);
-        $message = \adminer\lang('Item has been deleted.');
+        $result = $this->driver->delete($table, $query_where, !$unique_array);
+        $message = $this->adminer->lang('Item has been deleted.');
+
+        $error = $this->server->error();
 
         return \compact('result', 'message', 'error');
     }

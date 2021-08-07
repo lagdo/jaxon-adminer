@@ -26,7 +26,12 @@ trait ImportTrait
      */
     protected function import(string $database = '', string $schema = '')
     {
-        return $this->importProxy ?: ($this->importProxy = new ImportProxy($database, $schema));
+        if(!$this->importProxy)
+        {
+            $this->importProxy = new ImportProxy($database, $schema);
+            $this->importProxy->init($this);
+        }
+        return $this->importProxy;
     }
 
     /**
@@ -46,7 +51,7 @@ trait ImportTrait
         {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = \adminer\lang('Import');
+        $breadcrumbs[] = $this->adminer->lang('Import');
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->import()->getImportOptions($database);

@@ -9,6 +9,8 @@ use Exception;
  */
 class ImportProxy extends CommandProxy
 {
+    use ProxyTrait;
+
     /**
      * Get data for import
      *
@@ -18,45 +20,44 @@ class ImportProxy extends CommandProxy
      */
     public function getImportOptions(string $database)
     {
-        global $adminer;
-
         $contents = [];
         $message = [];
         // From sql.inc.php
         $gz = \extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        if(\adminer\ini_bool('file_uploads'))
+        if($this->adminer->ini_bool('file_uploads'))
         {
             $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
         }
         else
         {
-            $contents['upload_disabled'] = \adminer\lang('File uploads are disabled.');
+            $contents['upload_disabled'] = $this->adminer->lang('File uploads are disabled.');
         }
 
-        $importServerPath = $adminer->importServerPath();
+        $importServerPath = $this->adminer->importServerPath();
         if(($importServerPath))
         {
-            $contents['path'] = \adminer\h($importServerPath) . $gz;
+            $contents['path'] = $this->adminer->h($importServerPath) . $gz;
         }
 
         $labels = [
-            'path' => \adminer\lang('Webserver file %s', ''),
-            'file_upload' => \adminer\lang('File upload'),
-            'from_server' => \adminer\lang('From server'),
-            'execute' => \adminer\lang('Execute'),
-            'run_file' => \adminer\lang('Run file'),
-            'select' => \adminer\lang('Select'),
-            'error_stops' => \adminer\lang('Stop on error'),
-            'only_errors' => \adminer\lang('Show only errors'),
+            'path' => $this->adminer->lang('Webserver file %s', ''),
+            'file_upload' => $this->adminer->lang('File upload'),
+            'from_server' => $this->adminer->lang('From server'),
+            'execute' => $this->adminer->lang('Execute'),
+            'run_file' => $this->adminer->lang('Run file'),
+            'select' => $this->adminer->lang('Select'),
+            'error_stops' => $this->adminer->lang('Stop on error'),
+            'only_errors' => $this->adminer->lang('Show only errors'),
         ];
 
         return \compact('contents', 'labels');
     }
 
-    /** Get file contents from $_FILES
-     *  From the get_file() function in functions.inc.php
+    /**
+     * Get file contents from $_FILES
+     * From the get_file() function in functions.inc.php
      *
      * @param array $files
      * @param bool $decompress

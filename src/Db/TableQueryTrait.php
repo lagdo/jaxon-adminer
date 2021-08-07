@@ -23,7 +23,12 @@ trait TableQueryTrait
      */
     protected function tableQuery()
     {
-        return $this->tableQueryProxy ?: ($this->tableQueryProxy = new TableQueryProxy());
+        if(!$this->tableQueryProxy)
+        {
+            $this->tableQueryProxy = new TableQueryProxy();
+            $this->tableQueryProxy->init($this);
+        }
+        return $this->tableQueryProxy;
     }
 
     /**
@@ -44,7 +49,7 @@ trait TableQueryTrait
         $options = $this->connect($server, $database, $schema);
 
         $this->setBreadcrumbs([$options['name'], $database,
-            \adminer\lang('Tables'), $table, \adminer\lang($action)]);
+            $this->adminer->lang('Tables'), $table, $this->adminer->lang($action)]);
 
         return $this->tableQuery()->getQueryData($table, $queryOptions);
     }

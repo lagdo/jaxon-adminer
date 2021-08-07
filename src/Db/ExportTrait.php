@@ -23,7 +23,12 @@ trait ExportTrait
      */
     protected function export()
     {
-        return $this->exportProxy ?: ($this->exportProxy = new ExportProxy());
+        if(!$this->exportProxy)
+        {
+            $this->exportProxy = new ExportProxy();
+            $this->exportProxy->init($this);
+        }
+        return $this->exportProxy;
     }
 
     /**
@@ -43,7 +48,7 @@ trait ExportTrait
         {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = \adminer\lang('Export');
+        $breadcrumbs[] = $this->adminer->lang('Export');
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->export()->getExportOptions($database);

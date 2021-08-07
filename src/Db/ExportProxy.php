@@ -9,6 +9,8 @@ use Exception;
  */
 class ExportProxy
 {
+    use ProxyTrait;
+
     /**
      * The databases to dump
      *
@@ -46,13 +48,11 @@ class ExportProxy
      */
     public function getExportOptions(string $database)
     {
-        global $adminer, $jush;
-
         // From dump.inc.php
         $db_style = ['', 'USE', 'DROP+CREATE', 'CREATE'];
         $table_style = ['', 'DROP+CREATE', 'CREATE'];
         $data_style = ['', 'TRUNCATE+INSERT', 'INSERT'];
-        if($jush == 'sql')
+        if($this->server->jush == 'sql')
         { //! use insertUpdate() in all drivers
             $data_style[] = 'INSERT+UPDATE';
         }
@@ -72,59 +72,59 @@ class ExportProxy
         // }
         $options = [
             'output' => [
-                'label' => \adminer\lang('Output'),
-                'options' => $adminer->dumpOutput(),
+                'label' => $this->adminer->lang('Output'),
+                'options' => $this->adminer->dumpOutput(),
                 'value' => $row['output'],
             ],
             'format' => [
-                'label' => \adminer\lang('Format'),
-                'options' => $adminer->dumpFormat(),
+                'label' => $this->adminer->lang('Format'),
+                'options' => $this->adminer->dumpFormat(),
                 'value' => $row['format'],
             ],
             'table_style' => [
-                'label' => \adminer\lang('Tables'),
+                'label' => $this->adminer->lang('Tables'),
                 'options' => $table_style,
                 'value' => $row['table_style'],
             ],
             'auto_increment' => [
-                'label' => \adminer\lang('Auto Increment'),
+                'label' => $this->adminer->lang('Auto Increment'),
                 'value' => 1,
                 'checked' => $row['auto_increment'] ?? false,
             ],
             'data_style' => [
-                'label' => \adminer\lang('Data'),
+                'label' => $this->adminer->lang('Data'),
                 'options' => $data_style,
                 'value' => $row['data_style'],
             ],
         ];
-        if($jush !== 'sqlite')
+        if($this->server->jush !== 'sqlite')
         {
             $options['db_style'] = [
-                'label' => \adminer\lang('Database'),
+                'label' => $this->adminer->lang('Database'),
                 'options' => $db_style,
                 'value' => $row['db_style'],
             ];
-            if(\adminer\support('routine'))
+            if($this->server->support('routine'))
             {
                 $options['routines'] = [
-                    'label' => \adminer\lang('Routines'),
+                    'label' => $this->adminer->lang('Routines'),
                     'value' => 1,
                     'checked' => $row['routines'],
                 ];
             }
-            if(\adminer\support('event'))
+            if($this->server->support('event'))
             {
                 $options['events'] = [
-                    'label' => \adminer\lang('Events'),
+                    'label' => $this->adminer->lang('Events'),
                     'value' => 1,
                     'checked' => $row['events'],
                 ];
             }
         }
-        if(\adminer\support('trigger'))
+        if($this->server->support('trigger'))
         {
             $options['triggers'] = [
-                'label' => \adminer\lang('Triggers'),
+                'label' => $this->adminer->lang('Triggers'),
                 'value' => 1,
                 'checked' => $row['triggers'],
             ];
@@ -137,10 +137,10 @@ class ExportProxy
         if(($database))
         {
             $tables = [
-                'headers' => [\adminer\lang('Tables'), \adminer\lang('Data')],
+                'headers' => [$this->adminer->lang('Tables'), $this->adminer->lang('Data')],
                 'details' => [],
             ];
-            $tables_list = \adminer\tables_list();
+            $tables_list = $this->server->tables_list();
             foreach($tables_list as $name => $type)
             {
                 $prefix = \preg_replace('~_.*~', '', $name);
@@ -155,13 +155,13 @@ class ExportProxy
         else
         {
             $databases = [
-                'headers' => [\adminer\lang('Database'), \adminer\lang('Data')],
+                'headers' => [$this->adminer->lang('Database'), $this->adminer->lang('Data')],
                 'details' => [],
             ];
-            $databases_list = $adminer->databases(false) ?? [];
+            $databases_list = $this->adminer->databases(false) ?? [];
             foreach($databases_list as $name)
             {
-                if(!\adminer\information_schema($name))
+                if(!$this->server->information_schema($name))
                 {
                     $prefix = \preg_replace('~_.*~', '', $name);
                     // $results['prefixes'][$prefix]++;
@@ -174,7 +174,7 @@ class ExportProxy
 
         $results['options'] = $options;
         $results['labels'] = [
-            'export' => \adminer\lang('Export'),
+            'export' => $this->adminer->lang('Export'),
         ];
         return $results;
     }
@@ -188,35 +188,33 @@ class ExportProxy
      */
     protected function dumpRoutinesAndEvents(string $database)
     {
-        global $connection;
-
         // From dump.inc.php
         $style = $this->options["db_style"];
         $queries = [];
 
         if($this->options["routines"])
         {
-            $sql = "SHOW FUNCTION STATUS WHERE Db = " . \adminer\q($database);
-            foreach(\adminer\get_rows($sql, null, "-- ") as $row)
+            $sql = "SHOW FUNCTION STATUS WHERE Db = " . $this->server->q($database);
+            foreach($this->adminer->get_rows($sql, null, "-- ") as $row)
             {
-                $sql = "SHOW CREATE FUNCTION " . \adminer\idf_escape($row["Name"]);
-                $create = \adminer\remove_definer($connection->result($sql, 2));
-                $queries[] = \adminer\set_utf8mb4($create);
+                $sql = "SHOW CREATE FUNCTION " . $this->server->idf_escape($row["Name"]);
+                $create = $this->adminer->remove_definer($this->connection->result($sql, 2));
+                $queries[] = $this->adminer->set_utf8mb4($create);
                 if($style != 'DROP+CREATE')
                 {
-                    $queries[] = "DROP FUNCTION IF EXISTS " . \adminer\idf_escape($row["Name"]) . ";;";
+                    $queries[] = "DROP FUNCTION IF EXISTS " . $this->server->idf_escape($row["Name"]) . ";;";
                 }
                 $queries[] = "$create;;\n";
             }
-            $sql = "SHOW PROCEDURE STATUS WHERE Db = " . \adminer\q($database);
-            foreach(\adminer\get_rows($sql, null, "-- ") as $row)
+            $sql = "SHOW PROCEDURE STATUS WHERE Db = " . $this->server->q($database);
+            foreach($this->adminer->get_rows($sql, null, "-- ") as $row)
             {
-                $sql = "SHOW CREATE PROCEDURE " . \adminer\idf_escape($row["Name"]);
-                $create = \adminer\remove_definer($connection->result($sql, 2));
-                $queries[] = \adminer\set_utf8mb4($create);
+                $sql = "SHOW CREATE PROCEDURE " . $this->server->idf_escape($row["Name"]);
+                $create = $this->adminer->remove_definer($this->connection->result($sql, 2));
+                $queries[] = $this->adminer->set_utf8mb4($create);
                 if($style != 'DROP+CREATE')
                 {
-                    $queries[] = "DROP PROCEDURE IF EXISTS " . \adminer\idf_escape($row["Name"]) . ";;";
+                    $queries[] = "DROP PROCEDURE IF EXISTS " . $this->server->idf_escape($row["Name"]) . ";;";
                 }
                 $queries[] = "$create;;\n";
             }
@@ -224,14 +222,14 @@ class ExportProxy
 
         if($this->options["events"])
         {
-            foreach(\adminer\get_rows("SHOW EVENTS", null, "-- ") as $row)
+            foreach($this->adminer->get_rows("SHOW EVENTS", null, "-- ") as $row)
             {
-                $sql = "SHOW CREATE EVENT " . \adminer\idf_escape($row["Name"]);
-                $create = \adminer\remove_definer($connection->result($sql, 3));
-                $queries[] = \adminer\set_utf8mb4($create);
+                $sql = "SHOW CREATE EVENT " . $this->server->idf_escape($row["Name"]);
+                $create = $this->adminer->remove_definer($this->connection->result($sql, 3));
+                $queries[] = $this->adminer->set_utf8mb4($create);
                 if($style != 'DROP+CREATE')
                 {
-                    $queries[] = "DROP EVENT IF EXISTS " . \adminer\idf_escape($row["Name"]) . ";;";
+                    $queries[] = "DROP EVENT IF EXISTS " . $this->server->idf_escape($row["Name"]) . ";;";
                 }
                 $queries[] = "$create;;\n";
             }
@@ -285,9 +283,9 @@ class ExportProxy
         {
             return "NULL";
         }
-        return \adminer\unconvert_field($field, \preg_match(\adminer\number_type(),
+        return $this->server->unconvert_field($field, \preg_match($this->adminer->number_type(),
             $field["type"]) && !\preg_match('~\[~', $field["full_type"]) &&
-            \is_numeric($val) ? $val : \adminer\q(($val === false ? 0 : $val)));
+            \is_numeric($val) ? $val : $this->server->q(($val === false ? 0 : $val)));
     }
 
     /**
@@ -307,7 +305,7 @@ class ExportProxy
             $this->queries[] = "\xef\xbb\xbf"; // UTF-8 byte order mark
             if($style)
             {
-                $this->dumpCsv(\array_keys(\adminer\fields($table)));
+                $this->dumpCsv(\array_keys($this->server->fields($table)));
             }
             return;
         }
@@ -315,27 +313,27 @@ class ExportProxy
         if($is_view == 2)
         {
             $fields = [];
-            foreach(\adminer\fields($table) as $name => $field)
+            foreach($this->server->fields($table) as $name => $field)
             {
-                $fields[] = \adminer\idf_escape($name) . ' ' . $field['full_type'];
+                $fields[] = $this->server->idf_escape($name) . ' ' . $field['full_type'];
             }
-            $create = "CREATE TABLE " . \adminer\table($table) . " (" . \implode(", ", $fields) . ")";
+            $create = "CREATE TABLE " . $this->server->table($table) . " (" . \implode(", ", $fields) . ")";
         }
         else
         {
-            $create = \adminer\create_sql($table, $this->options['auto_increment'], $style);
+            $create = $this->server->create_sql($table, $this->options['auto_increment'], $style);
         }
-        \adminer\set_utf8mb4($create);
+        $this->adminer->set_utf8mb4($create);
         if($style && $create)
         {
             if($style == "DROP+CREATE" || $is_view == 1)
             {
                 $this->queries[] = "DROP " . ($is_view == 2 ? "VIEW" : "TABLE") .
-                    " IF EXISTS " . \adminer\table($table) . ';';
+                    " IF EXISTS " . $this->server->table($table) . ';';
             }
             if($is_view == 1)
             {
-                $create = \adminer\remove_definer($create);
+                $create = $this->adminer->remove_definer($create);
             }
             $this->queries[] = $create . ';';
         }
@@ -351,21 +349,19 @@ class ExportProxy
      */
     protected function dumpData($table, $style, $query)
     {
-        global $connection, $jush;
-
         $fields = [];
-        $max_packet = ($jush == "sqlite" ? 0 : 1048576); // default, minimum is 1024
+        $max_packet = ($this->server->jush == "sqlite" ? 0 : 1048576); // default, minimum is 1024
         if($style)
         {
             if($this->options["format"] == "sql")
             {
                 if($style == "TRUNCATE+INSERT")
                 {
-                    $this->queries[] = \adminer\truncate_sql($table) . ";\n";
+                    $this->queries[] = $this->server->truncate_sql($table) . ";\n";
                 }
-                $fields = \adminer\fields($table);
+                $fields = $this->server->fields($table);
             }
-            $result = $connection->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+            $result = $this->connection->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
             if($result)
             {
                 $insert = "";
@@ -382,7 +378,7 @@ class ExportProxy
                         {
                             $field = $result->fetch_field();
                             $keys[] = $field->name;
-                            $key = \adminer\idf_escape($field->name);
+                            $key = $this->server->idf_escape($field->name);
                             $values[] = "$key = VALUES($key)";
                         }
                         $suffix = ";\n";
@@ -404,8 +400,10 @@ class ExportProxy
                     {
                         if(!$insert)
                         {
-                            $insert = "INSERT INTO " . \adminer\table($table) . " (" .
-                                \implode(", ", \array_map('\\adminer\\idf_escape', $keys)) . ") VALUES";
+                            $insert = "INSERT INTO " . $this->server->table($table) . " (" .
+                                \implode(", ", \array_map(function($key) {
+                                    return $this->server->idf_escape($key);
+                                }, $keys)) . ") VALUES";
                         }
                         foreach ($row as $key => $val)
                         {
@@ -435,7 +433,7 @@ class ExportProxy
             }
             elseif($this->options["format"] == "sql")
             {
-                $this->queries[] = "-- " . \str_replace("\n", " ", $connection->error) . "\n";
+                $this->queries[] = "-- " . \str_replace("\n", " ", $this->connection->error) . "\n";
             }
         }
     }
@@ -449,8 +447,6 @@ class ExportProxy
      */
     protected function dumpTablesAndViews(string $database)
     {
-        // global $adminer;
-
         if(!$this->options["table_style"] && !$this->options["data_style"])
         {
             return [];
@@ -460,7 +456,7 @@ class ExportProxy
             \in_array($database, $this->databases["list"]);
         $dbDumpData = \in_array($database, $this->databases["data"]);
         $views = [];
-        $dbTables = \adminer\table_status('', true);
+        $dbTables = $this->server->table_status('', true);
         foreach($dbTables as $table => $table_status)
         {
             $dumpTable = $dbDumpTable || \in_array($table, $this->tables['list']);
@@ -474,20 +470,20 @@ class ExportProxy
                 // }
 
                 $this->dumpTable($table, ($dumpTable ? $this->options["table_style"] : ""),
-                    (\adminer\is_view($table_status) ? 2 : 0));
-                if(\adminer\is_view($table_status))
+                    ($this->server->is_view($table_status) ? 2 : 0));
+                if($this->server->is_view($table_status))
                 {
                     $views[] = $table;
                 }
                 elseif($dumpData)
                 {
-                    $fields = \adminer\fields($table);
-                    $query = "SELECT *" . \adminer\convert_fields($fields, $fields) .
-                        " FROM " . \adminer\table($table);
+                    $fields = $this->server->fields($table);
+                    $query = "SELECT *" . $this->adminer->convert_fields($fields, $fields) .
+                        " FROM " . $this->server->table($table);
                     $this->dumpData($table, $this->options["data_style"], $query);
                 }
                 if($this->options['is_sql'] && $this->options["triggers"] && $dumpTable &&
-                    ($triggers = \adminer\trigger_sql($table)))
+                    ($triggers = $this->server->trigger_sql($table)))
                 {
                     $this->queries[] = "DELIMITER ;";
                     $this->queries[] = $triggers;
@@ -507,14 +503,14 @@ class ExportProxy
         }
 
         // add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
-        if(\function_exists('foreign_keys_sql'))
+        if($this->server->support('fkeys_sql'))
         {
             foreach($dbTables as $table => $table_status)
             {
                 $dumpTable = true; // (DB == "" || \in_array($table, $this->options["tables"]));
-                if($dumpTable && !\adminer\is_view($table_status))
+                if($dumpTable && !$this->server->is_view($table_status))
                 {
-                    $this->queries[] = \adminer\foreign_keys_sql($table);
+                    $this->queries[] = $this->server->foreign_keys_sql($table);
                 }
             }
         }
@@ -540,8 +536,6 @@ class ExportProxy
      */
     public function exportDatabases(array $databases, array $tables, array $options)
     {
-        global $adminer, $connection, $drivers, $jush;
-
         // From dump.inc.php
         // $tables = array_flip($options["tables"]) + array_flip($options["data"]);
         // $ext = dump_headers((count($tables) == 1 ? key($tables) : DB), (DB == "" || count($tables) > 1));
@@ -554,13 +548,13 @@ class ExportProxy
         if($this->options['is_sql'])
         {
             $headers = [
-                'version' => \adminer\version(),
-                'driver' => $drivers[DRIVER],
-                'server' => \str_replace("\n", " ", $connection->server_info),
+                'version' => $this->adminer->version(),
+                'driver' => $this->server->getName(),
+                'server' => \str_replace("\n", " ", $this->connection->server_info),
                 'sql' => false,
                 'data_style' => false,
             ];
-            if($jush == "sql")
+            if($this->server->jush == "sql")
             {
                 $headers['sql'] = true;
                 if(isset($options["data_style"]))
@@ -568,8 +562,8 @@ class ExportProxy
                     $headers['data_style'] = true;
                 }
                 // Set some options in database server
-                $connection->query("SET time_zone = '+00:00'");
-                $connection->query("SET sql_mode = ''");
+                $this->connection->query("SET time_zone = '+00:00'");
+                $this->connection->query("SET sql_mode = ''");
             }
         }
 
@@ -577,17 +571,17 @@ class ExportProxy
 
         foreach(\array_unique(\array_merge($databases['list'], $databases['data'])) as $db)
         {
-            // $adminer->dumpDatabase($db);
-            if($connection->select_db($db))
+            // $this->adminer->dumpDatabase($db);
+            if($this->connection->select_db($db))
             {
-                $sql = "SHOW CREATE DATABASE " . \adminer\idf_escape($db);
+                $sql = "SHOW CREATE DATABASE " . $this->server->idf_escape($db);
                 if($this->options['is_sql'] && \preg_match('~CREATE~', $style) &&
-                    ($create = $connection->result($sql, 1)))
+                    ($create = $this->connection->result($sql, 1)))
                 {
-                    \adminer\set_utf8mb4($create);
+                    $this->adminer->set_utf8mb4($create);
                     if($style == "DROP+CREATE")
                     {
-                        $this->queries[] = "DROP DATABASE IF EXISTS " . \adminer\idf_escape($db) . ";";
+                        $this->queries[] = "DROP DATABASE IF EXISTS " . $this->server->idf_escape($db) . ";";
                     }
                     $this->queries[] = $create . ";\n";
                 }
@@ -595,7 +589,7 @@ class ExportProxy
                 {
                     if($style)
                     {
-                        if(($query = \adminer\use_sql($db)))
+                        if(($query = $this->server->use_sql($db)))
                         {
                             $this->queries[] = $query . ";";
                         }
@@ -611,7 +605,7 @@ class ExportProxy
 
         if($this->options['is_sql'])
         {
-            $this->queries[] = "-- " . $connection->result("SELECT NOW()");
+            $this->queries[] = "-- " . $this->connection->result("SELECT NOW()");
         }
 
         return [

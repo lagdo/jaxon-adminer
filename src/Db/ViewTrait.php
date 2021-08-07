@@ -23,7 +23,12 @@ trait ViewTrait
      */
     protected function view()
     {
-        return $this->viewProxy ?: ($this->viewProxy = new ViewProxy());
+        if(!$this->viewProxy)
+        {
+            $this->viewProxy = new ViewProxy();
+            $this->viewProxy->init($this);
+        }
+        return $this->viewProxy ;
     }
 
     /**
@@ -40,7 +45,7 @@ trait ViewTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Views'), $view]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Views'), $view]);
 
         return $this->view()->getViewInfo($view);
     }

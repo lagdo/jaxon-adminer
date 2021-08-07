@@ -9,6 +9,8 @@ use Exception;
  */
 class ViewProxy
 {
+    use ProxyTrait;
+
     /**
      * The current table status
      *
@@ -27,7 +29,7 @@ class ViewProxy
     {
         if(!$this->viewStatus)
         {
-            $this->viewStatus = \adminer\table_status1($table, true);
+            $this->viewStatus = $this->server->table_status1($table, true);
         }
         return $this->viewStatus;
     }
@@ -42,24 +44,22 @@ class ViewProxy
      */
     protected function getViewLinks($set = null)
     {
-        global $jush, $driver;
-
         $links = [
-            "select" => \adminer\lang('Select data'),
+            "select" => $this->adminer->lang('Select data'),
         ];
-        if(\adminer\support("table") || \adminer\support("indexes"))
+        if($this->server->support("table") || $this->server->support("indexes"))
         {
-            $links["table"] = \adminer\lang('Show structure');
+            $links["table"] = $this->adminer->lang('Show structure');
         }
-        if(\adminer\support("table"))
+        if($this->server->support("table"))
         {
-            $links["alter"] = \adminer\lang('Alter view');
+            $links["alter"] = $this->adminer->lang('Alter view');
         }
         if($set !== null)
         {
-            $links["edit"] = \adminer\lang('New item');
+            $links["edit"] = $this->adminer->lang('New item');
         }
-        // $links['docs'] = \doc_link([$jush => $driver->tableHelp($name)], "?");
+        // $links['docs'] = \doc_link([$this->server->jush => $this->driver->tableHelp($name)], "?");
 
         return $links;
     }
@@ -73,31 +73,29 @@ class ViewProxy
      */
     public function getViewInfo(string $table)
     {
-        global $adminer;
-
         $main_actions = [
-            'edit-view' => \adminer\lang('Edit view'),
-            'drop-view' => \adminer\lang('Drop view'),
+            'edit-view' => $this->adminer->lang('Edit view'),
+            'drop-view' => $this->adminer->lang('Drop view'),
         ];
 
         // From table.inc.php
         $status = $this->status($table);
-        $name = $adminer->tableName($status);
+        $name = $this->adminer->tableName($status);
         $title = ($status['Engine'] == 'materialized view' ?
-            \adminer\lang('Materialized view') : \adminer\lang('View')) .
-            ": " . ($name != "" ? $name : \adminer\h($table));
+            $this->adminer->lang('Materialized view') : $this->adminer->lang('View')) .
+            ": " . ($name != "" ? $name : $this->adminer->h($table));
 
         $comment = $status["Comment"] ?? '';
 
         $tabs = [
-            'fields' => \adminer\lang('Columns'),
-            // 'indexes' => \adminer\lang('Indexes'),
-            // 'foreign-keys' => \adminer\lang('Foreign keys'),
-            // 'triggers' => \adminer\lang('Triggers'),
+            'fields' => $this->adminer->lang('Columns'),
+            // 'indexes' => $this->adminer->lang('Indexes'),
+            // 'foreign-keys' => $this->adminer->lang('Foreign keys'),
+            // 'triggers' => $this->adminer->lang('Triggers'),
         ];
-        if(\adminer\support("view_trigger"))
+        if($this->server->support("view_trigger"))
         {
-            $tabs['triggers'] = \adminer\lang('Triggers');
+            $tabs['triggers'] = $this->adminer->lang('Triggers');
         }
 
         return \compact('main_actions', 'title', 'comment', 'tabs');
@@ -113,58 +111,58 @@ class ViewProxy
     public function getViewFields(string $table)
     {
         // From table.inc.php
-        $fields = \adminer\fields($table);
+        $fields = $this->server->fields($table);
         if(!$fields)
         {
-            throw new Exception(\adminer\error());
+            throw new Exception($this->server->error());
         }
 
         $main_actions = $this->getViewLinks();
 
         $tabs = [
-            'fields' => \adminer\lang('Columns'),
-            // 'triggers' => \adminer\lang('Triggers'),
+            'fields' => $this->adminer->lang('Columns'),
+            // 'triggers' => $this->adminer->lang('Triggers'),
         ];
-        if(\adminer\support("view_trigger"))
+        if($this->server->support("view_trigger"))
         {
-            $tabs['triggers'] = \adminer\lang('Triggers');
+            $tabs['triggers'] = $this->adminer->lang('Triggers');
         }
 
         $headers = [
-            \adminer\lang('Name'),
-            \adminer\lang('Type'),
-            \adminer\lang('Collation'),
+            $this->adminer->lang('Name'),
+            $this->adminer->lang('Type'),
+            $this->adminer->lang('Collation'),
         ];
-        $hasComment = \adminer\support('comment');
+        $hasComment = $this->server->support('comment');
         if($hasComment)
         {
-            $headers[] = \adminer\lang('Comment');
+            $headers[] = $this->adminer->lang('Comment');
         }
 
         $details = [];
         foreach($fields as $field)
         {
-            $type = \adminer\h($field["full_type"]);
+            $type = $this->adminer->h($field["full_type"]);
             if($field["null"])
             {
                 $type .= " <i>nullable</i>"; // " <i>NULL</i>";
             }
             if($field["auto_increment"])
             {
-                $type .= " <i>" . \adminer\lang('Auto Increment') . "</i>";
+                $type .= " <i>" . $this->adminer->lang('Auto Increment') . "</i>";
             }
             if(\array_key_exists("default", $field))
             {
-                $type .= /*' ' . \adminer\lang('Default value') .*/ ' [<b>' . \adminer\h($field["default"]) . '</b>]';
+                $type .= /*' ' . $this->adminer->lang('Default value') .*/ ' [<b>' . $this->adminer->h($field["default"]) . '</b>]';
             }
             $detail = [
-                'name' => \adminer\h($field["field"] ?? ''),
+                'name' => $this->adminer->h($field["field"] ?? ''),
                 'type' => $type,
-                'collation' => \adminer\h($field["collation"] ?? ''),
+                'collation' => $this->adminer->h($field["collation"] ?? ''),
             ];
             if($hasComment)
             {
-                $detail['comment'] = \adminer\h($field["comment"] ?? '');
+                $detail['comment'] = $this->adminer->h($field["comment"] ?? '');
             }
 
             $details[] = $detail;
@@ -183,19 +181,19 @@ class ViewProxy
     public function getViewTriggers(string $table)
     {
         $status = $this->status($table);
-        if(!\adminer\support("view_trigger"))
+        if(!$this->server->support("view_trigger"))
         {
             return null;
         }
 
         // From table.inc.php
-        $triggers = \adminer\triggers($table);
+        $triggers = $this->server->triggers($table);
         $main_actions = [
-            \adminer\lang('Add trigger'),
+            $this->adminer->lang('Add trigger'),
         ];
 
         $headers = [
-            \adminer\lang('Name'),
+            $this->adminer->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -210,10 +208,10 @@ class ViewProxy
         foreach($triggers as $key => $val)
         {
             $details[] = [
-                \adminer\h($val[0]),
-                \adminer\h($val[1]),
-                \adminer\h($key),
-                \adminer\lang('Alter'),
+                $this->adminer->h($val[0]),
+                $this->adminer->h($val[1]),
+                $this->adminer->h($key),
+                $this->adminer->lang('Alter'),
             ];
         }
 
@@ -229,22 +227,18 @@ class ViewProxy
      */
     public function getView(string $view)
     {
-        global $jush, $error;
-
         // From view.inc.php
         $orig_type = "VIEW";
-        if($jush == "pgsql")
+        if($this->server->jush == "pgsql")
         {
-            $status = \adminer\table_status($view);
+            $status = $this->server->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
-        $values = \adminer\view($view);
+        $values = $this->server->view($view);
         $values["name"] = $view;
         $values["materialized"] = ($orig_type != "VIEW");
-        if(!$error)
-        {
-            $error = \adminer\error();
-        }
+
+        $error = $this->server->error();
         if(($error))
         {
             throw new Exception($error);
@@ -262,17 +256,17 @@ class ViewProxy
      */
     public function createView(array $values)
     {
-        global $jush, $error;
-
         // From view.inc.php
         $name = \trim($values["name"]);
         $location = null; // ME . "table=" . urlencode($name);
-        $message = \adminer\lang('View has been created.');
+        $message = $this->adminer->lang('View has been created.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
 
-        $sql = ($jush == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
-            " $type " . \adminer\table($name) . " AS\n" . $values['select'];
-        $success = \adminer\query_redirect($sql, $location, $message);
+        $sql = ($this->server->jush == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
+            " $type " . $this->server->table($name) . " AS\n" . $values['select'];
+        $success = $this->adminer->query_redirect($sql, $location, $message);
+
+        $error = $this->server->error();
 
         return \compact('success', 'message', 'error');
     }
@@ -287,36 +281,35 @@ class ViewProxy
      */
     public function updateView(string $view, array $values)
     {
-        global $jush, $error;
-
         // From view.inc.php
         $orig_type = "VIEW";
-        if($jush == "pgsql")
+        if($this->server->jush == "pgsql")
         {
-            $status = \adminer\table_status($view);
+            $status = $this->server->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
 
         $name = \trim($values["name"]);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
-        $message = \adminer\lang('View has been altered.');
+        $message = $this->adminer->lang('View has been altered.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
         $temp_name = $name . "_adminer_" . \uniqid();
 
-        \adminer\drop_create(
-            "DROP $orig_type " . \adminer\table($view),
-            "CREATE $type " . \adminer\table($name) . " AS\n" . $values['select'],
-            "DROP $type " . \adminer\table($name),
-            "CREATE $type " . \adminer\table($temp_name) . " AS\n" . $values['select'],
-            "DROP $type " . \adminer\table($temp_name),
+        $this->adminer->drop_create(
+            "DROP $orig_type " . $this->server->table($view),
+            "CREATE $type " . $this->server->table($name) . " AS\n" . $values['select'],
+            "DROP $type " . $this->server->table($name),
+            "CREATE $type " . $this->server->table($temp_name) . " AS\n" . $values['select'],
+            "DROP $type " . $this->server->table($temp_name),
             $location,
-            \adminer\lang('View has been dropped.'),
+            $this->adminer->lang('View has been dropped.'),
             $message,
-            \adminer\lang('View has been created.'),
+            $this->adminer->lang('View has been created.'),
             $view,
             $name
         );
 
+        $error = $this->server->error();
         $success = !$error;
         return \compact('success', 'message', 'error');
     }
@@ -330,20 +323,20 @@ class ViewProxy
      */
     public function dropView(string $view)
     {
-        global $jush, $error;
-
         // From view.inc.php
         $orig_type = "VIEW";
-        if($jush == "pgsql")
+        if($this->server->jush == "pgsql")
         {
-            $status = \adminer\table_status($view);
+            $status = $this->server->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
 
-        $sql = "DROP $orig_type " . \adminer\table($view);
+        $sql = "DROP $orig_type " . $this->server->table($view);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
-        $message = \adminer\lang('View has been dropped.');
-        $success = \adminer\drop_only($sql, $location, $message);
+        $message = $this->adminer->lang('View has been dropped.');
+        $success =$this->adminer->drop_only($sql, $location, $message);
+
+        $error = $this->server->error();
 
         return \compact('success', 'message', 'error');
     }

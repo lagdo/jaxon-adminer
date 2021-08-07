@@ -23,7 +23,12 @@ trait TableSelectTrait
      */
     protected function tableSelect()
     {
-        return $this->tableSelectProxy ?: ($this->tableSelectProxy = new TableSelectProxy());
+        if(!$this->tableSelectProxy)
+        {
+            $this->tableSelectProxy = new TableSelectProxy();
+            $this->tableSelectProxy->init($this);
+        }
+        return $this->tableSelectProxy;
     }
 
     /**
@@ -43,7 +48,7 @@ trait TableSelectTrait
         $options = $this->connect($server, $database, $schema);
 
         $this->setBreadcrumbs([$options['name'], $database,
-            \adminer\lang('Tables'), $table, \adminer\lang('Select')]);
+            $this->adminer->lang('Tables'), $table, $this->adminer->lang('Select')]);
 
         return $this->tableSelect()->getSelectData($table, $queryOptions);
     }

@@ -9,13 +9,15 @@ use Exception;
  */
 class CommandProxy
 {
+    use ProxyTrait;
+
     /**
      * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
      * //! PDO - silent error
      *
-     * @var \adminer\Min_DB
+     * @var Lagdo\Adminer\Drivers\ConnectionInterface
      */
-    protected $connection = null;
+    protected $connection2 = null;
 
     /**
      * The constructor
@@ -29,15 +31,15 @@ class CommandProxy
         {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
-            $connection = \adminer\connect();
+            $connection = $this->server->connect();
             if(\is_object($connection))
             {
                 $connection->select_db($database);
                 if($schema !== '')
                 {
-                    \adminer\set_schema($schema, $connection);
+                    $this->server->set_schema($schema, $connection);
                 }
-                $this->connection = $connection;
+                $this->connection2 = $connection;
             }
         }
     }
@@ -46,7 +48,7 @@ class CommandProxy
      * Print select result
      * From editing.inc.php
      *
-     * @param \adminer\Min_Result
+     * @param mixed
      * @param array
      * @param int
      *
@@ -54,8 +56,6 @@ class CommandProxy
     */
     protected function select($result, $orgtables = [], $limit = 0)
     {
-        global $jush;
-
         $links = []; // colno => orgtable - create links from these columns
         $indexes = []; // orgtable => array(column => colno) - primary keys
         $columns = []; // orgtable => array(column => ) - not selected columns in primary key
@@ -76,7 +76,7 @@ class CommandProxy
                 $link = "";
                 if(isset($links[$key]) && !$columns[$links[$key]])
                 {
-                    if($orgtables && $jush == "sql")
+                    if($orgtables && $this->server->jush == "sql")
                     { // MySQL EXPLAIN
                         $table = $row[\array_search("table=", $links)];
                         $link = ME . $links[$key] .
@@ -88,11 +88,11 @@ class CommandProxy
                         foreach($indexes[$links[$key]] as $col => $j)
                         {
                             $link .= "&where" . \urlencode("[" .
-                                \adminer\bracket_escape($col) . "]") . "=" . \urlencode($row[$j]);
+                                $this->adminer->bracket_escape($col) . "]") . "=" . \urlencode($row[$j]);
                         }
                     }
                 }
-                elseif(\adminer\is_url($val))
+                elseif($this->adminer->is_url($val))
                 {
                     $link = $val;
                 }
@@ -100,35 +100,30 @@ class CommandProxy
                 {
                     $val = "<i>NULL</i>";
                 }
-                elseif(isset($blobs[$key]) && $blobs[$key] && !\adminer\is_utf8($val))
+                elseif(isset($blobs[$key]) && $blobs[$key] && !$this->adminer->is_utf8($val))
                 {
                     //! link to download
-                    $val = "<i>" . \adminer\lang('%d byte(s)', \strlen($val)) . "</i>";
+                    $val = "<i>" . $this->adminer->lang('%d byte(s)', \strlen($val)) . "</i>";
                 }
                 else
                 {
-                    $val = \adminer\h($val);
+                    $val = $this->adminer->h($val);
                     if(isset($types[$key]) && $types[$key] == 254)
                     { // 254 - char
                         $val = "<code>$val</code>";
                     }
                 }
-                // if($link)
-                // {
-                //     $val = "<a href='" . \adminer\h($link) . "'" .
-                //         (\adminer\is_url($link) ? \adminer\target_blank() : '') . ">$val</a>";
-                // }
                 $detail[$key] = $val;
             }
             $details[] = $detail;
         }
-        $message = \adminer\lang('No rows.');
+        $message = $this->adminer->lang('No rows.');
         if($rowCount > 0)
         {
             $num_rows = $result->num_rows;
             $message = ($num_rows ? ($limit && $num_rows > $limit ?
-                \adminer\lang('%d / ', $limit) :
-                "") . \adminer\lang('%d row(s)', $num_rows) : "");
+                $this->adminer->lang('%d / ', $limit) :
+                "") . $this->adminer->lang('%d row(s)', $num_rows) : "");
         }
 
         // Table header
@@ -141,7 +136,7 @@ class CommandProxy
             $orgname = $field->orgname;
             // PostgreSQL fix: the table field can be missing.
             $tables[$field->table ?? $orgtable] = $orgtable;
-            if($orgtables && $jush == "sql")
+            if($orgtables && $this->server->jush == "sql")
             { // MySQL EXPLAIN
                 $links[$j] = ($name == "table" ? "table=" : ($name == "possible_keys" ? "indexes=" : null));
             }
@@ -151,7 +146,7 @@ class CommandProxy
                 {
                     // find primary key in each table
                     $indexes[$orgtable] = [];
-                    foreach(\adminer\indexes($orgtable, $this->connection) as $index)
+                    foreach($this->server->indexes($orgtable, $this->connection2) as $index)
                     {
                         if($index["type"] == "PRIMARY")
                         {
@@ -173,24 +168,7 @@ class CommandProxy
                 $blobs[$j] = true;
             }
             $types[$j] = $field->type;
-            $headers[] = \adminer\h($name);
-            // $header = [
-            //     'text' => \adminer\h($name),
-            //     'title' => '',
-            //     'doc' => '',
-            // ];
-            // if($orgtable != "" || $field->name != $orgname)
-            // {
-            //     $header['title'] = \adminer\h(($orgtable != "" ? "$orgtable." : "") . $orgname);
-            // }
-            // if($orgtables)
-            // {
-            //     $header['doc'] = \adminer\doc_link([
-            //         'sql' => "explain-output.html#explain_" . \strtolower($name),
-            //         'mariadb' => "explain/#the-columns-in-explain-select",
-            //     ]);
-            // }
-            // $headers[] = $header;
+            $headers[] = $this->adminer->h($name);
         }
 
         return \compact('tables', 'headers', 'details', 'message');
@@ -208,12 +186,10 @@ class CommandProxy
      */
     public function executeCommands(string $queries, int $limit, bool $errorStops, bool $onlyErrors)
     {
-        global $jush, $connection;
-
         if(\function_exists('memory_get_usage'))
         {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
-            @\ini_set("memory_limit", \max(\adminer\ini_bytes("memory_limit"),
+            @\ini_set("memory_limit", \max($this->adminer->ini_bytes("memory_limit"),
                 2 * \strlen($queries) + \memory_get_usage() + 8e6));
 		}
 
@@ -235,10 +211,10 @@ class CommandProxy
 		$commands = 0;
         $timestamps = [];
         $parse = '[\'"' .
-            ($jush == "sql" ? '`#' :
-            ($jush == "sqlite" ? '`[' :
-            ($jush == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
-            ($jush == "pgsql" ? '|\$[^$]*\$' : '');
+            ($this->server->jush == "sql" ? '`#' :
+            ($this->server->jush == "sqlite" ? '`[' :
+            ($this->server->jush == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
+            ($this->server->jush == "pgsql" ? '|\$[^$]*\$' : '');
 		// $total_start = \microtime(true);
 		// \parse_str($_COOKIE["adminer_export"], $adminer_export);
 		// $dump_format = $adminer->dumpFormat();
@@ -291,13 +267,13 @@ class CommandProxy
             $empty = false;
             $q = \substr($queries, 0, $pos);
             $commands++;
-            // $print = "<pre id='sql-$commands'><code class='jush-$jush'>" .
+            // $print = "<pre id='sql-$commands'><code class='jush-$this->server->jush'>" .
             //     $adminer->sqlCommandQuery($q) . "</code></pre>\n";
-            if($jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
+            if($this->server->jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
             {
                 // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
                 // $errors[] = " <a href='#sql-$commands'>$commands</a>";
-                $errors[] = \adminer\lang('ATTACH queries are not supported.');
+                $errors[] = $this->adminer->lang('ATTACH queries are not supported.');
                 $results[] = [
                     'query' => $q,
                     'errors' => $errors,
@@ -319,45 +295,31 @@ class CommandProxy
                 // }
                 $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
-                if($connection->multi_query($q) && \is_object($this->connection) && \preg_match("~^$space*+USE\\b~i", $q))
+                if($this->connection->multi_query($q) && \is_object($this->connection2) && \preg_match("~^$space*+USE\\b~i", $q))
                 {
-                    $this->connection->query($q);
+                    $this->connection2->query($q);
                 }
 
                 do
                 {
-                    $result = $connection->store_result();
+                    $result = $this->connection->store_result();
 
-                    if($connection->error)
+                    if($this->connection->error)
                     {
                         // echo ($onlyErrors ? $print : "");
-                        // echo "<p class='error'>" . \adminer\lang('Error in query') . ($connection->errno ?
-                        //     " ($connection->errno)" : "") . ": " . \adminer\error() . "\n";
+                        // echo "<p class='error'>" . $this->adminer->lang('Error in query') . ($this->connection->errno ?
+                        //     " ($this->connection->errno)" : "") . ": " . $this->server->error() . "\n";
                         // $errors[] = " <a href='#sql-$commands'>$commands</a>";
-                        $error = \adminer\error();
-                        if(isset($connection->errno))
+                        $error = $this->server->error();
+                        if(isset($this->connection->errno))
                         {
-                            $error = "($connection->errno): $error";
+                            $error = "($this->connection->errno): $error";
                         }
                         $errors[] = $error;
                     }
                     else
                     {
-                        // $time = " <span class='time'>(" . \adminer\format_time($start) . ")</span>"
-                        //     . (\strlen($q) < 1000 ? " <a href='" . \adminer\h(ME) .
-                        //     "sql=" . \urlencode(\trim($q)) . "'>" . \adminer\lang('Edit') . "</a>" : "")
-                        //     // 1000 - maximum length of encoded URL in IE is 2083 characters
-                        // ;
-                        $affected = $connection->affected_rows; // getting warnigns overwrites this
-                        // $warnings = ($onlyErrors ? "" : $driver->warnings());
-                        // $warnings_id = "warnings-$commands";
-                        // if($warnings)
-                        // {
-                        //     $time .= ", <a href='#$warnings_id'>" . \adminer\lang('Warnings') . "</a>" .
-                        //         \adminer\script("qsl('a').onclick = partial(toggle, '$warnings_id');", "");
-                        // }
-                        // $explain = null;
-                        // $explain_id = "explain-$commands";
+                        $affected = $this->connection->affected_rows; // getting warnigns overwrites this
                         if(\is_object($result))
                         {
                             if(!$onlyErrors)
@@ -365,53 +327,15 @@ class CommandProxy
                                 $select = $this->select($result, [], $limit);
                                 $messages[] = $select['message'];
                             }
-                            // $orgtables = $this->select($result, [], $limit);
-                            // if(!$onlyErrors)
-                            // {
-                            //     echo "<form action='' method='post'>\n";
-                            //     $num_rows = $result->num_rows;
-                            //     echo "<p>" . ($num_rows ? ($limit && $num_rows > $limit ?
-                            //         \adminer\lang('%d / ', $limit) : "") . \adminer\lang('%d row(s)', $num_rows) : "");
-                            //     echo $time;
-                            //     if($this->connection && \preg_match("~^($space|\\()*+SELECT\\b~i", $q) &&
-                            //         ($explain = \adminer\explain($this->connection, $q))) {
-                            //         echo ", <a href='#$explain_id'>Explain</a>" .
-                            //             \adminer\script("qsl('a').onclick = partial(toggle, '$explain_id');", "");
-                            //     }
-                            //     $id = "export-$commands";
-                            //     echo ", <a href='#$id'>" . \adminer\lang('Export') . "</a>" .
-                            //         \adminer\script("qsl('a').onclick = partial(toggle, '$id');", "") .
-                            //         "<span id='$id' class='hidden'>: "
-                            //         . \adminer\html_select("output", $adminer->dumpOutput(), $adminer_export["output"]) . " "
-                            //         . \adminer\html_select("format", $dump_format, $adminer_export["format"])
-                            //         . "<input type='hidden' name='query' value='" . \adminer\h($q) . "'>"
-                            //         . " <input type='submit' name='export' value='" . \adminer\lang('Export') .
-                            //         "'><input type='hidden' name='token' value='$token'></span>\n"
-                            //         . "</form>\n"
-                            //     ;
-                            // }
                         }
                         else
                         {
-                            // if(\preg_match("~^$space*+(CREATE|DROP|ALTER)$space++(DATABASE|SCHEMA)\\b~i", $q))
-                            // {
-                            //     \restart_session();
-                            //     \set_session("dbs", null); // clear cache
-                            //     \stop_session();
-                            // }
                             if(!$onlyErrors)
                             {
-                                // $title = \adminer\h($connection->info);
-                                $messages[] = \adminer\lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
+                                // $title = $this->adminer->h($this->connection->info);
+                                $messages[] = $this->adminer->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
                             }
                         }
-                        // echo ($warnings ? "<div id='$warnings_id' class='hidden'>\n$warnings</div>\n" : "");
-                        // if($explain)
-                        // {
-                        //     echo "<div id='$explain_id' class='hidden'>\n";
-                        //     $this->select($explain, $orgtables);
-                        //     echo "</div>\n";
-                        // }
                     }
 
                     $results[] = [
@@ -421,14 +345,14 @@ class CommandProxy
                         'select' => $select,
                     ];
 
-                    if($connection->error && $errorStops)
+                    if($this->connection->error && $errorStops)
                     {
                         break 2;
                     }
 
                     $start = \microtime(true);
                 }
-                while($connection->next_result());
+                while($this->connection->next_result());
             }
 
             $queries = \substr($queries, $offset);
@@ -437,16 +361,16 @@ class CommandProxy
 
         if($empty)
         {
-            $messages[] = \adminer\lang('No commands to execute.');
+            $messages[] = $this->adminer->lang('No commands to execute.');
         }
         elseif($onlyErrors)
         {
-            $messages[] =  \adminer\lang('%d query(s) executed OK.', $commands - \count($errors));
-            // $timestamps[] = \adminer\format_time($total_start);
+            $messages[] =  $this->adminer->lang('%d query(s) executed OK.', $commands - \count($errors));
+            // $timestamps[] = $this->adminer->format_time($total_start);
         }
         // elseif($errors && $commands > 1)
         // {
-        //     $errors[] = \adminer\lang('Error in query') . ": " . \implode("", $errors);
+        //     $errors[] = $this->adminer->lang('Error in query') . ": " . \implode("", $errors);
 		// }
 		//! MS SQL - SET SHOWPLAN_ALL OFF
 

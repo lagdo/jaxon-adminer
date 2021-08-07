@@ -25,7 +25,12 @@ trait DatabaseTrait
      */
     protected function database(array $options)
     {
-        return $this->databaseProxy ?: ($this->databaseProxy = new DatabaseProxy($options));
+        if(!$this->databaseProxy)
+        {
+            $this->databaseProxy = new DatabaseProxy($options);
+            $this->databaseProxy->init($this);
+        }
+        return $this->databaseProxy;
     }
 
     /**
@@ -58,7 +63,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Tables')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Tables')]);
 
         return $this->database($options)->getTables();
     }
@@ -76,7 +81,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Views')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Views')]);
 
         return $this->database($options)->getViews();
     }
@@ -94,7 +99,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Routines')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Routines')]);
 
         return $this->database($options)->getRoutines();
     }
@@ -112,7 +117,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Sequences')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Sequences')]);
 
         return $this->database($options)->getSequences();
     }
@@ -130,7 +135,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('User types')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('User types')]);
 
         return $this->database($options)->getUserTypes();
     }
@@ -148,7 +153,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, \adminer\lang('Events')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Events')]);
 
         return $this->database($options)->getEvents();
     }
