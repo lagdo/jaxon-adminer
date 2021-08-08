@@ -26,6 +26,11 @@ class Adminer implements AdminerInterface
     public $credentials;
 
     /**
+     * @var Input
+     */
+    public $input;
+
+    /**
      * The constructor
      *
      * @param string $vendor
@@ -33,6 +38,7 @@ class Adminer implements AdminerInterface
      */
     public function __construct(array $credentials, $vendor)
     {
+        $this->input = new Input();
         $this->credentials = $credentials;
         $this->connect($this, $vendor);
     }
@@ -45,6 +51,14 @@ class Adminer implements AdminerInterface
     public function version()
     {
         return "4.8.1-dev";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function input()
+    {
+        return $this->input;
     }
 
     /**
