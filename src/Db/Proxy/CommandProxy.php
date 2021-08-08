@@ -169,7 +169,7 @@ class CommandProxy extends AbstractProxy
             { // 63 - binary
                 $blobs[$j] = true;
             }
-            $types[$j] = $field->type;
+            $types[$j] = $field->type ?? ''; // Some drivers don't set the type field.
             $headers[] = $this->adminer->h($name);
         }
 
