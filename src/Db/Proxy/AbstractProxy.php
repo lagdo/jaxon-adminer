@@ -1,16 +1,18 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Lagdo\Adminer\Drivers\AdminerInterface;
 use Lagdo\Adminer\Drivers\ServerInterface;
 use Lagdo\Adminer\Drivers\DriverInterface;
 use Lagdo\Adminer\Drivers\ConnectionInterface;
 
+use Lagdo\Adminer\Db\Proxy;
+
 /**
- * Proxy to calls to the Adminer functions
+ * Common attributes for all proxies
  */
-trait ProxyTrait
+class AbstractProxy
 {
     /**
      * @var AdminerInterface
@@ -33,7 +35,7 @@ trait ProxyTrait
     public $connection = null;
 
     /**
-     * Initialise the proxy
+     * Initialize the proxy
      *
      * @param Proxy $proxy
      *

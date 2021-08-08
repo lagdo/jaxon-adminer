@@ -1,16 +1,14 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
 /**
  * Proxy to calls to the Adminer functions
  */
-class TableProxy
+class TableProxy extends AbstractProxy
 {
-    use ProxyTrait;
-
     /**
      * The current table status
      *
@@ -494,6 +492,7 @@ class TableProxy
         ];
 
         $foreign_keys = $this->foreign_keys;
+        $unsigned = $this->server->unsigned;
         // Give the var a better name
         $table = $status;
         return \compact('main_actions', 'table', 'foreign_keys', 'fields',

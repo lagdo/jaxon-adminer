@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
@@ -28,8 +28,9 @@ trait CommandTrait
     {
         if(!$this->commandProxy)
         {
-            $this->commandProxy = new CommandProxy($database, $schema);
+            $this->commandProxy = new CommandProxy();
             $this->commandProxy->init($this);
+            $this->commandProxy->connect($database, $schema);
         }
         return $this->commandProxy;
     }

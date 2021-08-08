@@ -1,16 +1,14 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
 /**
  * Proxy to calls to the Adminer functions
  */
-class ServerProxy
+class ServerProxy extends AbstractProxy
 {
-    use ProxyTrait;
-
     /**
      * The final database list
      *

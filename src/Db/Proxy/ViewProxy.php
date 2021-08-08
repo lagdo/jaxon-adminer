@@ -1,16 +1,14 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
 /**
  * Proxy to calls to the Adminer functions
  */
-class ViewProxy
+class ViewProxy extends AbstractProxy
 {
-    use ProxyTrait;
-
     /**
      * The current table status
      *

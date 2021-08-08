@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
@@ -9,8 +9,6 @@ use Exception;
  */
 class ImportProxy extends CommandProxy
 {
-    use ProxyTrait;
-
     /**
      * Get data for import
      *

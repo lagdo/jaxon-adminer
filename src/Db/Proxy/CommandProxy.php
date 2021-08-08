@@ -1,31 +1,33 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
+
+use Lagdo\Adminer\Drivers\ConnectionInterface;
 
 use Exception;
 
 /**
  * Proxy to calls to the Adminer functions
  */
-class CommandProxy
+class CommandProxy extends AbstractProxy
 {
-    use ProxyTrait;
-
     /**
      * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
      * //! PDO - silent error
      *
-     * @var Lagdo\Adminer\Drivers\ConnectionInterface
+     * @var ConnectionInterface
      */
     protected $connection2 = null;
 
     /**
-     * The constructor
+     * Open a second connection to the server
      *
      * @param string $database      The database name
      * @param string $schema        The database schema
+     *
+     * @return void
      */
-    public function __construct(string $database = '', string $schema = '')
+    public function connect(string $database = '', string $schema = '')
     {
         if($database != '')
         {
@@ -267,6 +269,7 @@ class CommandProxy
             $empty = false;
             $q = \substr($queries, 0, $pos);
             $commands++;
+            jaxon()->logger()->debug('************** Query', compact('q', 'commands'));
             // $print = "<pre id='sql-$commands'><code class='jush-$this->server->jush'>" .
             //     $adminer->sqlCommandQuery($q) . "</code></pre>\n";
             if($this->server->jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
@@ -303,6 +306,7 @@ class CommandProxy
                 do
                 {
                     $result = $this->connection->store_result();
+                    jaxon()->logger()->debug('************** Result', compact('result'));
 
                     if($this->connection->error)
                     {

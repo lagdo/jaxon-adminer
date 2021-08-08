@@ -3,6 +3,7 @@
 namespace Lagdo\Adminer\Db;
 
 use Lagdo\Adminer\Package;
+
 use Exception;
 
 global $LANG, $translations;
@@ -13,19 +14,18 @@ include __DIR__ . "/../../adminer/lang/en.inc.php";
 /**
  * Proxy to calls to the Adminer functions
  */
-class Proxy
+class Proxy extends Proxy\AbstractProxy
 {
-    use ProxyTrait;
-    use ServerTrait;
-    use UserTrait;
-    use DatabaseTrait;
-    use TableTrait;
-    use TableSelectTrait;
-    use TableQueryTrait;
-    use ViewTrait;
-    use CommandTrait;
-    use ExportTrait;
-    use ImportTrait;
+    use Proxy\ServerTrait;
+    use Proxy\UserTrait;
+    use Proxy\DatabaseTrait;
+    use Proxy\TableTrait;
+    use Proxy\TableSelectTrait;
+    use Proxy\TableQueryTrait;
+    use Proxy\ViewTrait;
+    use Proxy\CommandTrait;
+    use Proxy\ExportTrait;
+    use Proxy\ImportTrait;
 
     /**
      * The breadcrumbs items

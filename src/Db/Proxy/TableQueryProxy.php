@@ -1,16 +1,14 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
 /**
  * Proxy to calls to the Adminer functions
  */
-class TableQueryProxy
+class TableQueryProxy extends AbstractProxy
 {
-    use ProxyTrait;
-
     /**
      * Get data for an input field
      */

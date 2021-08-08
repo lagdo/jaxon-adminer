@@ -1,16 +1,14 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\Adminer\Db\Proxy;
 
 use Exception;
 
 /**
  * Proxy to calls to the Adminer functions
  */
-class TableSelectProxy
+class TableSelectProxy extends AbstractProxy
 {
-    use ProxyTrait;
-
     /**
      * Print columns box in select
      * @param array result of selectColumnsProcess()[0]
@@ -47,7 +45,7 @@ class TableSelectProxy
             'values' => (array)$_GET["where"],
             'columns' => $columns,
             'indexes' => $indexes,
-            'operators' => $this->adminer->operators,
+            'operators' => $this->server->operators,
             'fulltexts' => $fulltexts,
         ];
     }
