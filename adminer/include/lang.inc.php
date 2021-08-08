@@ -57,6 +57,16 @@ function get_lang() {
     return $LANG;
 }
 
+/** Format decimal number
+* @param int
+* @return string
+*/
+function format_number($val)
+{
+    return strtr(number_format($val, 0, ".", lang(',')),
+        preg_split('~~u', lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
+}
+
 /** Translate string
 * @param string
 * @param int

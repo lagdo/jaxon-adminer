@@ -2,11 +2,19 @@
 
 namespace Lagdo\Adminer\Db;
 
+global $LANG, $translations;
+
+include __DIR__ . '/../../adminer/include/lang.inc.php';
+include __DIR__ . "/../../adminer/lang/en.inc.php";
+
 use Lagdo\Adminer\Drivers\AdminerTrait;
 use Lagdo\Adminer\Drivers\AdminerInterface;
 use Lagdo\Adminer\Drivers\ServerInterface;
 use Lagdo\Adminer\Drivers\DriverInterface;
 use Lagdo\Adminer\Drivers\ConnectionInterface;
+
+use function adminer\lang;
+use function adminer\format_number;
 
 class Adminer implements AdminerInterface
 {
@@ -179,6 +187,19 @@ class Adminer implements AdminerInterface
     }
 
     /**
+     * Create repeat pattern for preg
+     * @param string
+     * @param int
+     * @return string
+     */
+    public function repeat_pattern($pattern, $length)
+    {
+        // fix for Compilation failed: number too big in {} quantifier
+        // can create {0,0} which is OK
+        return str_repeat("$pattern{0,65535}", $length / 65535) . "$pattern{0," . ($length % 65535) . "}";
+    }
+
+    /**
      * @inheritDoc
      */
     public function is_utf8($val)
@@ -291,12 +312,12 @@ class Adminer implements AdminerInterface
      */
     public function shorten_utf8($string, $length = 80, $suffix = "")
     {
-        if (!preg_match("(^(" . repeat_pattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match))
+        if (!preg_match("(^(" . $this->repeat_pattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match))
         {
             // ~s causes trash in $match[2] under some PHP versions, (.|\n) is slow
-            preg_match("(^(" . repeat_pattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
+            preg_match("(^(" . $this->repeat_pattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
         }
-        return h($match[1]) . $suffix . (isset($match[2]) ? "" : "<i>…</i>");
+        return $this->h($match[1]) . $suffix . (isset($match[2]) ? "" : "<i>…</i>");
     }
 
     /**
@@ -340,8 +361,7 @@ class Adminer implements AdminerInterface
      */
     public function format_number($val)
     {
-        return strtr(number_format($val, 0, ".", $this->lang(',')),
-            preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
+        return format_number($val);
     }
 
     /**
@@ -645,7 +665,7 @@ class Adminer implements AdminerInterface
                 // LIKE because of floats but slow with ints
                 . ($this->server->jush == "sql" && is_numeric($val) && preg_match('~\.~', $val) ? " LIKE " . $this->server->q($val)
                     : ($this->server->jush == "mssql" ? " LIKE " . $this->server->q(preg_replace('~[_%[]~', '[\0]', $val)) // LIKE because of text
-                    : " = " . $this->unconvert_field($fields[$key], $this->server->q($val))
+                    : " = " . $this->server->unconvert_field($fields[$key], $this->server->q($val))
                 ))
             ; //! enum and set
             if ($this->server->jush == "sql" && preg_match('~char|text~', $fields[$key]["type"]) && preg_match("~[^ -@]~", $val))

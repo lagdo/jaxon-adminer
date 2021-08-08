@@ -6,11 +6,6 @@ use Lagdo\Adminer\Package;
 
 use Exception;
 
-global $LANG, $translations;
-
-include __DIR__ . '/../../adminer/include/lang.inc.php';
-include __DIR__ . "/../../adminer/lang/en.inc.php";
-
 /**
  * Proxy to calls to the Adminer functions
  */
