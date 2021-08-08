@@ -2,7 +2,7 @@
 
 namespace Lagdo\Adminer\Ajax\Table;
 
-use Lagdo\Adminer\AdminerCallable;
+use Lagdo\Adminer\CallableClass;
 
 use Exception;
 
@@ -11,7 +11,7 @@ use Exception;
  * provides CRUD features on table columns.
  * It does not persist data. It only updates the UI.
  */
-class Column extends AdminerCallable
+class Column extends CallableClass
 {
     /**
      * The form id

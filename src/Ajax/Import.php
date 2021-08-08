@@ -2,14 +2,14 @@
 
 namespace Lagdo\Adminer\Ajax;
 
-use Lagdo\Adminer\AdminerCallable;
+use Lagdo\Adminer\CallableClass;
 
 use Exception;
 
 /**
  * Adminer Ajax client
  */
-class Import extends AdminerCallable
+class Import extends CallableClass
 {
     /**
      * Display the SQL command form

@@ -4,14 +4,14 @@ namespace Lagdo\Adminer\Ajax\Table;
 
 use Lagdo\Adminer\Ajax\Table;
 use Lagdo\Adminer\Ajax\Command;
-use Lagdo\Adminer\AdminerCallable;
+use Lagdo\Adminer\CallableClass;
 
 use Exception;
 
 /**
  * This class provides select query features on tables.
  */
-class Select extends AdminerCallable
+class Select extends CallableClass
 {
     /**
      * The select form div id

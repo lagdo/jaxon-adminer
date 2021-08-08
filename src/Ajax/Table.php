@@ -5,14 +5,14 @@ namespace Lagdo\Adminer\Ajax;
 use Lagdo\Adminer\Ajax\Table\Column;
 use Lagdo\Adminer\Ajax\Table\Select;
 use Lagdo\Adminer\Ajax\Table\Query;
-use Lagdo\Adminer\AdminerCallable;
+use Lagdo\Adminer\CallableClass;
 
 use Exception;
 
 /**
  * Adminer Ajax client
  */
-class Table extends AdminerCallable
+class Table extends CallableClass
 {
     /**
      * The form id

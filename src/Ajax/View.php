@@ -2,14 +2,14 @@
 
 namespace Lagdo\Adminer\Ajax;
 
-use Lagdo\Adminer\AdminerCallable;
+use Lagdo\Adminer\CallableClass;
 
 use Exception;
 
 /**
  * Adminer Ajax client
  */
-class View extends AdminerCallable
+class View extends CallableClass
 {
     /**
      * Display the content of a tab

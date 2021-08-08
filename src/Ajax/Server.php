@@ -2,14 +2,14 @@
 
 namespace Lagdo\Adminer\Ajax;
 
-use Lagdo\Adminer\AdminerCallable;
+use Lagdo\Adminer\CallableClass;
 
 use Exception;
 
 /**
  * Adminer Ajax
  */
-class Server extends AdminerCallable
+class Server extends CallableClass
 {
     /**
      * Connect to a db server.

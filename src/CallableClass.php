@@ -2,13 +2,13 @@
 
 namespace Lagdo\Adminer;
 
-use Jaxon\CallableClass;
+use Jaxon\CallableClass as JaxonCallableClass;
 use Jaxon\Utils\View\Store;
 
 /**
  * Callable base class
  */
-class AdminerCallable extends CallableClass
+class CallableClass extends JaxonCallableClass
 {
     /**
      * The Jaxon Adminer package
