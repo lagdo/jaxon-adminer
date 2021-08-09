@@ -225,14 +225,6 @@ class Adminer implements AdminerInterface
     /**
      * @inheritDoc
      */
-    public function escape_string($val)
-    {
-        return substr($this->server->q($val), 1, -1);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function number($val)
     {
         return preg_replace('~[^0-9]+~', '', $val);
