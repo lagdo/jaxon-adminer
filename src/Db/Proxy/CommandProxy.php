@@ -269,7 +269,6 @@ class CommandProxy extends AbstractProxy
             $empty = false;
             $q = \substr($queries, 0, $pos);
             $commands++;
-            jaxon()->logger()->debug('************** Query', compact('q', 'commands'));
             // $print = "<pre id='sql-$commands'><code class='jush-$this->server->jush'>" .
             //     $adminer->sqlCommandQuery($q) . "</code></pre>\n";
             if($this->server->jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
@@ -306,7 +305,6 @@ class CommandProxy extends AbstractProxy
                 do
                 {
                     $result = $this->connection->store_result();
-                    jaxon()->logger()->debug('************** Result', compact('result'));
 
                     if($this->connection->error)
                     {
