@@ -532,10 +532,12 @@ function tar_file($filename, $tmp_file) {
 */
 function ini_bytes($ini) {
     $val = ini_get($ini);
-    switch (strtolower(substr($val, -1))) {
-        case 'g': $val *= 1024; // no break
-        case 'm': $val *= 1024; // no break
-        case 'k': $val *= 1024;
+    $unit = strtolower(substr($val, -1)); // Get the last char
+    $ival = intval(substr($val, 0, - 1)); // Remove the last char
+    switch ($unit) {
+        case 'g': $val = $ival * 1024 * 1024 * 1024; break;
+        case 'm': $val = $ival * 1024 * 1024; break;
+        case 'k': $val = $ival * 1024; break;
     }
     return $val;
 }
