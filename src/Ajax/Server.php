@@ -23,10 +23,7 @@ class Server extends CallableClass
     {
         $serverInfo = $this->dbProxy->getServerInfo($server);
         // Make server info available to views
-        foreach($serverInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($serverInfo);
 
         $content = $this->render('info/user');
         $this->response->html($this->package->getUserInfoId(), $content);
@@ -144,10 +141,7 @@ class Server extends CallableClass
         }, $databasesInfo['details']);
 
         // Make databases info available to views
-        foreach($databasesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($databasesInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -221,10 +215,7 @@ class Server extends CallableClass
         }, $privilegesInfo['details']);
 
         // Make privileges info available to views
-        foreach($privilegesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($privilegesInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -267,10 +258,7 @@ class Server extends CallableClass
 
         $processesInfo = $this->dbProxy->getProcesses($server);
         // Make processes info available to views
-        foreach($processesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($processesInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -302,10 +290,7 @@ class Server extends CallableClass
 
         $variablesInfo = $this->dbProxy->getVariables($server);
         // Make variables info available to views
-        foreach($variablesInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($variablesInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -337,10 +322,7 @@ class Server extends CallableClass
 
         $statusInfo = $this->dbProxy->getStatus($server);
         // Make status info available to views
-        foreach($statusInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($statusInfo);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();

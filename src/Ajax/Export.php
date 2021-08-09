@@ -24,10 +24,7 @@ class Export extends CallableClass
         $exportOptions = $this->dbProxy->getExportOptions($server, $database);
 
         // Make data available to views
-        foreach($exportOptions as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($exportOptions);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();

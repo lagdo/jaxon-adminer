@@ -24,10 +24,7 @@ class Import extends CallableClass
         $importOptions = $this->dbProxy->getImportOptions($server, $database);
 
         // Make data available to views
-        foreach($importOptions as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($importOptions);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();

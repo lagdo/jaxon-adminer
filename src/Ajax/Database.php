@@ -171,10 +171,7 @@ class Database extends CallableClass
     protected function showSection(string $menuId, array $viewData, array $contentData = [])
     {
         // Make data available to views
-        foreach($viewData as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($viewData);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();

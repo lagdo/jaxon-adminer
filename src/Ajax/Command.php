@@ -27,10 +27,7 @@ class Command extends CallableClass
         $commandOptions = $this->dbProxy->prepareCommand($server, $database, $schema);
 
         // Make data available to views
-        foreach($commandOptions as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($commandOptions);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();

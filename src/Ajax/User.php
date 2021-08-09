@@ -23,10 +23,7 @@ class User extends CallableClass
         $userInfo = $this->dbProxy->newUserPrivileges($server);
 
         // Make user info available to views
-        foreach($userInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($userInfo);
 
         $formId = 'user-form';
         $title = 'Add user privileges';
@@ -84,10 +81,7 @@ class User extends CallableClass
         $userInfo = $this->dbProxy->getUserPrivileges($server, $username, $hostname, $database);
 
         // Make user info available to views
-        foreach($userInfo as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($userInfo);
 
         $formId = 'user-form';
         $title = 'Edit user privileges';
