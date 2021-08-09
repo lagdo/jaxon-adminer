@@ -1,6 +1,7 @@
 <?php
 namespace adminer;
 use MySQLi;
+use PDO;
 
 $drivers = array("server" => "MySQL") + $drivers;
 

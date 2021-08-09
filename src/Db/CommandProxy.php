@@ -172,7 +172,7 @@ class CommandProxy
             { // 63 - binary
                 $blobs[$j] = true;
             }
-            $types[$j] = $field->type;
+            $types[$j] = $field->type ?? ''; // Some drivers don't set the type field.
             $headers[] = \adminer\h($name);
             // $header = [
             //     'text' => \adminer\h($name),
