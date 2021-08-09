@@ -1,5 +1,7 @@
 <?php
 namespace adminer;
+
+use PDO;
 use PDOStatement;
 
 // PDO can be used in several database drivers
