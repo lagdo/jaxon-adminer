@@ -171,10 +171,7 @@ class Database extends CallableClass
     protected function showSection(string $menuId, array $viewData, array $contentData = [])
     {
         // Make data available to views
-        foreach($viewData as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($viewData);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
@@ -183,8 +180,7 @@ class Database extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq(".menu-action-$menuId", '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem(".menu-action-$menuId", $this->package->getDbMenuId());
     }
 
     /**

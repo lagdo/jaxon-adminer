@@ -24,16 +24,16 @@ class Export extends CallableClass
         $exportOptions = $this->dbProxy->getExportOptions($server, $database);
 
         // Make data available to views
-        foreach($exportOptions as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($exportOptions);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
         // De-activate the sidebar menu items
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $menuId = $database === '' ? 'server' : 'database';
+        $wrapperId = $database === '' ?
+            $this->package->getServerActionsId() : $this->package->getDbActionsId();
+        $this->selectMenuItem("#adminer-menu-action-$menuId-export", $wrapperId);
 
         $btnId = 'adminer-main-export-submit';
         $formId = 'adminer-main-export-form';

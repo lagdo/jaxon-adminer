@@ -24,16 +24,16 @@ class Import extends CallableClass
         $importOptions = $this->dbProxy->getImportOptions($server, $database);
 
         // Make data available to views
-        foreach($importOptions as $name => $value)
-        {
-            $this->view()->share($name, $value);
-        }
+        $this->view()->shareValues($importOptions);
 
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
         // De-activate the sidebar menu items
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $menuId = $database === '' ? 'server' : 'database';
+        $wrapperId = $database === '' ?
+            $this->package->getServerActionsId() : $this->package->getDbActionsId();
+        $this->selectMenuItem("#adminer-menu-action-$menuId-import", $wrapperId);
 
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';
