@@ -180,8 +180,7 @@ class Database extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq(".menu-action-$menuId", '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem(".menu-action-$menuId", $this->package->getDbMenuId());
     }
 
     /**

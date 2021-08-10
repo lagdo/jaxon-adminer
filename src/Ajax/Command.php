@@ -33,7 +33,10 @@ class Command extends CallableClass
         $this->showBreadcrumbs();
 
         // De-activate the sidebar menu items
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
+        $menuId = $database === '' ? 'server' : 'database';
+        $wrapperId = $database === '' ?
+            $this->package->getServerActionsId() : $this->package->getDbActionsId();
+        $this->selectMenuItem("#adminer-menu-action-$menuId-command", $wrapperId);
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';

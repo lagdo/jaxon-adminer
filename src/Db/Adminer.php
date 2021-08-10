@@ -373,6 +373,14 @@ class Adminer implements AdminerInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function nl_br($string)
+    {
+        return str_replace("\n", "<br>", $string); // nl2br() uses XHTML before PHP 5.3
+    }
+
+    /**
      * Compute size of database
      * @param string
      * @return string formatted

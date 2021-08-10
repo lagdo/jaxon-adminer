@@ -170,8 +170,7 @@ class Server extends CallableClass
             ->confirm("Delete database {1}?", $database));
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-databases', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem('.menu-action-databases', $this->package->getDbMenuId());
 
         return $this->response;
     }
@@ -224,8 +223,7 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-privileges', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem('.menu-action-privileges', $this->package->getDbMenuId());
 
         // Set onclick handlers on database names
         $user = \jq()->parent()->attr('data-user');
@@ -267,8 +265,7 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-processes', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem('.menu-action-processes', $this->package->getDbMenuId());
 
         return $this->response;
     }
@@ -299,8 +296,7 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-variables', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem('.menu-action-variables', $this->package->getDbMenuId());
 
         return $this->response;
     }
@@ -331,8 +327,7 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbContentId(), $content);
 
         // Activate the sidebar menu item
-        $this->jq('.list-group-item', '#'. $this->package->getDbMenuId())->removeClass('active');
-        $this->jq('.menu-action-status', '#'. $this->package->getDbMenuId())->addClass('active');
+        $this->selectMenuItem('.menu-action-status', $this->package->getDbMenuId());
 
         return $this->response;
     }
