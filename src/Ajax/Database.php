@@ -93,10 +93,11 @@ class Database extends CallableClass
      *
      * @param string $server      The database server
      * @param string $database    The database name
+     * @param string $schema      The database schema
      *
      * @return \Jaxon\Response\Response
      */
-    public function select($server, $database)
+    public function select($server, $database, $schema = '')
     {
         $databaseInfo = $this->dbProxy->getDatabaseInfo($server, $database);
         // Make database info available to views
@@ -105,25 +106,24 @@ class Database extends CallableClass
         // Update the breadcrumbs
         $this->showBreadcrumbs();
 
-        $content = $this->render('menu/commands');
-        $this->response->html($this->package->getServerActionsId(), '');
-        $this->response->html($this->package->getDbActionsId(), $content);
+        // Set the selected entry on database dropdown select
+        $this->jq('#adminer-dbname-select')->val($database)->change();
 
         $schemas = $databaseInfo['schemas'];
-        $schema = '';
-        if($schemas)
+        if(is_array($schemas) && count($schemas) > 0 && !$schema)
         {
-            $schema = \pm()->select('adminer-schema-select');
-            // Todo: insert schema list in menu
+            $schema = $schemas[0]; // Select the first schema
+
             $content = $this->render('menu/schemas');
             $this->response->html($this->package->getSchemaListId(), $content);
-            $this->response->assign($this->package->getSchemaListId(), 'style.visibility', 'visible');
-            $this->response->assign($this->package->getSchemaListId(), 'style.display', 'flex');
+            // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'block');
+
+            $this->jq('#adminer-schema-select-btn')
+                ->click($this->rq()->select($server, $database, \pm()->select('adminer-schema-select')));
         }
-        else
-        {
-            $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
-        }
+
+        $content = $this->render('menu/commands');
+        $this->response->html($this->package->getDbActionsId(), $content);
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-database-command')
@@ -149,11 +149,8 @@ class Database extends CallableClass
             ->click($this->rq()->showUserTypes($server, $database, $schema));
         $this->jq('#adminer-menu-action-event')
             ->click($this->rq()->showEvents($server, $database, $schema));
-        // Set the selected entry on database dropdown select
-        $this->jq('#adminer-dbname-select')->val($database)->change();
 
         // Show the database tables
-        $schema = $schemas ? $schemas[0] : '';
         $this->showTables($server, $database, $schema);
 
         return $this->response;
