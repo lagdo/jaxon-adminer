@@ -42,7 +42,8 @@ if (isset($_GET["pgsql"])) {
             }
 
             function value($val, $field) {
-                return ($field["type"] == "bytea" && $val !== null ? pg_unescape_bytea($val) : $val);
+                $type = $field["type"] ?? '';
+                return ($type == "bytea" && $val !== null ? pg_unescape_bytea($val) : $val);
             }
 
             function quoteBinary($string) {
