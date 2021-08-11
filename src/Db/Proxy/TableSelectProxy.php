@@ -522,7 +522,7 @@ class TableSelectProxy extends AbstractProxy
                 if(isset($names[$key]))
                 {
                     $field = $fields[$key] ?? [];
-                    $val = $this->driver->value($val, $field);
+                    $val = $this->connection->value($val, $field);
                     if($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != ""))
                     {
                         //! filled e-mails can be contained on other pages

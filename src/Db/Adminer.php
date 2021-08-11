@@ -754,6 +754,49 @@ class Adminer implements AdminerInterface
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * @inheritDoc
+     */
+    public function fields_from_edit($primary)
+    {
+        $return = [];
+        foreach ((array) $_POST["field_keys"] as $key => $val) {
+            if ($val != "") {
+                $val = bracket_escape($val);
+                $_POST["function"][$val] = $_POST["field_funs"][$key];
+                $_POST["fields"][$val] = $_POST["field_vals"][$key];
+            }
+        }
+        foreach ((array) $_POST["fields"] as $key => $val) {
+            $name = bracket_escape($key, 1); // 1 - back
+            $return[$name] = array(
+                "field" => $name,
+                "privileges" => array("insert" => 1, "update" => 1),
+                "null" => 1,
+                "auto_increment" => ($key == $primary),
+            );
+        }
+        return $return;
+    }
+
     /** Format value to use in select
     * @param string
     * @param string
