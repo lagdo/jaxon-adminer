@@ -35,13 +35,13 @@ class Server extends CallableClass
         $this->response->html($this->package->getDbListId(), $content);
 
         // Hide schema list
-        $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
+        // $this->response->assign($this->package->getSchemaListId(), 'style.display', 'none');
+        $this->response->clear($this->package->getSchemaListId());
 
         // Set onclick handlers on database dropdown select
         $database = \pm()->select('adminer-dbname-select');
         $this->jq('#adminer-dbname-select-btn')
-            ->click($this->cl(Database::class)->rq()
-                ->select($server, $database)->when($database));
+            ->click($this->cl(Database::class)->rq()->select($server, $database)->when($database));
 
         if($this->checkServerAccess($server, false))
         {
