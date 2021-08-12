@@ -81,6 +81,8 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-md-12" id="adminer-table-select-pagination">
+    </div>
     <div class="col-md-12" id="adminer-table-select-results">
     </div>
 </div>
