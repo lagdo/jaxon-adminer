@@ -23,7 +23,7 @@ class Adminer implements AdminerInterface
     /**
      * @var array
      */
-    public $credentials;
+    public $options;
 
     /**
      * @var Input
@@ -33,18 +33,17 @@ class Adminer implements AdminerInterface
     /**
      * The constructor
      *
-     * @param string $vendor
-     * @param array $credentials
+     * @param array $options
      */
-    public function __construct(array $credentials, $vendor)
+    public function __construct(array $options)
     {
         $this->input = new Input();
-        $this->credentials = $credentials;
-        $this->connect($this, $vendor);
+        $this->options = $options;
+        $this->connect($this, $options['driver']);
     }
 
     /**
-     * get the Adminer version
+     * Get the Adminer version
      *
      * @return string
      */
@@ -72,9 +71,17 @@ class Adminer implements AdminerInterface
     /**
      * @inheritDoc
      */
-    public function credentials()
+    public function getOptions()
     {
-        return $this->credentials;
+        $server = $this->options['host'];
+        $port = $this->options['port'] ?? ''; // Optional
+        // Append the port to the host if it is defined.
+        if(($port))
+        {
+            $server .= ":$port";
+        }
+
+        return [$server, $this->options];
     }
 
     /**

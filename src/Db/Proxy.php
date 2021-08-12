@@ -99,32 +99,17 @@ class Proxy extends Proxy\AbstractProxy
         // Prevent multiple calls.
         if(($this->adminer))
         {
-            // From adminer.inc.php
             $this->select($database, $schema);
             return $options;
         }
 
-        $host = $options['host'];
-        $port = $options['port'] ?? ''; // Optional
-        $username = $options["username"];
-        $password = $options["password"];
-        $driver = $options['driver'];
-
-        // Append the port to the host if it is defined.
-        if(($port))
-        {
-            $host .= ":$port";
-        }
-
         // The Adminer constructor connects to the database.
-        $this->adminer = new Adminer([$host, $username, $password], $driver);
+        $this->adminer = new Adminer($options);
         $this->server = $this->adminer->server;
         $this->connection = $this->adminer->connection;
         $this->driver = $this->adminer->driver;
 
-        // From adminer.inc.php
         $this->select($database, $schema);
-
         return $options;
     }
 
