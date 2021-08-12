@@ -216,7 +216,10 @@ class TableSelectProxy extends AbstractProxy
         $_GET['fulltext'] = $queryOptions['fulltext'] ?? [];
         $_GET['limit'] = $queryOptions['limit'] ?? '50';
         $_GET['text_length'] = $queryOptions['text_length'] ?? '100';
-        $page = $queryOptions['page'] ?? 0;
+        $page = \intval($queryOptions['page'] ?? 1);
+        if ($page > 0) {
+            $page -= 1; // Page numbers start at 0 here, instead of 1.
+        }
         $_GET['page'] = $page;
 
         // From select.inc.php
@@ -307,11 +310,11 @@ class TableSelectProxy extends AbstractProxy
                 ($fields ? "." : ": " . $this->server->error()));
         }
 
-        if($page == "last")
-        {
-            $found_rows = $this->connection->result($this->adminer->count_rows($table, $where, $is_group, $group));
-            $page = \floor(\max(0, $found_rows - 1) / $limit);
-        }
+        // if($page == "last")
+        // {
+        //     $found_rows = $this->connection->result($this->adminer->count_rows($table, $where, $is_group, $group));
+        //     $page = \floor(\max(0, $found_rows - 1) / $limit);
+        // }
 
         $options = [
             'columns' => $this->getColumnsOptions($select, $columns),
@@ -359,7 +362,8 @@ class TableSelectProxy extends AbstractProxy
         // $query = ob_get_clean();
 		$query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
-        return [$table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page, $text_length, $options, $query];
+        return [$table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes,
+            $where, $order, $limit, $page, $text_length, $options, $query, $is_group];
     }
 
     /**
@@ -372,8 +376,8 @@ class TableSelectProxy extends AbstractProxy
      */
     public function getSelectData(string $table, array $queryOptions = [])
     {
-        list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
-            $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
+        list($table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes, $where, $order,
+            $limit, $page, $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
         $query = $this->adminer->h($query);
 
         $main_actions = [
@@ -394,8 +398,8 @@ class TableSelectProxy extends AbstractProxy
      */
     public function execSelect(string $table, array $queryOptions)
     {
-        list($table_name, $select, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
-            $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
+        list($table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
+            $text_length, $options, $query, $is_group) = $this->prepareSelect($table, $queryOptions);
 
         $error = null;
         // From driver.inc.php
@@ -540,7 +544,9 @@ class TableSelectProxy extends AbstractProxy
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
+        $total = $this->connection->result($this->adminer->count_rows($table, $where, $is_group, $group));
+
         $rows = $results;
-        return \compact('duration', 'headers', 'rows', 'error');
+        return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
     }
 }

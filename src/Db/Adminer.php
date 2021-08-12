@@ -1274,7 +1274,7 @@ class Adminer implements AdminerInterface
         $return = array();
         foreach ((array) $_GET["order"] as $key => $val) {
             if ($val != "") {
-                $return[] = (preg_match('~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~', $val) ? $val : idf_escape($val)) //! MS SQL uses []
+                $return[] = (preg_match('~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~', $val) ? $val : $this->server->idf_escape($val)) //! MS SQL uses []
                     . (isset($_GET["desc"][$key]) ? " DESC" : "")
                 ;
             }

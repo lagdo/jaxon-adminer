@@ -100,4 +100,7 @@
     white-space: -o-pre-wrap;
     word-wrap: break-word;
 }
+#<?php echo $this->containerId ?> ul.pagination {
+    margin: 0;
+}
 </style>

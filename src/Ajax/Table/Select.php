@@ -119,12 +119,14 @@ class Select extends CallableClass
      * @param string $schema      The schema name
      * @param string $table       The table name
      * @param array  $options     The query options
+     * @param integer $page       The page number
      *
      * @return \Jaxon\Response\Response
      */
     public function execSelect(string $server, string $database, string $schema,
-        string $table, array $options)
+        string $table, array $options, int $page = 1)
     {
+        $options['page'] = $page;
         $results = $this->dbProxy->execSelect($server, $database, $schema, $table, $options);
         // Show the error
         if(($results['error']))
@@ -170,6 +172,14 @@ class Select extends CallableClass
             ->click(\rq()->func('updateRowItem', \jq()->parent()->parent()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
             ->click(\rq()->func('deleteRowItem', \jq()->parent()->parent()->attr('data-row-id')));
+
+        // Update the query
+        $this->response->html($this->txtQueryId, $results['query']);
+
+        // Pagination
+        $pagination = $this->rq()->execSelect($server, $database, $schema, $table, $options, \pm()->page())
+            ->paginate($page, $results['limit'], $results['total']);
+        $this->response->html("adminer-table-select-pagination", $pagination);
 
         return $this->response;
     }
