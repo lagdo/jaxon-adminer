@@ -3,6 +3,7 @@
 namespace Lagdo\Adminer\Ajax;
 
 use Lagdo\Adminer\CallableClass;
+use Lagdo\Adminer\Ajax\Table\Select;
 
 use Exception;
 
@@ -193,10 +194,12 @@ class Database extends CallableClass
         $tablesInfo = $this->dbProxy->getTables($server, $database, $schema);
 
         $tableNameClass = 'adminer-table-name';
+        $select = $tablesInfo['select'];
         // Add links, classes and data values to table names.
-        $tablesInfo['details'] = \array_map(function($detail) use($tableNameClass) {
+        $tablesInfo['details'] = \array_map(function($detail) use($tableNameClass, $select) {
             $detail['name'] = [
-                'label' => '<a href="javascript:void(0)">' . $detail['name'] . '</a>',
+                'label' => '<a class="name" href="javascript:void(0)">' . $detail['name'] . '</a>' .
+                    '&nbsp;&nbsp;(<a class="select" href="javascript:void(0)">' . $select . '</a>)',
                 'props' => [
                     'class' => $tableNameClass,
                     'data-name' => $detail['name'],
@@ -216,8 +219,10 @@ class Database extends CallableClass
         $this->response->script("jaxon.adminer.selectTableCheckboxes('$checkbox')");
         // Set onclick handlers on table names
         $table = \jq()->parent()->attr('data-name');
-        $this->jq('.' . $tableNameClass . '>a', '#' . $this->package->getDbContentId())
+        $this->jq('.' . $tableNameClass . '>a.name', '#' . $this->package->getDbContentId())
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
+        $this->jq('.' . $tableNameClass . '>a.select', '#' . $this->package->getDbContentId())
+            ->click($this->cl(Select::class)->rq()->show($server, $database, $schema, $table));
 
         return $this->response;
     }

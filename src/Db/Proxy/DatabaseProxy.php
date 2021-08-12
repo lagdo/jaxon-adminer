@@ -164,7 +164,8 @@ class DatabaseProxy
             }
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        $select = \adminer\lang('Select');
+        return \compact('main_actions', 'headers', 'details', 'select');
     }
 
     /**
