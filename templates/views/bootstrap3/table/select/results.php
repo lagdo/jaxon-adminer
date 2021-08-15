@@ -9,8 +9,8 @@
     <tbody>
 <?php $rowId = 0; foreach($this->rows as $row): ?>
         <tr>
-            <th data-row-id="<?php echo $rowId++ ?>">
-                <div class="btn-group" role="group">
+            <th>
+                <div class="btn-group" role="group" data-row-id="<?php echo $rowId++ ?>">
                     <button type="button" class="btn btn-primary btn-sm <?php
                         echo $this->btnEditRowClass ?>"><span class="glyphicon glyphicon-edit"></span></button>
                     <button type="button" class="btn btn-danger btn-sm <?php
