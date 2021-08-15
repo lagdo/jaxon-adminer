@@ -170,9 +170,9 @@ class Select extends CallableClass
 
         // Set the functions as button event handlers
         $this->jq(".$btnEditRowClass", "#$resultsId")
-            ->click(\rq()->func('updateRowItem', \jq()->parent()->parent()->attr('data-row-id')));
+            ->click(\rq()->func('updateRowItem', \jq()->parent()->attr('data-row-id')));
         $this->jq(".$btnDeleteRowClass", "#$resultsId")
-            ->click(\rq()->func('deleteRowItem', \jq()->parent()->parent()->attr('data-row-id')));
+            ->click(\rq()->func('deleteRowItem', \jq()->parent()->attr('data-row-id')));
 
         // Update the query
         $this->response->html($this->txtQueryId, $results['query']);

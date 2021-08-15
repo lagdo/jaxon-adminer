@@ -116,18 +116,18 @@
                         echo \adminer\lang('Default value') ?>">
                 </div>
             </div>
-            <div class="col-md-2 adminer-table-column-buttons second-line" data-index="<?php echo $this->index ?>">
-                <div class="btn-group" role="group">
+            <div class="col-md-2 second-line">
+                <div class="btn-group adminer-table-column-buttons" role="group" data-index="<?php echo $this->index ?>">
 <?php if($this->support['move_col']): ?>
                     <button type="button" class="btn btn-primary btn-sm adminer-table-column-add">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     </button>
-                    <button type="button" class="btn btn-primary btn-sm adminer-table-column-up">
+                    <!-- <button type="button" class="btn btn-primary btn-sm adminer-table-column-up">
                         <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                     </button>
                     <button type="button" class="btn btn-primary btn-sm adminer-table-column-down">
                         <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-                    </button>
+                    </button> -->
 <?php endif ?>
 <?php if($this->support['drop_col']): ?>
                     <button type="button" class="btn btn-primary btn-sm adminer-table-column-del">
