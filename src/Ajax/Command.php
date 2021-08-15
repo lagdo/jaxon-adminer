@@ -12,7 +12,7 @@ use Exception;
 class Command extends CallableClass
 {
     /**
-     * Display the SQL command form
+     * Show the SQL command form
      *
      * @param string $server      The database server
      * @param string $database    The database name
@@ -21,22 +21,15 @@ class Command extends CallableClass
      *
      * @return \Jaxon\Response\Response
      */
-    public function showCommandForm(string $server, string $database = '',
-        string $schema = '', string $query = '')
+    protected function showForm(string $server, string $database, string $schema, string $query)
     {
         $commandOptions = $this->dbProxy->prepareCommand($server, $database, $schema);
 
         // Make data available to views
         $this->view()->shareValues($commandOptions);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        // De-activate the sidebar menu items
-        $menuId = $database === '' ? 'server' : 'database';
-        $wrapperId = $database === '' ?
-            $this->package->getServerActionsId() : $this->package->getDbActionsId();
-        $this->selectMenuItem("#adminer-menu-action-$menuId-command", $wrapperId);
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $btnId = 'adminer-main-command-execute';
         $formId = 'adminer-main-command-form';
@@ -56,6 +49,35 @@ class Command extends CallableClass
                 ->when(\pm()->input($queryId)));
 
         return $this->response;
+    }
+
+    /**
+     * Show the SQL command form for a server
+     *
+     * @param string $server      The database server
+     * @param string $query       The SQL query to display
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showServerForm(string $server, string $query = '')
+    {
+        return $this->showForm($server, '', '', $query);
+    }
+
+    /**
+     * Show the SQL command form for a database
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     * @param string $schema      The schema name
+     * @param string $query       The SQL query to display
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showDatabaseForm(string $server, string $database = '',
+        string $schema = '', string $query = '')
+    {
+        return $this->showForm($server, $database, $schema, $query);
     }
 
     /**

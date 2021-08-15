@@ -12,28 +12,22 @@ use Exception;
 class Export extends CallableClass
 {
     /**
-     * Display the SQL command form
+     * Show the export form
      *
      * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
      */
-    public function showExportForm(string $server, string $database = '')
+    protected function showForm(string $server, string $database)
     {
         $exportOptions = $this->dbProxy->getExportOptions($server, $database);
 
         // Make data available to views
         $this->view()->shareValues($exportOptions);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        // De-activate the sidebar menu items
-        $menuId = $database === '' ? 'server' : 'database';
-        $wrapperId = $database === '' ?
-            $this->package->getServerActionsId() : $this->package->getDbActionsId();
-        $this->selectMenuItem("#adminer-menu-action-$menuId-export", $wrapperId);
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $btnId = 'adminer-main-export-submit';
         $formId = 'adminer-main-export-form';
@@ -66,6 +60,31 @@ class Export extends CallableClass
         $this->jq("#$btnId")
              ->click($this->rq()->exportSet($server, \pm()->form($formId)));
         return $this->response;
+    }
+
+    /**
+     * Show the export form for a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showServerForm(string $server)
+    {
+        return $this->showForm($server, '');
+    }
+
+    /**
+     * Show the export form for a database
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showDatabaseForm(string $server, string $database = '')
+    {
+        return $this->showForm($server, $database);
     }
 
     /**

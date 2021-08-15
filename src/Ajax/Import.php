@@ -12,28 +12,22 @@ use Exception;
 class Import extends CallableClass
 {
     /**
-     * Display the SQL command form
+     * Show the import form
      *
      * @param string $server      The database server
      * @param string $database    The database name
      *
      * @return \Jaxon\Response\Response
      */
-    public function showImportForm(string $server, string $database = '')
+    protected function showForm(string $server, string $database = '')
     {
         $importOptions = $this->dbProxy->getImportOptions($server, $database);
 
         // Make data available to views
         $this->view()->shareValues($importOptions);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
-
-        // De-activate the sidebar menu items
-        $menuId = $database === '' ? 'server' : 'database';
-        $wrapperId = $database === '' ?
-            $this->package->getServerActionsId() : $this->package->getDbActionsId();
-        $this->selectMenuItem("#adminer-menu-action-$menuId-import", $wrapperId);
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $formId = 'adminer-import-form';
         $webFileBtnId = 'adminer-import-web-file-btn';
@@ -52,6 +46,31 @@ class Import extends CallableClass
             ->click($this->rq()->executeSqlFiles($server, $database, \pm()->form($formId)));
 
         return $this->response;
+    }
+
+    /**
+     * Show the import form for a server
+     *
+     * @param string $server      The database server
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showServerForm(string $server)
+    {
+        return $this->showForm($server, '');
+    }
+
+    /**
+     * Show the import form for a database
+     *
+     * @param string $server      The database server
+     * @param string $database    The database name
+     *
+     * @return \Jaxon\Response\Response
+     */
+    public function showDatabaseForm(string $server, string $database = '')
+    {
+        return $this->showForm($server, $database);
     }
 
     /**

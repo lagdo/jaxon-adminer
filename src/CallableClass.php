@@ -2,13 +2,13 @@
 
 namespace Lagdo\Adminer;
 
-use Jaxon\CallableClass as JaxonCallable;
+use Jaxon\CallableClass as JaxonCallableClass;
 use Jaxon\Utils\View\Store;
 
 /**
  * Callable base class
  */
-class CallableClass extends JaxonCallable
+class CallableClass extends JaxonCallableClass
 {
     /**
      * The Jaxon Adminer package
@@ -60,7 +60,6 @@ class CallableClass extends JaxonCallable
             'breadcrumbs' => $this->dbProxy->getBreadcrumbs(),
         ]);
         $this->response->html($this->package->getBreadcrumbsId(), $content);
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
     }
 
     /**

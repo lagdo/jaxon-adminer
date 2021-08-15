@@ -43,8 +43,8 @@ class View extends CallableClass
         // Make view info available to views
         $this->view()->shareValues($viewInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/db-table');
         $this->response->html($this->package->getDbContentId(), $content);

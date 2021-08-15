@@ -41,7 +41,8 @@ class Query extends CallableClass
         // Make data available to views
         $this->view()->shareValues($queryData);
 
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('table/query', [
             'formId' => $this->queryFormId,
@@ -112,7 +113,8 @@ class Query extends CallableClass
         // Make data available to views
         $this->view()->shareValues($queryData);
 
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('table/query', [
             'formId' => $this->queryFormId,

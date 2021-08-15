@@ -64,7 +64,8 @@ class Select extends CallableClass
         // Make data available to views
         $this->view()->shareValues($selectData);
 
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $btnColumnsId = 'adminer-table-select-columns';
         $btnFiltersId = 'adminer-table-select-filters';
@@ -106,7 +107,7 @@ class Select extends CallableClass
             ->click($this->rq()->execSelect($server, $database, $schema, $table, $options));
         $query = \jq('#' . $this->txtQueryId)->text();
         $this->jq("#$btnEditId")
-            ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database, $schema, $query));
+            ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema, $query));
 
         return $this->response;
     }
