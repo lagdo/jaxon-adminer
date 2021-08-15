@@ -56,8 +56,8 @@ class Table extends CallableClass
         // Make table info available to views
         $this->view()->shareValues($tableInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/db-table');
         $this->response->html($this->package->getDbContentId(), $content);
@@ -115,8 +115,8 @@ class Table extends CallableClass
         // Make data available to views
         $this->view()->shareValues($tableData);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $contentId = $this->package->getDbContentId();
         $content = $this->render('table/add', [
@@ -154,8 +154,8 @@ class Table extends CallableClass
         // Make data available to views
         $this->view()->shareValues($tableData);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $contentId = $this->package->getDbContentId();
         $content = $this->render('table/edit', [

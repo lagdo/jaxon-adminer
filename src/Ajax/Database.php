@@ -104,8 +104,8 @@ class Database extends CallableClass
         // Make database info available to views
         $this->view()->shareValues($databaseInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         // Set the selected entry on database dropdown select
         $this->jq('#adminer-dbname-select')->val($database)->change();
@@ -128,11 +128,11 @@ class Database extends CallableClass
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-database-command')
-            ->click($this->cl(Command::class)->rq()->showCommandForm($server, $database, $schema));
+            ->click($this->cl(Command::class)->rq()->showDatabaseForm($server, $database, $schema));
         $this->jq('#adminer-menu-action-database-import')
-            ->click($this->cl(Import::class)->rq()->showImportForm($server, $database));
+            ->click($this->cl(Import::class)->rq()->showDatabaseForm($server, $database));
         $this->jq('#adminer-menu-action-database-export')
-            ->click($this->cl(Export::class)->rq()->showExportForm($server, $database));
+            ->click($this->cl(Export::class)->rq()->showDatabaseForm($server, $database));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
@@ -160,25 +160,21 @@ class Database extends CallableClass
     /**
      * Display the content of a section
      *
-     * @param string $menuId    The menu item id
      * @param array  $viewData  The data to be displayed in the view
      * @param array  $contentData  The data to be displayed in the view
      *
      * @return void
      */
-    protected function showSection(string $menuId, array $viewData, array $contentData = [])
+    protected function showSection(array $viewData, array $contentData = [])
     {
         // Make data available to views
         $this->view()->shareValues($viewData);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/content', $contentData);
         $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->selectMenuItem(".menu-action-$menuId", $this->package->getDbMenuId());
     }
 
     /**
@@ -209,7 +205,7 @@ class Database extends CallableClass
         }, $tablesInfo['details']);
 
         $checkbox = 'table';
-        $this->showSection('table', $tablesInfo, ['checkbox' => $checkbox]);
+        $this->showSection($tablesInfo, ['checkbox' => $checkbox]);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-table')
@@ -253,7 +249,7 @@ class Database extends CallableClass
         }, $viewsInfo['details']);
 
         $checkbox = 'view';
-        $this->showSection('view', $viewsInfo, ['checkbox' => $checkbox]);
+        $this->showSection($viewsInfo, ['checkbox' => $checkbox]);
 
         // Set onclick handlers on toolbar buttons
         $this->jq('#adminer-main-action-add-view')
@@ -280,7 +276,7 @@ class Database extends CallableClass
     public function showRoutines($server, $database, $schema)
     {
         $routinesInfo = $this->dbProxy->getRoutines($server, $database, $schema);
-        $this->showSection('routine', $routinesInfo);
+        $this->showSection($routinesInfo);
 
         return $this->response;
     }
@@ -296,7 +292,7 @@ class Database extends CallableClass
     public function showSequences($server, $database, $schema)
     {
         $sequencesInfo = $this->dbProxy->getSequences($server, $database, $schema);
-        $this->showSection('sequence', $sequencesInfo);
+        $this->showSection($sequencesInfo);
 
         return $this->response;
     }
@@ -312,7 +308,7 @@ class Database extends CallableClass
     public function showUserTypes($server, $database, $schema)
     {
         $userTypesInfo = $this->dbProxy->getUserTypes($server, $database, $schema);
-        $this->showSection('type', $userTypesInfo);
+        $this->showSection($userTypesInfo);
 
         return $this->response;
     }
@@ -328,7 +324,7 @@ class Database extends CallableClass
     public function showEvents($server, $database, $schema)
     {
         $eventsInfo = $this->dbProxy->getEvents($server, $database, $schema);
-        $this->showSection('event', $eventsInfo);
+        $this->showSection($eventsInfo);
 
         return $this->response;
     }

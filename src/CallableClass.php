@@ -60,7 +60,6 @@ class CallableClass extends JaxonCallableClass
             'breadcrumbs' => $this->dbProxy->getBreadcrumbs(),
         ]);
         $this->response->html($this->package->getBreadcrumbsId(), $content);
-        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
     }
 
     /**

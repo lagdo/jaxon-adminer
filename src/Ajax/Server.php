@@ -74,11 +74,11 @@ class Server extends CallableClass
 
         // Set the click handlers
         $this->jq('#adminer-menu-action-server-command')
-            ->click($this->cl(Command::class)->rq()->showCommandForm($server));
+            ->click($this->cl(Command::class)->rq()->showServerForm($server));
         $this->jq('#adminer-menu-action-server-import')
-            ->click($this->cl(Import::class)->rq()->showImportForm($server));
+            ->click($this->cl(Import::class)->rq()->showServerForm($server));
         $this->jq('#adminer-menu-action-server-export')
-            ->click($this->cl(Export::class)->rq()->showExportForm($server));
+            ->click($this->cl(Export::class)->rq()->showServerForm($server));
 
         $content = $this->render('menu/actions');
         $this->response->html($this->package->getDbMenuId(), $content);
@@ -142,8 +142,8 @@ class Server extends CallableClass
         // Make databases info available to views
         $this->view()->shareValues($databasesInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         // Add checkboxes to database table
         $checkbox = 'database';
@@ -167,9 +167,6 @@ class Server extends CallableClass
         $this->jq('.' . $dbDropClass . '>a', '#' . $this->package->getDbContentId())
             ->click($this->cl(Database::class)->rq()->drop($server, $database)
             ->confirm("Delete database {1}?", $database));
-
-        // Activate the sidebar menu item
-        $this->selectMenuItem('.menu-action-databases', $this->package->getDbMenuId());
 
         return $this->response;
     }
@@ -214,14 +211,11 @@ class Server extends CallableClass
         // Make privileges info available to views
         $this->view()->shareValues($privilegesInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->selectMenuItem('.menu-action-privileges', $this->package->getDbMenuId());
 
         // Set onclick handlers on database names
         $user = \jq()->parent()->attr('data-user');
@@ -255,14 +249,11 @@ class Server extends CallableClass
         // Make processes info available to views
         $this->view()->shareValues($processesInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->selectMenuItem('.menu-action-processes', $this->package->getDbMenuId());
 
         return $this->response;
     }
@@ -285,14 +276,11 @@ class Server extends CallableClass
         // Make variables info available to views
         $this->view()->shareValues($variablesInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->selectMenuItem('.menu-action-variables', $this->package->getDbMenuId());
 
         return $this->response;
     }
@@ -315,14 +303,11 @@ class Server extends CallableClass
         // Make status info available to views
         $this->view()->shareValues($statusInfo);
 
-        // Update the breadcrumbs
-        $this->showBreadcrumbs();
+        // Set main menu buttons
+        $this->response->html($this->package->getMainActionsId(), $this->render('main/actions'));
 
         $content = $this->render('main/content');
         $this->response->html($this->package->getDbContentId(), $content);
-
-        // Activate the sidebar menu item
-        $this->selectMenuItem('.menu-action-status', $this->package->getDbMenuId());
 
         return $this->response;
     }
