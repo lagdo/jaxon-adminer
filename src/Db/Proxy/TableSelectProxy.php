@@ -500,11 +500,13 @@ class TableSelectProxy extends AbstractProxy
             foreach($unique_array as $key => $val)
             {
                 $key = \trim($key);
+                $type = $fields[$key]["type"] ?? '';
+                $collation = $fields[$key]["collation"] ?? '';
                 if(($this->server->jush == "sql" || $this->server->jush == "pgsql") &&
-                    \preg_match('~char|text|enum|set~', $fields[$key]["type"]) && strlen($val) > 64)
+                    \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64)
                 {
                     $key = (\strpos($key, '(') ? $key : $this->server->idf_escape($key)); //! columns looking like functions
-                    $key = "MD5(" . ($this->server->jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
+                    $key = "MD5(" . ($this->server->jush != 'sql' || \preg_match("~^utf8~", $collation) ?
                         $key : "CONVERT($key USING " . $this->server->charset() . ")") . ")";
                     $val = \md5($val);
                 }
