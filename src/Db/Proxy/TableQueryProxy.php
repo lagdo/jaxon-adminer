@@ -337,7 +337,7 @@ class TableQueryProxy
                 }
                 $function = ($queryOptions["save"]
                     ? (string) $_POST["function"][$name]
-                    : ($update && \preg_match('~^CURRENT_TIMESTAMP~i', $field["on_update"])
+                    : ($update && \preg_match('~^CURRENT_TIMESTAMP~i', $field["on_update"] ?? false)
                         ? "now"
                         : ($value === false ? null : ($value !== null ? '' : 'NULL'))
                     )

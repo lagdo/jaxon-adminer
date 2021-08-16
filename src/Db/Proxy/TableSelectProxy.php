@@ -369,7 +369,7 @@ class TableSelectProxy
 		$query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
         return [$table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes,
-            $where, $order, $limit, $page, $text_length, $options, $query, $is_group];
+            $where, $order, $limit, $page, $text_length, $options, $query, $is_group, $unselected];
     }
 
     /**
@@ -407,7 +407,7 @@ class TableSelectProxy
         global $adminer, $connection, $driver, $jush;
 
         list($table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes, $where, $order, $limit, $page,
-            $text_length, $options, $query, $is_group) = $this->prepareSelect($table, $queryOptions);
+            $text_length, $options, $query, $is_group, $unselected) = $this->prepareSelect($table, $queryOptions);
 
         $error = null;
         // From driver.inc.php
@@ -450,7 +450,7 @@ class TableSelectProxy
             if(!isset($unselected[$key]))
             {
                 $val = $queryOptions["columns"][key($select)] ?? [];
-                $fun = $val["fun"] ?? '';
+                $fun = $val["fun"] ?? null;
                 $field = $fields[$select ? ($val ? $val["col"] : current($select)) : $key];
                 $name = ($field ? $adminer->fieldName($field, $rank) : ($fun ? "*" : $key));
                 $header = \compact('val', 'field', 'name');
@@ -508,11 +508,12 @@ class TableSelectProxy
             foreach($unique_array as $key => $val)
             {
                 $key = \trim($key);
-                if(($jush == "sql" || $jush == "pgsql") &&
-                    \preg_match('~char|text|enum|set~', $fields[$key]["type"]) && strlen($val) > 64)
+                $type = $fields[$key]["type"] ?? '';
+                $collation = $fields[$key]["collation"] ?? '';
+                if(($jush == "sql" || $jush == "pgsql") && \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64)
                 {
                     $key = (\strpos($key, '(') ? $key : \adminer\idf_escape($key)); //! columns looking like functions
-                    $key = "MD5(" . ($jush != 'sql' || \preg_match("~^utf8~", $fields[$key]["collation"]) ?
+                    $key = "MD5(" . ($jush != 'sql' || \preg_match("~^utf8~", $collation) ?
                         $key : "CONVERT($key USING " . \adminer\charset($connection) . ")") . ")";
                     $val = \md5($val);
                 }
@@ -603,7 +604,7 @@ class TableSelectProxy
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $total = $found_rows = $connection->result(\adminer\count_rows($table, $where, $is_group, $group));
+        $total = $connection->result(\adminer\count_rows($table, $where, $is_group, $group));
 
         $rows = $results;
         return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');
