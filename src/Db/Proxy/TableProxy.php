@@ -652,15 +652,17 @@ class TableProxy
         $name = \trim($values['name']);
         $autoIncrement = isset($values['auto_increment']) && $values['auto_increment'] != '' ?
             \adminer\number($values['auto_increment']) : '';
-        $_fields = ($jush == 'sqlite' && ($use_all_fields || $foreign) ? $all_fields : $fields);
+        if($jush == 'sqlite' && ($use_all_fields || $foreign)) {
+            $fields = $all_fields;
+        }
 
         // Save data for auto_increment() function.
         $adminer->table = $table;
-        $adminer->ai['col'] = $autoIncrement;
-        $adminer->ai['step'] = '';
+        $adminer->ai['col'] = $values['auto_increment_col'];
+        $adminer->ai['step'] = $autoIncrement;
         $adminer->ai['fields'] = $values['fields'];
 
-        $success = \adminer\alter_table($table, $name, $_fields, $foreign,
+        $success = \adminer\alter_table($table, $name, $fields, $foreign,
             $comment, $engine, $collation, $autoIncrement, $partitioning);
 
         if(!$error)
