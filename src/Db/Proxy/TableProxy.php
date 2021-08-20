@@ -481,6 +481,9 @@ class TableProxy extends AbstractProxy
             'on_delete' => \explode('|', $this->server->on_actions),
         ];
 
+        // $_GET['create'] = true
+        $this->adminer->input->isCreate = true;
+
         $collations = $this->server->collations();
         $engines = $this->server->engines();
         $support = [
@@ -643,17 +646,12 @@ class TableProxy extends AbstractProxy
         // }
 
         $name = \trim($values['name']);
-        $autoIncrement = isset($values['auto_increment']) && $values['auto_increment'] != '' ?
-            $this->adminer->number($values['auto_increment']) : '';
-        $_fields = ($this->server->jush == 'sqlite' && ($use_all_fields || $foreign) ? $all_fields : $fields);
+        $autoIncrement = $this->adminer->input()->getAutoIncrementStep();
+        if($this->server->jush == 'sqlite' && ($use_all_fields || $foreign)) {
+            $fields = $all_fields;
+        }
 
-        // Save data for auto_increment() function.
-        $this->adminer->table = $table;
-        $this->adminer->ai['col'] = $autoIncrement;
-        $this->adminer->ai['step'] = '';
-        $this->adminer->ai['fields'] = $values['fields'];
-
-        $success = $this->server->alter_table($table, $name, $_fields, $foreign,
+        $success = $this->server->alter_table($table, $name, $fields, $foreign,
             $comment, $engine, $collation, $autoIncrement, $partitioning);
 
         $message = $table == '' ?

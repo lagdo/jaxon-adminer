@@ -7,82 +7,121 @@ use Lagdo\Adminer\Drivers\InputInterface;
 class Input implements InputInterface
 {
     /**
+     * @var string
+     */
+    public $table;
+
+    /**
+     * @var boolean
+     */
+    public $isCreate;
+
+    /**
+     * @var array
+     */
+    public $values = [];
+
+    /**
      * @inheritDoc
      */
-    public function create()
+    public function getTable()
     {
-        // $_GET["create"]
+        return $this->table;
     }
 
     /**
      * @inheritDoc
      */
-    public function trigger()
+    public function getCreate()
     {
-        // $_GET["trigger"]
+        return $this->isCreate;
     }
 
     /**
      * @inheritDoc
      */
-    public function select()
+    public function getSelect()
     {
-        // $_GET["select"]
+        if(!isset($this->values['select'])) {
+            return [];
+        }
+        return $this->values['select'];
     }
 
     /**
      * @inheritDoc
      */
-    public function where()
+    public function getWhere()
     {
-        // $_GET["where"]
+        if(!isset($this->values['where'])) {
+            return [];
+        }
+        return $this->values['where'];
     }
 
     /**
      * @inheritDoc
      */
-    public function limit()
+    public function getLimit()
     {
-        // $_GET["limit"]
+        if(!isset($this->values['limit'])) {
+            return 0;
+        }
+        return $this->values['limit'];
     }
 
     /**
      * @inheritDoc
      */
-    public function fields()
+    public function getFields()
     {
-        // $_POST["fields"]
+        if(!isset($this->values['fields'])) {
+            return [];
+        }
+        return $this->values['fields'];
     }
 
     /**
      * @inheritDoc
      */
-    public function autoIncrementStep()
+    public function getAutoIncrementStep()
     {
-        // $_POST["Auto_increment"], formatted with $this->adminer->number()
+        if(!isset($this->values['auto_increment']) || $this->values['auto_increment'] == '') {
+            return '';
+        }
+        return $this->adminer->number($this->values['auto_increment']);
     }
 
     /**
      * @inheritDoc
      */
-    public function autoIncrementField()
+    public function getAutoIncrementField()
     {
-        // $_POST["auto_increment_col"]
+        if(!isset($this->values['auto_increment_col'])) {
+            return '';
+        }
+        return $this->values['auto_increment_col'];
     }
 
     /**
      * @inheritDoc
      */
-    public function checks()
+    public function getChecks()
     {
-        // $_POST["check"]
+        if(!isset($this->values['checks'])) {
+            return [];
+        }
+        return $this->values['checks'];
     }
 
     /**
      * @inheritDoc
      */
-    public function overwrite()
+    public function getOverwrite()
     {
-        // $_POST["overwrite"]
+        if(!isset($this->values['overwrite'])) {
+            return false;
+        }
+        return $this->values['overwrite'];
     }
 }
