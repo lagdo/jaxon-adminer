@@ -97,17 +97,19 @@ class Proxy extends Proxy\AbstractProxy
     {
         $options = $this->package->getServerOptions($server);
         // Prevent multiple calls.
-        if(($this->adminer))
+        if(($this->db))
         {
             $this->select($database, $schema);
             return $options;
         }
 
         // The Adminer constructor connects to the database.
-        $this->adminer = new Adminer($options);
-        $this->server = $this->adminer->server;
-        $this->connection = $this->adminer->connection;
-        $this->driver = $this->adminer->driver;
+        $this->db = new AdminerDb($options);
+        $this->ui = new AdminerUi($this->db);
+        $this->db->connect($this->db, $this->ui, $options['driver']);
+        $this->server = $this->ui->server = $this->db->server;
+        $this->connection = $this->ui->connection = $this->db->connection;
+        $this->driver = $this->ui->driver = $this->db->driver;
 
         $this->select($database, $schema);
         return $options;

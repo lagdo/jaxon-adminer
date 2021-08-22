@@ -69,38 +69,38 @@ class DatabaseProxy extends AbstractProxy
     public function getDatabaseInfo()
     {
         $sql_actions = [
-            'database-command' => $this->adminer->lang('SQL command'),
-            'database-import' => $this->adminer->lang('Import'),
-            'database-export' => $this->adminer->lang('Export'),
+            'database-command' => $this->ui->lang('SQL command'),
+            'database-import' => $this->ui->lang('Import'),
+            'database-export' => $this->ui->lang('Export'),
         ];
 
         $menu_actions = [
-            'table' => $this->adminer->lang('Tables'),
-            // 'view' => $this->adminer->lang('Views'),
-            // 'routine' => $this->adminer->lang('Routines'),
-            // 'sequence' => $this->adminer->lang('Sequences'),
-            // 'type' => $this->adminer->lang('User types'),
-            // 'event' => $this->adminer->lang('Events'),
+            'table' => $this->ui->lang('Tables'),
+            // 'view' => $this->ui->lang('Views'),
+            // 'routine' => $this->ui->lang('Routines'),
+            // 'sequence' => $this->ui->lang('Sequences'),
+            // 'type' => $this->ui->lang('User types'),
+            // 'event' => $this->ui->lang('Events'),
         ];
         if($this->server->support('view'))
         {
-            $menu_actions['view'] = $this->adminer->lang('Views');
+            $menu_actions['view'] = $this->ui->lang('Views');
         }
         if($this->server->support('routine'))
         {
-            $menu_actions['routine'] = $this->adminer->lang('Routines');
+            $menu_actions['routine'] = $this->ui->lang('Routines');
         }
         if($this->server->support('sequence'))
         {
-            $menu_actions['sequence'] = $this->adminer->lang('Sequences');
+            $menu_actions['sequence'] = $this->ui->lang('Sequences');
         }
         if($this->server->support('type'))
         {
-            $menu_actions['type'] = $this->adminer->lang('User types');
+            $menu_actions['type'] = $this->ui->lang('User types');
         }
         if($this->server->support('event'))
         {
-            $menu_actions['event'] = $this->adminer->lang('Events');
+            $menu_actions['event'] = $this->ui->lang('Events');
         }
 
         // From db.inc.php
@@ -114,7 +114,7 @@ class DatabaseProxy extends AbstractProxy
         // $tables = [];
         // foreach($table_status as $table)
         // {
-        //     $tables[] = $this->adminer->h($table);
+        //     $tables[] = $this->ui->h($table);
         // }
 
         return \compact('sql_actions', 'menu_actions', 'schemas'/*, 'tables'*/);
@@ -128,19 +128,19 @@ class DatabaseProxy extends AbstractProxy
     public function getTables()
     {
         $main_actions = [
-            'add-table' => $this->adminer->lang('Create table'),
+            'add-table' => $this->ui->lang('Create table'),
         ];
 
         $headers = [
-            $this->adminer->lang('Table'),
-            $this->adminer->lang('Engine'),
-            $this->adminer->lang('Collation'),
-            // $this->adminer->lang('Data Length'),
-            // $this->adminer->lang('Index Length'),
-            // $this->adminer->lang('Data Free'),
-            // $this->adminer->lang('Auto Increment'),
-            // $this->adminer->lang('Rows'),
-            $this->adminer->lang('Comment'),
+            $this->ui->lang('Table'),
+            $this->ui->lang('Engine'),
+            $this->ui->lang('Collation'),
+            // $this->ui->lang('Data Length'),
+            // $this->ui->lang('Index Length'),
+            // $this->ui->lang('Data Free'),
+            // $this->ui->lang('Auto Increment'),
+            // $this->ui->lang('Rows'),
+            $this->ui->lang('Comment'),
         ];
 
         // From db.inc.php
@@ -153,7 +153,7 @@ class DatabaseProxy extends AbstractProxy
             if(!$this->server->is_view($status))
             {
                 $details[] = [
-                    'name' => $this->adminer->tableName($status),
+                    'name' => $this->ui->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
                     'collation' => '',
                     'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
@@ -174,18 +174,18 @@ class DatabaseProxy extends AbstractProxy
     public function getViews()
     {
         $main_actions = [
-            'add-view' => $this->adminer->lang('Create view'),
+            'add-view' => $this->ui->lang('Create view'),
         ];
 
         $headers = [
-            $this->adminer->lang('View'),
-            $this->adminer->lang('Engine'),
-            // $this->adminer->lang('Data Length'),
-            // $this->adminer->lang('Index Length'),
-            // $this->adminer->lang('Data Free'),
-            // $this->adminer->lang('Auto Increment'),
-            // $this->adminer->lang('Rows'),
-            $this->adminer->lang('Comment'),
+            $this->ui->lang('View'),
+            $this->ui->lang('Engine'),
+            // $this->ui->lang('Data Length'),
+            // $this->ui->lang('Index Length'),
+            // $this->ui->lang('Data Free'),
+            // $this->ui->lang('Auto Increment'),
+            // $this->ui->lang('Rows'),
+            $this->ui->lang('Comment'),
         ];
 
         // From db.inc.php
@@ -198,7 +198,7 @@ class DatabaseProxy extends AbstractProxy
             if($this->server->is_view($status))
             {
                 $details[] = [
-                    'name' => $this->adminer->tableName($status),
+                    'name' => $this->ui->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
                     'comment' => \array_key_exists('Comment', $status) ? $status['Comment'] : '',
                 ];
@@ -216,14 +216,14 @@ class DatabaseProxy extends AbstractProxy
     public function getRoutines()
     {
         $main_actions = [
-            'procedure' => $this->adminer->lang('Create procedure'),
-            'function' => $this->adminer->lang('Create function'),
+            'procedure' => $this->ui->lang('Create procedure'),
+            'function' => $this->ui->lang('Create function'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
-            $this->adminer->lang('Type'),
-            $this->adminer->lang('Return type'),
+            $this->ui->lang('Name'),
+            $this->ui->lang('Type'),
+            $this->ui->lang('Return type'),
         ];
 
         // From db.inc.php
@@ -237,12 +237,12 @@ class DatabaseProxy extends AbstractProxy
 
             $details[] = [
                 'name' => \array_key_exists("ROUTINE_NAME", $routine) ?
-                    $this->adminer->h($routine["ROUTINE_NAME"]) : '',
+                    $this->ui->h($routine["ROUTINE_NAME"]) : '',
                 'type' => \array_key_exists("ROUTINE_TYPE", $routine) ?
-                    $this->adminer->h($routine["ROUTINE_TYPE"]) : '',
+                    $this->ui->h($routine["ROUTINE_TYPE"]) : '',
                 'returnType' => \array_key_exists("DTD_IDENTIFIER", $routine) ?
-                    $this->adminer->h($routine["DTD_IDENTIFIER"]) : '',
-                // 'alter' => $this->adminer->lang('Alter'),
+                    $this->ui->h($routine["DTD_IDENTIFIER"]) : '',
+                // 'alter' => $this->ui->lang('Alter'),
             ];
         }
 
@@ -257,25 +257,25 @@ class DatabaseProxy extends AbstractProxy
     public function getSequences()
     {
         $main_actions = [
-            'sequence' => $this->adminer->lang('Create sequence'),
+            'sequence' => $this->ui->lang('Create sequence'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
+            $this->ui->lang('Name'),
         ];
 
         $sequences = [];
         if($this->server->support("sequence"))
         {
             // From db.inc.php
-            $sequences = $this->adminer->get_vals("SELECT sequence_name FROM information_schema.sequences ".
+            $sequences = $this->db->get_vals("SELECT sequence_name FROM information_schema.sequences ".
                 "WHERE sequence_schema = current_schema() ORDER BY sequence_name");
         }
         $details = [];
         foreach($sequences as $sequence)
         {
             $details[] = [
-                'name' => $this->adminer->h($sequence),
+                'name' => $this->ui->h($sequence),
             ];
         }
 
@@ -290,11 +290,11 @@ class DatabaseProxy extends AbstractProxy
     public function getUserTypes()
     {
         $main_actions = [
-            'type' => $this->adminer->lang('Create type'),
+            'type' => $this->ui->lang('Create type'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
+            $this->ui->lang('Name'),
         ];
 
         // From db.inc.php
@@ -303,7 +303,7 @@ class DatabaseProxy extends AbstractProxy
         foreach($userTypes as $userType)
         {
             $details[] = [
-                'name' => $this->adminer->h($userType),
+                'name' => $this->ui->h($userType),
             ];
         }
 
@@ -318,33 +318,33 @@ class DatabaseProxy extends AbstractProxy
     public function getEvents()
     {
         $main_actions = [
-            'event' => $this->adminer->lang('Create event'),
+            'event' => $this->ui->lang('Create event'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
-            $this->adminer->lang('Schedule'),
-            $this->adminer->lang('Start'),
-            // $this->adminer->lang('End'),
+            $this->ui->lang('Name'),
+            $this->ui->lang('Schedule'),
+            $this->ui->lang('Start'),
+            // $this->ui->lang('End'),
         ];
 
         // From db.inc.php
-        $events = $this->server->support("event") ? $this->adminer->get_rows("SHOW EVENTS") : [];
+        $events = $this->server->support("event") ? $this->db->get_rows("SHOW EVENTS") : [];
         $details = [];
         foreach($events as $event)
         {
             $detail = [
-                'name' => $this->adminer->h($event["Name"]),
+                'name' => $this->ui->h($event["Name"]),
             ];
             if(($event["Execute at"]))
             {
-                $detail['schedule'] = $this->adminer->lang('At given time');
+                $detail['schedule'] = $this->ui->lang('At given time');
                 $detail['start'] = $event["Execute at"];
                 // $detail['end'] = '';
             }
             else
             {
-                $detail['schedule'] = $this->adminer->lang('Every') . " " .
+                $detail['schedule'] = $this->ui->lang('Every') . " " .
                     $event["Interval value"] . " " . $event["Interval field"];
                 $detail['start'] = $event["Starts"];
                 // $detail['end'] = '';

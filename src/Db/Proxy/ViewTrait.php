@@ -45,9 +45,9 @@ trait ViewTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Views'), $view]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('Views'), $view]);
 
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->getViewInfo($view);
     }
 
@@ -64,7 +64,7 @@ trait ViewTrait
     public function getViewFields(string $server, string $database, string $schema, string $view)
     {
         $this->connect($server, $database, $schema);
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->getViewFields($view);
     }
 
@@ -81,7 +81,7 @@ trait ViewTrait
     public function getViewTriggers(string $server, string $database, string $schema, string $view)
     {
         $this->connect($server, $database, $schema);
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->getViewTriggers($view);
     }
 
@@ -98,7 +98,7 @@ trait ViewTrait
     public function getView(string $server, string $database, string $schema, string $view)
     {
         $this->connect($server, $database, $schema);
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->getView($view);
     }
 
@@ -115,7 +115,7 @@ trait ViewTrait
     public function createView(string $server, string $database, string $schema, array $values)
     {
         $this->connect($server, $database, $schema);
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->createView($values);
     }
 
@@ -133,7 +133,7 @@ trait ViewTrait
     public function updateView(string $server, string $database, string $schema, string $view, array $values)
     {
         $this->connect($server, $database, $schema);
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->updateView($view, $values);
     }
 
@@ -150,7 +150,7 @@ trait ViewTrait
     public function dropView(string $server, string $database, string $schema, string $view)
     {
         $this->connect($server, $database, $schema);
-        $this->adminer->input->table = $view;
+        $this->ui->input->table = $view;
         return $this->view()->dropView($view);
     }
 }

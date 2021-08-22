@@ -73,7 +73,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Databases')]);
+        $this->setBreadcrumbs([$options['name'], $this->ui->lang('Databases')]);
 
         return $this->server($options)->getDatabases();
     }
@@ -89,7 +89,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Process list')]);
+        $this->setBreadcrumbs([$options['name'], $this->ui->lang('Process list')]);
 
         return $this->server($options)->getProcesses();
     }
@@ -105,7 +105,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Variables')]);
+        $this->setBreadcrumbs([$options['name'], $this->ui->lang('Variables')]);
 
         return $this->server($options)->getVariables();
     }
@@ -121,7 +121,7 @@ trait ServerTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Status')]);
+        $this->setBreadcrumbs([$options['name'], $this->ui->lang('Status')]);
 
         return $this->server($options)->getStatus();
     }

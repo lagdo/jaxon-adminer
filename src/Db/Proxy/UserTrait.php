@@ -44,7 +44,7 @@ trait UserTrait
     {
         $options = $this->connect($server);
 
-        $this->setBreadcrumbs([$options['name'], $this->adminer->lang('Privileges')]);
+        $this->setBreadcrumbs([$options['name'], $this->ui->lang('Privileges')]);
 
         return $this->user()->getPrivileges($database);
     }

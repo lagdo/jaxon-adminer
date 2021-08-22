@@ -51,7 +51,7 @@ trait ImportTrait
         {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->adminer->lang('Import');
+        $breadcrumbs[] = $this->ui->lang('Import');
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->import()->getImportOptions($database);

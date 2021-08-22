@@ -90,11 +90,11 @@ class CommandProxy extends AbstractProxy
                         foreach($indexes[$links[$key]] as $col => $j)
                         {
                             $link .= "&where" . \urlencode("[" .
-                                $this->adminer->bracket_escape($col) . "]") . "=" . \urlencode($row[$j]);
+                                $this->ui->bracket_escape($col) . "]") . "=" . \urlencode($row[$j]);
                         }
                     }
                 }
-                elseif($this->adminer->is_url($val))
+                elseif($this->ui->is_url($val))
                 {
                     $link = $val;
                 }
@@ -102,14 +102,14 @@ class CommandProxy extends AbstractProxy
                 {
                     $val = "<i>NULL</i>";
                 }
-                elseif(isset($blobs[$key]) && $blobs[$key] && !$this->adminer->is_utf8($val))
+                elseif(isset($blobs[$key]) && $blobs[$key] && !$this->ui->is_utf8($val))
                 {
                     //! link to download
-                    $val = "<i>" . $this->adminer->lang('%d byte(s)', \strlen($val)) . "</i>";
+                    $val = "<i>" . $this->ui->lang('%d byte(s)', \strlen($val)) . "</i>";
                 }
                 else
                 {
-                    $val = $this->adminer->h($val);
+                    $val = $this->ui->h($val);
                     if(isset($types[$key]) && $types[$key] == 254)
                     { // 254 - char
                         $val = "<code>$val</code>";
@@ -119,13 +119,13 @@ class CommandProxy extends AbstractProxy
             }
             $details[] = $detail;
         }
-        $message = $this->adminer->lang('No rows.');
+        $message = $this->ui->lang('No rows.');
         if($rowCount > 0)
         {
             $num_rows = $result->num_rows;
             $message = ($num_rows ? ($limit && $num_rows > $limit ?
-                $this->adminer->lang('%d / ', $limit) :
-                "") . $this->adminer->lang('%d row(s)', $num_rows) : "");
+                $this->ui->lang('%d / ', $limit) :
+                "") . $this->ui->lang('%d row(s)', $num_rows) : "");
         }
 
         // Table header
@@ -170,7 +170,7 @@ class CommandProxy extends AbstractProxy
                 $blobs[$j] = true;
             }
             $types[$j] = $field->type ?? ''; // Some drivers don't set the type field.
-            $headers[] = $this->adminer->h($name);
+            $headers[] = $this->ui->h($name);
         }
 
         return \compact('tables', 'headers', 'details', 'message');
@@ -191,7 +191,7 @@ class CommandProxy extends AbstractProxy
         if(\function_exists('memory_get_usage'))
         {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
-            @\ini_set("memory_limit", \max($this->adminer->ini_bytes("memory_limit"),
+            @\ini_set("memory_limit", \max($this->ui->ini_bytes("memory_limit"),
                 2 * \strlen($queries) + \memory_get_usage() + 8e6));
 		}
 
@@ -219,7 +219,7 @@ class CommandProxy extends AbstractProxy
             ($this->server->jush == "pgsql" ? '|\$[^$]*\$' : '');
 		// $total_start = \microtime(true);
 		// \parse_str($_COOKIE["adminer_export"], $adminer_export);
-		// $dump_format = $adminer->dumpFormat();
+		// $dump_format = $this->ui->dumpFormat();
 		// unset($dump_format["sql"]);
 
         $results = [];
@@ -270,12 +270,12 @@ class CommandProxy extends AbstractProxy
             $q = \substr($queries, 0, $pos);
             $commands++;
             // $print = "<pre id='sql-$commands'><code class='jush-$this->server->jush'>" .
-            //     $adminer->sqlCommandQuery($q) . "</code></pre>\n";
+            //     $this->ui->sqlCommandQuery($q) . "</code></pre>\n";
             if($this->server->jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match))
             {
                 // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
                 // $errors[] = " <a href='#sql-$commands'>$commands</a>";
-                $errors[] = $this->adminer->lang('ATTACH queries are not supported.');
+                $errors[] = $this->ui->lang('ATTACH queries are not supported.');
                 $results[] = [
                     'query' => $q,
                     'errors' => $errors,
@@ -309,7 +309,7 @@ class CommandProxy extends AbstractProxy
                     if($this->connection->error)
                     {
                         // echo ($onlyErrors ? $print : "");
-                        // echo "<p class='error'>" . $this->adminer->lang('Error in query') . ($this->connection->errno ?
+                        // echo "<p class='error'>" . $this->ui->lang('Error in query') . ($this->connection->errno ?
                         //     " ($this->connection->errno)" : "") . ": " . $this->server->error() . "\n";
                         // $errors[] = " <a href='#sql-$commands'>$commands</a>";
                         $error = $this->server->error();
@@ -334,8 +334,8 @@ class CommandProxy extends AbstractProxy
                         {
                             if(!$onlyErrors)
                             {
-                                // $title = $this->adminer->h($this->connection->info);
-                                $messages[] = $this->adminer->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
+                                // $title = $this->ui->h($this->connection->info);
+                                $messages[] = $this->ui->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
                             }
                         }
                     }
@@ -363,16 +363,16 @@ class CommandProxy extends AbstractProxy
 
         if($empty)
         {
-            $messages[] = $this->adminer->lang('No commands to execute.');
+            $messages[] = $this->ui->lang('No commands to execute.');
         }
         elseif($onlyErrors)
         {
-            $messages[] =  $this->adminer->lang('%d query(s) executed OK.', $commands - \count($errors));
-            // $timestamps[] = $this->adminer->format_time($total_start);
+            $messages[] =  $this->ui->lang('%d query(s) executed OK.', $commands - \count($errors));
+            // $timestamps[] = $this->ui->format_time($total_start);
         }
         // elseif($errors && $commands > 1)
         // {
-        //     $errors[] = $this->adminer->lang('Error in query') . ": " . \implode("", $errors);
+        //     $errors[] = $this->ui->lang('Error in query') . ": " . \implode("", $errors);
 		// }
 		//! MS SQL - SET SHOWPLAN_ALL OFF
 

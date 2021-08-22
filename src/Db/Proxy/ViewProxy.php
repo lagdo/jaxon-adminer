@@ -43,19 +43,19 @@ class ViewProxy extends AbstractProxy
     protected function getViewLinks($set = null)
     {
         $links = [
-            "select" => $this->adminer->lang('Select data'),
+            "select" => $this->ui->lang('Select data'),
         ];
         if($this->server->support("table") || $this->server->support("indexes"))
         {
-            $links["table"] = $this->adminer->lang('Show structure');
+            $links["table"] = $this->ui->lang('Show structure');
         }
         if($this->server->support("table"))
         {
-            $links["alter"] = $this->adminer->lang('Alter view');
+            $links["alter"] = $this->ui->lang('Alter view');
         }
         if($set !== null)
         {
-            $links["edit"] = $this->adminer->lang('New item');
+            $links["edit"] = $this->ui->lang('New item');
         }
         // $links['docs'] = \doc_link([$this->server->jush => $this->driver->tableHelp($name)], "?");
 
@@ -72,28 +72,28 @@ class ViewProxy extends AbstractProxy
     public function getViewInfo(string $table)
     {
         $main_actions = [
-            'edit-view' => $this->adminer->lang('Edit view'),
-            'drop-view' => $this->adminer->lang('Drop view'),
+            'edit-view' => $this->ui->lang('Edit view'),
+            'drop-view' => $this->ui->lang('Drop view'),
         ];
 
         // From table.inc.php
         $status = $this->status($table);
-        $name = $this->adminer->tableName($status);
+        $name = $this->ui->tableName($status);
         $title = ($status['Engine'] == 'materialized view' ?
-            $this->adminer->lang('Materialized view') : $this->adminer->lang('View')) .
-            ": " . ($name != "" ? $name : $this->adminer->h($table));
+            $this->ui->lang('Materialized view') : $this->ui->lang('View')) .
+            ": " . ($name != "" ? $name : $this->ui->h($table));
 
         $comment = $status["Comment"] ?? '';
 
         $tabs = [
-            'fields' => $this->adminer->lang('Columns'),
-            // 'indexes' => $this->adminer->lang('Indexes'),
-            // 'foreign-keys' => $this->adminer->lang('Foreign keys'),
-            // 'triggers' => $this->adminer->lang('Triggers'),
+            'fields' => $this->ui->lang('Columns'),
+            // 'indexes' => $this->ui->lang('Indexes'),
+            // 'foreign-keys' => $this->ui->lang('Foreign keys'),
+            // 'triggers' => $this->ui->lang('Triggers'),
         ];
         if($this->server->support("view_trigger"))
         {
-            $tabs['triggers'] = $this->adminer->lang('Triggers');
+            $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
         return \compact('main_actions', 'title', 'comment', 'tabs');
@@ -118,49 +118,49 @@ class ViewProxy extends AbstractProxy
         $main_actions = $this->getViewLinks();
 
         $tabs = [
-            'fields' => $this->adminer->lang('Columns'),
-            // 'triggers' => $this->adminer->lang('Triggers'),
+            'fields' => $this->ui->lang('Columns'),
+            // 'triggers' => $this->ui->lang('Triggers'),
         ];
         if($this->server->support("view_trigger"))
         {
-            $tabs['triggers'] = $this->adminer->lang('Triggers');
+            $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
         $headers = [
-            $this->adminer->lang('Name'),
-            $this->adminer->lang('Type'),
-            $this->adminer->lang('Collation'),
+            $this->ui->lang('Name'),
+            $this->ui->lang('Type'),
+            $this->ui->lang('Collation'),
         ];
         $hasComment = $this->server->support('comment');
         if($hasComment)
         {
-            $headers[] = $this->adminer->lang('Comment');
+            $headers[] = $this->ui->lang('Comment');
         }
 
         $details = [];
         foreach($fields as $field)
         {
-            $type = $this->adminer->h($field["full_type"]);
+            $type = $this->ui->h($field["full_type"]);
             if($field["null"])
             {
                 $type .= " <i>nullable</i>"; // " <i>NULL</i>";
             }
             if($field["auto_increment"])
             {
-                $type .= " <i>" . $this->adminer->lang('Auto Increment') . "</i>";
+                $type .= " <i>" . $this->ui->lang('Auto Increment') . "</i>";
             }
             if(\array_key_exists("default", $field))
             {
-                $type .= /*' ' . $this->adminer->lang('Default value') .*/ ' [<b>' . $this->adminer->h($field["default"]) . '</b>]';
+                $type .= /*' ' . $this->ui->lang('Default value') .*/ ' [<b>' . $this->ui->h($field["default"]) . '</b>]';
             }
             $detail = [
-                'name' => $this->adminer->h($field["field"] ?? ''),
+                'name' => $this->ui->h($field["field"] ?? ''),
                 'type' => $type,
-                'collation' => $this->adminer->h($field["collation"] ?? ''),
+                'collation' => $this->ui->h($field["collation"] ?? ''),
             ];
             if($hasComment)
             {
-                $detail['comment'] = $this->adminer->h($field["comment"] ?? '');
+                $detail['comment'] = $this->ui->h($field["comment"] ?? '');
             }
 
             $details[] = $detail;
@@ -187,11 +187,11 @@ class ViewProxy extends AbstractProxy
         // From table.inc.php
         $triggers = $this->server->triggers($table);
         $main_actions = [
-            $this->adminer->lang('Add trigger'),
+            $this->ui->lang('Add trigger'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
+            $this->ui->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -206,10 +206,10 @@ class ViewProxy extends AbstractProxy
         foreach($triggers as $key => $val)
         {
             $details[] = [
-                $this->adminer->h($val[0]),
-                $this->adminer->h($val[1]),
-                $this->adminer->h($key),
-                $this->adminer->lang('Alter'),
+                $this->ui->h($val[0]),
+                $this->ui->h($val[1]),
+                $this->ui->h($key),
+                $this->ui->lang('Alter'),
             ];
         }
 
@@ -257,12 +257,12 @@ class ViewProxy extends AbstractProxy
         // From view.inc.php
         $name = \trim($values["name"]);
         $location = null; // ME . "table=" . urlencode($name);
-        $message = $this->adminer->lang('View has been created.');
+        $message = $this->ui->lang('View has been created.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
 
         $sql = ($this->server->jush == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
             " $type " . $this->server->table($name) . " AS\n" . $values['select'];
-        $success = $this->adminer->query_redirect($sql, $location, $message);
+        $success = $this->ui->query_redirect($sql, $location, $message);
 
         $error = $this->server->error();
 
@@ -289,20 +289,20 @@ class ViewProxy extends AbstractProxy
 
         $name = \trim($values["name"]);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
-        $message = $this->adminer->lang('View has been altered.');
+        $message = $this->ui->lang('View has been altered.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
         $temp_name = $name . "_adminer_" . \uniqid();
 
-        $this->adminer->drop_create(
+        $this->ui->drop_create(
             "DROP $orig_type " . $this->server->table($view),
             "CREATE $type " . $this->server->table($name) . " AS\n" . $values['select'],
             "DROP $type " . $this->server->table($name),
             "CREATE $type " . $this->server->table($temp_name) . " AS\n" . $values['select'],
             "DROP $type " . $this->server->table($temp_name),
             $location,
-            $this->adminer->lang('View has been dropped.'),
+            $this->ui->lang('View has been dropped.'),
             $message,
-            $this->adminer->lang('View has been created.'),
+            $this->ui->lang('View has been created.'),
             $view,
             $name
         );
@@ -331,8 +331,8 @@ class ViewProxy extends AbstractProxy
 
         $sql = "DROP $orig_type " . $this->server->table($view);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
-        $message = $this->adminer->lang('View has been dropped.');
-        $success =$this->adminer->drop_only($sql, $location, $message);
+        $message = $this->ui->lang('View has been dropped.');
+        $success =$this->ui->drop_only($sql, $location, $message);
 
         $error = $this->server->error();
 

@@ -9,12 +9,7 @@ class Input implements InputInterface
     /**
      * @var string
      */
-    public $table;
-
-    /**
-     * @var boolean
-     */
-    public $isCreate;
+    public $table = '';
 
     /**
      * @var array
@@ -32,9 +27,9 @@ class Input implements InputInterface
     /**
      * @inheritDoc
      */
-    public function getCreate()
+    public function hasTable()
     {
-        return $this->isCreate;
+        return $this->table !== '';
     }
 
     /**
@@ -89,7 +84,7 @@ class Input implements InputInterface
         if(!isset($this->values['auto_increment']) || $this->values['auto_increment'] == '') {
             return '';
         }
-        return $this->adminer->number($this->values['auto_increment']);
+        return $this->values['auto_increment'];
     }
 
     /**

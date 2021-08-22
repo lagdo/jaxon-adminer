@@ -63,7 +63,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Tables')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('Tables')]);
 
         return $this->database($options)->getTables();
     }
@@ -81,7 +81,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Views')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('Views')]);
 
         return $this->database($options)->getViews();
     }
@@ -99,7 +99,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Routines')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('Routines')]);
 
         return $this->database($options)->getRoutines();
     }
@@ -117,7 +117,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Sequences')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('Sequences')]);
 
         return $this->database($options)->getSequences();
     }
@@ -135,7 +135,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('User types')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('User types')]);
 
         return $this->database($options)->getUserTypes();
     }
@@ -153,7 +153,7 @@ trait DatabaseTrait
     {
         $options = $this->connect($server, $database, $schema);
 
-        $this->setBreadcrumbs([$options['name'], $database, $this->adminer->lang('Events')]);
+        $this->setBreadcrumbs([$options['name'], $database, $this->ui->lang('Events')]);
 
         return $this->database($options)->getEvents();
     }

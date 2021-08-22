@@ -2,7 +2,8 @@
 
 namespace Lagdo\Adminer\Db\Proxy;
 
-use Lagdo\Adminer\Drivers\AdminerInterface;
+use Lagdo\Adminer\Db\AdminerDb;
+use Lagdo\Adminer\Db\AdminerUi;
 use Lagdo\Adminer\Drivers\ServerInterface;
 use Lagdo\Adminer\Drivers\DriverInterface;
 use Lagdo\Adminer\Drivers\ConnectionInterface;
@@ -15,9 +16,14 @@ use Lagdo\Adminer\Db\Proxy;
 class AbstractProxy
 {
     /**
-     * @var AdminerInterface
+     * @var AdminerDb
      */
-    public $adminer = null;
+    public $db = null;
+
+    /**
+     * @var AdminerUi
+     */
+    public $ui = null;
 
     /**
      * @var ServerInterface
@@ -43,7 +49,8 @@ class AbstractProxy
      */
     public function init(Proxy $proxy)
     {
-        $this->adminer = $proxy->adminer;
+        $this->db = $proxy->db;
+        $this->ui = $proxy->ui;
         $this->server = $proxy->server;
         $this->driver = $proxy->driver;
         $this->connection = $proxy->connection;

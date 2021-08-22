@@ -52,7 +52,7 @@ class ServerProxy extends AbstractProxy
         // which outputs data to the browser are prepended to the Jaxon response.
         if($this->finalDatabases === null)
         {
-            $this->finalDatabases = $this->adminer->databases(false);
+            $this->finalDatabases = $this->server->get_databases(false);
             if(\is_array($this->userDatabases))
             {
                 // Only keep databases that appear in the config.
@@ -70,39 +70,39 @@ class ServerProxy extends AbstractProxy
      */
     public function getServerInfo()
     {
-        $server = $this->adminer->lang('%s version: %s. PHP extension %s.', $this->server->getName(),
-            "<b>" . $this->adminer->h($this->connection->server_info) . "</b>", "<b>{$this->connection->extension}</b>");
-        $user = $this->adminer->lang('Logged as: %s.', "<b>" . $this->adminer->h($this->server->logged_user()) . "</b>");
+        $server = $this->ui->lang('%s version: %s. PHP extension %s.', $this->server->getName(),
+            "<b>" . $this->ui->h($this->connection->server_info) . "</b>", "<b>{$this->connection->extension}</b>");
+        $user = $this->ui->lang('Logged as: %s.', "<b>" . $this->ui->h($this->server->logged_user()) . "</b>");
 
         $sql_actions = [
-            'server-command' => $this->adminer->lang('SQL command'),
-            'server-import' => $this->adminer->lang('Import'),
-            'server-export' => $this->adminer->lang('Export'),
+            'server-command' => $this->ui->lang('SQL command'),
+            'server-import' => $this->ui->lang('Import'),
+            'server-export' => $this->ui->lang('Export'),
         ];
 
         // Content from the connect_error() function in connect.inc.php
         $menu_actions = [
-            'databases' => $this->adminer->lang('Databases'),
+            'databases' => $this->ui->lang('Databases'),
         ];
         // if($this->server->support('database'))
         // {
-        //     $menu_actions['databases'] = $this->adminer->lang('Databases');
+        //     $menu_actions['databases'] = $this->ui->lang('Databases');
         // }
         if($this->server->support('privileges'))
         {
-            $menu_actions['privileges'] = $this->adminer->lang('Privileges');
+            $menu_actions['privileges'] = $this->ui->lang('Privileges');
         }
         if($this->server->support('processlist'))
         {
-            $menu_actions['processes'] = $this->adminer->lang('Process list');
+            $menu_actions['processes'] = $this->ui->lang('Process list');
         }
         if($this->server->support('variables'))
         {
-            $menu_actions['variables'] = $this->adminer->lang('Variables');
+            $menu_actions['variables'] = $this->ui->lang('Variables');
         }
         if($this->server->support('status'))
         {
-            $menu_actions['status'] = $this->adminer->lang('Status');
+            $menu_actions['status'] = $this->ui->lang('Status');
         }
 
         // Get the database list
@@ -158,14 +158,14 @@ class ServerProxy extends AbstractProxy
         $tables = $this->server->count_tables($databases);
 
         $main_actions = [
-            'add-database' => $this->adminer->lang('Create database'),
+            'add-database' => $this->ui->lang('Create database'),
         ];
 
         $headers = [
-            $this->adminer->lang('Database'),
-            $this->adminer->lang('Collation'),
-            $this->adminer->lang('Tables'),
-            $this->adminer->lang('Size'),
+            $this->ui->lang('Database'),
+            $this->ui->lang('Collation'),
+            $this->ui->lang('Tables'),
+            $this->ui->lang('Size'),
             '',
         ];
 
@@ -174,10 +174,10 @@ class ServerProxy extends AbstractProxy
         foreach($databases as $database)
         {
             $details[] = [
-                'name' => $this->adminer->h($database),
-                'collation' => $this->adminer->h($this->server->db_collation($database, $collations)),
+                'name' => $this->ui->h($database),
+                'collation' => $this->ui->h($this->server->db_collation($database, $collations)),
                 'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->adminer->db_size($database),
+                'size' => $this->ui->format_number($this->db->db_size($database)),
             ];
         }
 
@@ -214,8 +214,8 @@ class ServerProxy extends AbstractProxy
                     ($this->server->jush == "sql" && $key == "Info" && $match && $val != "") ||
                     ($this->server->jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
                     ($this->server->jush == "oracle" && $key == "sql_text" && $val != "") ?
-                    "<code class='jush-{$this->server->jush}'>" . $this->adminer->shorten_utf8($val, 50) .
-                    "</code>" . $this->adminer->lang('Clone') : $this->adminer->h($val);
+                    "<code class='jush-{$this->server->jush}'>" . $this->ui->shorten_utf8($val, 50) .
+                    "</code>" . $this->ui->lang('Clone') : $this->ui->h($val);
             }
             $details[] = $detail;
         }
@@ -239,7 +239,7 @@ class ServerProxy extends AbstractProxy
         // From variables.inc.php
         foreach($variables as $key => $val)
         {
-            $details[] = [$this->adminer->h($key), $this->adminer->shorten_utf8($val, 50)];
+            $details[] = [$this->ui->h($key), $this->ui->shorten_utf8($val, 50)];
         }
 
         return \compact('headers', 'details');
@@ -265,7 +265,7 @@ class ServerProxy extends AbstractProxy
         // From variables.inc.php
         foreach($status as $key => $val)
         {
-            $details[] = [$this->adminer->h($key), $this->adminer->h($val)];
+            $details[] = [$this->ui->h($key), $this->ui->h($val)];
         }
 
         return \compact('headers', 'details');

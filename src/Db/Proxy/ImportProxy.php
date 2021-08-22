@@ -24,30 +24,30 @@ class ImportProxy extends CommandProxy
         $gz = \extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        if($this->adminer->ini_bool('file_uploads'))
+        if($this->ui->ini_bool('file_uploads'))
         {
             $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
         }
         else
         {
-            $contents['upload_disabled'] = $this->adminer->lang('File uploads are disabled.');
+            $contents['upload_disabled'] = $this->ui->lang('File uploads are disabled.');
         }
 
-        $importServerPath = $this->adminer->importServerPath();
+        $importServerPath = $this->ui->importServerPath();
         if(($importServerPath))
         {
-            $contents['path'] = $this->adminer->h($importServerPath) . $gz;
+            $contents['path'] = $this->ui->h($importServerPath) . $gz;
         }
 
         $labels = [
-            'path' => $this->adminer->lang('Webserver file %s', ''),
-            'file_upload' => $this->adminer->lang('File upload'),
-            'from_server' => $this->adminer->lang('From server'),
-            'execute' => $this->adminer->lang('Execute'),
-            'run_file' => $this->adminer->lang('Run file'),
-            'select' => $this->adminer->lang('Select'),
-            'error_stops' => $this->adminer->lang('Stop on error'),
-            'only_errors' => $this->adminer->lang('Show only errors'),
+            'path' => $this->ui->lang('Webserver file %s', ''),
+            'file_upload' => $this->ui->lang('File upload'),
+            'from_server' => $this->ui->lang('From server'),
+            'execute' => $this->ui->lang('Execute'),
+            'run_file' => $this->ui->lang('Run file'),
+            'select' => $this->ui->lang('Select'),
+            'error_stops' => $this->ui->lang('Stop on error'),
+            'only_errors' => $this->ui->lang('Show only errors'),
         ];
 
         return \compact('contents', 'labels');

@@ -53,14 +53,14 @@ trait CommandTrait
         {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->adminer->lang('SQL command');
+        $breadcrumbs[] = $this->ui->lang('SQL command');
         $this->setBreadcrumbs($breadcrumbs);
 
         $labels = [
-            'execute' => $this->adminer->lang('Execute'),
-            'limit_rows' => $this->adminer->lang('Limit rows'),
-            'error_stops' => $this->adminer->lang('Stop on error'),
-            'only_errors' => $this->adminer->lang('Show only errors'),
+            'execute' => $this->ui->lang('Execute'),
+            'limit_rows' => $this->ui->lang('Limit rows'),
+            'error_stops' => $this->ui->lang('Stop on error'),
+            'only_errors' => $this->ui->lang('Show only errors'),
         ];
 
         return ['labels' => $labels];

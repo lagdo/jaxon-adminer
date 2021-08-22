@@ -13,13 +13,14 @@ class TableSelectProxy extends AbstractProxy
      * Print columns box in select
      * @param array result of selectColumnsProcess()[0]
      * @param array selectable columns
-     * @return null
+     * @param array $options
+     * @return array
      */
-    private function getColumnsOptions($select, $columns)
+    private function getColumnsOptions(array $select, array $columns, array $options)
     {
         return [
             'select' => $select,
-            'values' => (array)$_GET["columns"],
+            'values' => (array)$options["columns"],
             'columns' => $columns,
             'functions' => $this->server->functions,
             'grouping' => $this->server->grouping,
@@ -30,19 +31,20 @@ class TableSelectProxy extends AbstractProxy
      * Print search box in select
      * @param array result of selectSearchProcess()
      * @param array selectable columns
-     * @param array
-     * @return null
+     * @param array $indexes
+     * @param array $options
+     * @return array
      */
-    private function getFiltersOptions($where, $columns, $indexes)
+    private function getFiltersOptions(array $where, array $columns, array $indexes, array $options)
     {
         $fulltexts = [];
         foreach($indexes as $i => $index)
         {
-            $fulltexts[$i] = $index["type"] == "FULLTEXT" ? h($_GET["fulltext"][$i]) : '';
+            $fulltexts[$i] = $index["type"] == "FULLTEXT" ? h($options["fulltext"][$i]) : '';
         }
         return [
             // 'where' => $where,
-            'values' => (array)$_GET["where"],
+            'values' => (array)$options["where"],
             'columns' => $columns,
             'indexes' => $indexes,
             'operators' => $this->server->operators,
@@ -54,14 +56,15 @@ class TableSelectProxy extends AbstractProxy
      * Print order box in select
      * @param array result of selectOrderProcess()
      * @param array selectable columns
-     * @param array
-     * @return null
+     * @param array $indexes
+     * @param array $options
+     * @return array
      */
-    private function getSortingOptions($order, $columns, $indexes)
+    private function getSortingOptions(array $order, array $columns, array $indexes, array $options)
     {
         $values = [];
-        $descs = (array)$_GET["desc"];
-        foreach((array)$_GET["order"] as $key => $value)
+        $descs = (array)$options["desc"];
+        foreach((array)$options["order"] as $key => $value)
         {
             $values[] = [
                 'col' => $value,
@@ -78,33 +81,33 @@ class TableSelectProxy extends AbstractProxy
     /**
      * Print limit box in select
      * @param string result of selectLimitProcess()
-     * @return null
+     * @return array
      */
-    private function getLimitOptions($limit)
+    private function getLimitOptions(string $limit)
     {
-        return ['value' => $this->adminer->h($limit)];
+        return ['value' => $this->ui->h($limit)];
     }
 
     /**
      * Print text length box in select
      * @param string result of selectLengthProcess()
-     * @return null
+     * @return array|null
      */
-    private function getLengthOptions($text_length)
+    private function getLengthOptions(string $text_length)
     {
         if($text_length === null)
         {
             return null;
         }
-        return ['value' => $this->adminer->h($text_length)];
+        return ['value' => $this->ui->h($text_length)];
     }
 
     /**
      * Print action box in select
      * @param array
-     * @return null
+     * @return array
      */
-    private function getActionOptions($indexes)
+    private function getActionOptions(array $indexes)
     {
         $columns = [];
         foreach($indexes as $index)
@@ -141,7 +144,7 @@ class TableSelectProxy extends AbstractProxy
      * Print extra text in the end of a select form
      * @param array fields holding e-mails
      * @param array selectable columns
-     * @return null
+     * @return array
      */
     private function getEmailOptions($emailFields, $columns)
     {}
@@ -163,7 +166,7 @@ class TableSelectProxy extends AbstractProxy
     {
         // From driver.inc.php
 		$is_group = (\count($group) < \count($select));
-		$query = $this->adminer->buildSelectQuery($select, $where, $group, $order, $limit, $page);
+		$query = $this->db->buildSelectQuery($select, $where, $group, $order, $limit, $page);
         if(!$query)
         {
 			$query = "SELECT" . $this->server->limit(
@@ -191,42 +194,37 @@ class TableSelectProxy extends AbstractProxy
      */
     private function prepareSelect(string $table, array &$queryOptions = [])
     {
-        if(!isset($queryOptions['columns']))
+        $defaultOptions = [
+            'columns' => [],
+            'where' => [],
+            'order' => [],
+            'desc' => [],
+            'fulltext' => [],
+            'limit' => '50',
+            'text_length' => '100',
+            'page' => '1',
+        ];
+        foreach($defaultOptions as $name => $value)
         {
-            $queryOptions['columns'] = [];
+            if(!isset($queryOptions[$name]))
+            {
+                $queryOptions[$name] = $value;
+            }
         }
-        if(!isset($queryOptions['where']))
+        $page = \intval($queryOptions['page']);
+        if($page > 0)
         {
-            $queryOptions['where'] = [];
-        }
-        if(!isset($queryOptions['order']))
-        {
-            $queryOptions['order'] = [];
-        }
-        if(!isset($queryOptions['desc']))
-        {
-            $queryOptions['desc'] = [];
-        }
-
-        // Set request parameters for Adminer functions
-        $_GET['columns'] = $queryOptions['columns'] ?? [];
-        $_GET['where'] = $queryOptions['where'] ?? [];
-        $_GET['order'] = $queryOptions['order'] ?? [];
-        $_GET['desc'] = $queryOptions['desc'] ?? [];
-        $_GET['fulltext'] = $queryOptions['fulltext'] ?? [];
-        $_GET['limit'] = $queryOptions['limit'] ?? '50';
-        $_GET['text_length'] = $queryOptions['text_length'] ?? '100';
-        $page = \intval($queryOptions['page'] ?? 1);
-        if ($page > 0) {
             $page -= 1; // Page numbers start at 0 here, instead of 1.
         }
-        $_GET['page'] = $page;
+        $queryOptions['page'] = $page;
+
+        $this->ui->input->values = $queryOptions;
 
         // From select.inc.php
         $table_status = $this->server->table_status1($table);
         $indexes = $this->server->indexes($table);
         $fields = $this->server->fields($table);
-        $foreign_keys = $this->adminer->column_foreign_keys($table);
+        $foreign_keys = $this->db->column_foreign_keys($table);
         $oid = $table_status["Oid"] ?? null;
 
         $rights = []; // privilege => 0
@@ -234,27 +232,27 @@ class TableSelectProxy extends AbstractProxy
         $text_length = null;
         foreach($fields as $key => $field)
         {
-            $name = $this->adminer->fieldName($field);
+            $name = $this->ui->fieldName($field);
             if(isset($field["privileges"]["select"]) && $name != "")
             {
                 $columns[$key] = \html_entity_decode(\strip_tags($name), ENT_QUOTES);
-                if($this->adminer->is_shortable($field))
+                if($this->ui->is_shortable($field))
                 {
-                    $text_length = $this->adminer->selectLengthProcess();
+                    $text_length = $this->ui->selectLengthProcess();
                 }
             }
-            $rights += $field["privileges"];
+            $rights[] = $field["privileges"];
         }
 
-        list($select, $group) = $this->adminer->selectColumnsProcess($columns, $indexes);
+        list($select, $group) = $this->ui->selectColumnsProcess($columns, $indexes);
         $is_group = \count($group) < \count($select);
-        $where = $this->adminer->selectSearchProcess($fields, $indexes);
-        $order = $this->adminer->selectOrderProcess($fields, $indexes);
-        $limit = $this->adminer->selectLimitProcess();
+        $where = $this->ui->selectSearchProcess($fields, $indexes);
+        $order = $this->ui->selectOrderProcess($fields, $indexes);
+        $limit = $this->ui->selectLimitProcess();
 
-        // if($_GET["val"] && is_ajax()) {
+        // if(isset($queryOptions["val"]) && is_ajax()) {
         //     header("Content-Type: text/plain; charset=utf-8");
-        //     foreach($_GET["val"] as $unique_idf => $row) {
+        //     foreach($queryOptions["val"] as $unique_idf => $row) {
         //         $as = convert_field($fields[key($row)]);
         //         $select = array($as ? $as : idf_escape(key($row)));
         //         $where[] = where_check($unique_idf, $fields);
@@ -289,37 +287,37 @@ class TableSelectProxy extends AbstractProxy
             $indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];
         }
 
-        $table_name = $this->adminer->tableName($table_status);
+        $table_name = $this->ui->tableName($table_status);
 
         // $set = null;
         // if(isset($rights["insert"]) || !support("table")) {
         //     $set = "";
-        //     foreach((array) $_GET["where"] as $val) {
+        //     foreach((array) $queryOptions["where"] as $val) {
         //         if($foreign_keys[$val["col"]] && count($foreign_keys[$val["col"]]) == 1 && ($val["op"] == "="
         //             || (!$val["op"] && !preg_match('~[_%]~', $val["val"])) // LIKE in Editor
         //         )) {
-        //             $set .= "&set" . urlencode("[" . $this->adminer->bracket_escape($val["col"]) . "]") . "=" . urlencode($val["val"]);
+        //             $set .= "&set" . urlencode("[" . $this->ui->bracket_escape($val["col"]) . "]") . "=" . urlencode($val["val"]);
         //         }
         //     }
         // }
-        // $this->adminer->selectLinks($table_status, $set);
+        // $this->ui->selectLinks($table_status, $set);
 
         if(!$columns && $this->server->support("table"))
         {
-            throw new Exception($this->adminer->lang('Unable to select the table') .
+            throw new Exception($this->ui->lang('Unable to select the table') .
                 ($fields ? "." : ": " . $this->server->error()));
         }
 
         // if($page == "last")
         // {
-        //     $found_rows = $this->connection->result($this->adminer->count_rows($table, $where, $is_group, $group));
+        //     $found_rows = $this->connection->result($this->db->count_rows($table, $where, $is_group, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
         $options = [
-            'columns' => $this->getColumnsOptions($select, $columns),
-            'filters' => $this->getFiltersOptions($where, $columns, $indexes),
-            'sorting' => $this->getSortingOptions($order, $columns, $indexes),
+            'columns' => $this->getColumnsOptions($select, $columns, $queryOptions),
+            'filters' => $this->getFiltersOptions($where, $columns, $indexes, $queryOptions),
+            'sorting' => $this->getSortingOptions($order, $columns, $indexes, $queryOptions),
             'limit' => $this->getLimitOptions($limit),
             'length' => $this->getLengthOptions($text_length),
             // 'action' => $this->getActionOptions($indexes),
@@ -330,7 +328,7 @@ class TableSelectProxy extends AbstractProxy
         if(!$select2)
         {
             $select2[] = "*";
-            $convert_fields = $this->adminer->convert_fields($columns, $fields, $select);
+            $convert_fields = $this->db->convert_fields($columns, $fields, $select);
             if($convert_fields)
             {
                 $select2[] = \substr($convert_fields, 2);
@@ -378,11 +376,11 @@ class TableSelectProxy extends AbstractProxy
     {
         list($table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes, $where, $order,
             $limit, $page, $text_length, $options, $query) = $this->prepareSelect($table, $queryOptions);
-        $query = $this->adminer->h($query);
+        $query = $this->ui->h($query);
 
         $main_actions = [
-            'select-exec' => $this->adminer->lang('Execute'),
-            'select-cancel' => $this->adminer->lang('Cancel'),
+            'select-exec' => $this->ui->lang('Execute'),
+            'select-cancel' => $this->ui->lang('Cancel'),
         ];
 
         return \compact('main_actions', 'options', 'query');
@@ -406,7 +404,7 @@ class TableSelectProxy extends AbstractProxy
         $start = microtime(true);
         $result = $this->connection->query($query);
         // From adminer.inc.php
-        $duration = $this->adminer->format_time($start); // Compute and format the duration
+        $duration = $this->ui->format_time($start); // Compute and format the duration
 
         if(!$result)
         {
@@ -424,9 +422,9 @@ class TableSelectProxy extends AbstractProxy
         }
         if(!$rows)
         {
-            return ['error' => $this->adminer->lang('No rows.')];
+            return ['error' => $this->ui->lang('No rows.')];
         }
-        // $backward_keys = $this->adminer->backwardKeys($table, $table_name);
+        // $backward_keys = $this->db->backwardKeys($table, $table_name);
 
         // Results headers
         $headers = [
@@ -444,7 +442,7 @@ class TableSelectProxy extends AbstractProxy
                 $val = $queryOptions["columns"][key($select)] ?? [];
                 $fun = $val["fun"] ?? '';
                 $field = $fields[$select ? ($val ? $val["col"] : current($select)) : $key];
-                $name = ($field ? $this->adminer->fieldName($field, $rank) : ($fun ? "*" : $key));
+                $name = ($field ? $this->ui->fieldName($field, $rank) : ($fun ? "*" : $key));
                 $header = \compact('val', 'field', 'name');
                 if($name != "") {
                     $rank++;
@@ -453,8 +451,8 @@ class TableSelectProxy extends AbstractProxy
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
-                    $header['key'] = $this->adminer->h($this->adminer->bracket_escape($key));
-                    $header['sql'] = $this->adminer->apply_sql_function($fun, $name); //! columns looking like functions
+                    $header['key'] = $this->ui->h($this->ui->bracket_escape($key));
+                    $header['sql'] = $this->db->apply_sql_function($fun, $name); //! columns looking like functions
                 }
                 $functions[$key] = $fun;
                 next($select);
@@ -463,7 +461,7 @@ class TableSelectProxy extends AbstractProxy
         }
 
         // $lengths = [];
-        // if($_GET["modify"])
+        // if($queryOptions["modify"])
         // {
         //     foreach($rows as $row)
         //     {
@@ -475,9 +473,9 @@ class TableSelectProxy extends AbstractProxy
         // }
 
         $results = [];
-        foreach($this->adminer->rowDescriptions($rows, $foreign_keys) as $n => $row)
+        foreach($this->db->rowDescriptions($rows, $foreign_keys) as $n => $row)
         {
-            $unique_array = $this->adminer->unique_array($rows[$n], $indexes);
+            $unique_array = $this->ui->unique_array($rows[$n], $indexes);
             if(!$unique_array)
             {
                 $unique_array = [];
@@ -512,13 +510,13 @@ class TableSelectProxy extends AbstractProxy
                 }
                 if($val !== null)
                 {
-                    $rowIds['where'][$this->adminer->bracket_escape($key)] = $val;
+                    $rowIds['where'][$this->ui->bracket_escape($key)] = $val;
                 }
                 else
                 {
-                    $rowIds['null'][] = $this->adminer->bracket_escape($key);
+                    $rowIds['null'][] = $this->ui->bracket_escape($key);
                 }
-                // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . $this->adminer->bracket_escape($key) . "]") .
+                // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . $this->ui->bracket_escape($key) . "]") .
                 //     "=" . \urlencode($val) : \urlencode("null[]") . "=" . \urlencode($key));
             }
 
@@ -532,12 +530,12 @@ class TableSelectProxy extends AbstractProxy
                     if($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != ""))
                     {
                         //! filled e-mails can be contained on other pages
-                        $email_fields[$key] = ($this->adminer->is_mail($val) ? $names[$key] : "");
+                        $email_fields[$key] = ($this->ui->is_mail($val) ? $names[$key] : "");
                     }
 
                     $link = "";
 
-                    $val = $this->adminer->select_value($val, $link, $field, $text_length);
+                    $val = $this->ui->select_value($val, $link, $field, $text_length);
                     $text = \preg_match('~text|lob~', $field["type"] ?? '');
 
                     $cols[] = \compact(/*'id', */'text', 'val'/*, 'editable'*/);
@@ -546,7 +544,7 @@ class TableSelectProxy extends AbstractProxy
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $total = $this->connection->result($this->adminer->count_rows($table, $where, $is_group, $group));
+        $total = $this->connection->result($this->db->count_rows($table, $where, $is_group, $group));
 
         $rows = $results;
         return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');

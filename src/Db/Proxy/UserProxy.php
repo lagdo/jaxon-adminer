@@ -77,7 +77,7 @@ class UserProxy extends AbstractProxy
                 "All privileges" => "",
             ],
         ];
-        foreach($this->adminer->get_rows("SHOW PRIVILEGES") as $row)
+        foreach($this->db->get_rows("SHOW PRIVILEGES") as $row)
         {
             // Context of "Grant option" privilege is set to empty string
             $contexts = \explode(",", ($row["Privilege"] == "Grant option" ? "" : $row["Context"]));
@@ -114,11 +114,11 @@ class UserProxy extends AbstractProxy
         $privileges = [];
         $contexts = [
             "" => "",
-            "Server Admin" => $this->adminer->lang('Server'),
-            "Databases" => $this->adminer->lang('Database'),
-            "Tables" => $this->adminer->lang('Table'),
-            "Columns" => $this->adminer->lang('Column'),
-            "Procedures" => $this->adminer->lang('Routine'),
+            "Server Admin" => $this->ui->lang('Server'),
+            "Databases" => $this->ui->lang('Database'),
+            "Tables" => $this->ui->lang('Table'),
+            "Columns" => $this->ui->lang('Column'),
+            "Procedures" => $this->ui->lang('Routine'),
         ];
         foreach($contexts as $context => $desc)
         {
@@ -126,25 +126,25 @@ class UserProxy extends AbstractProxy
             {
                 $detail = [
                     $desc,
-                    $this->adminer->h($privilege),
+                    $this->ui->h($privilege),
                 ];
                 // echo "<tr><td" . ($desc ? ">$desc<td" : " colspan='2'") .
                 //     ' lang="en" title="' . h($comment) . '">' . h($privilege);
                 $i = 0;
                 foreach($grants as $object => $grant)
                 {
-                    $name = "'grants[$i][" . $this->adminer->h(strtoupper($privilege)) . "]'";
+                    $name = "'grants[$i][" . $this->ui->h(strtoupper($privilege)) . "]'";
                     $value = $grant[\strtoupper($privilege)] ?? false;
                     if ($context == "Server Admin" && $object != (isset($grants["*.*"]) ? "*.*" : ".*"))
                     {
                         $detail[] = '';
                     }
-                    // elseif(isset($_GET["grant"]))
+                    // elseif(isset($values["grant"]))
                     // {
                     //     $detail[] = "<select name=$name><option><option value='1'" .
-                    //         ($value ? " selected" : "") . ">" . $this->adminer->lang('Grant') .
+                    //         ($value ? " selected" : "") . ">" . $this->ui->lang('Grant') .
                     //         "<option value='0'" . ($value == "0" ? " selected" : "") . ">" .
-                    //         $this->adminer->lang('Revoke') . "</select>";
+                    //         $this->ui->lang('Revoke') . "</select>";
                     // }
                     else
                     {
@@ -170,12 +170,12 @@ class UserProxy extends AbstractProxy
     public function getPrivileges($database = '')
     {
         $main_actions = [
-            'add-user' => $this->adminer->lang('Create user'),
+            'add-user' => $this->ui->lang('Create user'),
         ];
 
         $headers = [
-            $this->adminer->lang('Username'),
-            $this->adminer->lang('Server'),
+            $this->ui->lang('Username'),
+            $this->ui->lang('Server'),
             '',
             '',
         ];
@@ -193,8 +193,8 @@ class UserProxy extends AbstractProxy
         $details = [];
         while ($row = $result->fetch_assoc()) {
             $details[] = [
-                'user' => $this->adminer->h($row["User"]),
-                'host' => $this->adminer->h($row["Host"]),
+                'user' => $this->ui->h($row["User"]),
+                'host' => $this->ui->h($row["Host"]),
             ];
         }
 
@@ -218,8 +218,8 @@ class UserProxy extends AbstractProxy
         $grants = [".*" => []];
 
         $headers = [
-            $this->adminer->lang('Contexts'),
-            $this->adminer->lang('Privileges'),
+            $this->ui->lang('Contexts'),
+            $this->ui->lang('Privileges'),
         ];
         $i = 0;
         foreach($grants as $object => $grant)
@@ -227,7 +227,7 @@ class UserProxy extends AbstractProxy
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->adminer->h($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->ui->h($object) . '" autocapitalize="off" />';
             $i++;
         }
 
@@ -235,19 +235,19 @@ class UserProxy extends AbstractProxy
 
         $user = [
             'host' => [
-                'label' => $this->adminer->lang('Server'),
+                'label' => $this->ui->lang('Server'),
                 'value' => '',
             ],
             'name' => [
-                'label' => $this->adminer->lang('Username'),
+                'label' => $this->ui->lang('Username'),
                 'value' => '',
             ],
             'pass' => [
-                'label' => $this->adminer->lang('Password'),
+                'label' => $this->ui->lang('Password'),
                 'value' => '',
             ],
             'hashed' => [
-                'label' => $this->adminer->lang('Hashed'),
+                'label' => $this->ui->lang('Hashed'),
                 'value' => false,
             ],
         ];
@@ -275,8 +275,8 @@ class UserProxy extends AbstractProxy
         }
 
         $headers = [
-            $this->adminer->lang('Contexts'),
-            $this->adminer->lang('Privileges'),
+            $this->ui->lang('Contexts'),
+            $this->ui->lang('Privileges'),
         ];
         $i = 0;
         foreach($grants as $object => $grant)
@@ -284,7 +284,7 @@ class UserProxy extends AbstractProxy
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->adminer->h($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->ui->h($object) . '" autocapitalize="off" />';
             $i++;
         }
 
@@ -292,19 +292,19 @@ class UserProxy extends AbstractProxy
 
         $user = [
             'host' => [
-                'label' => $this->adminer->lang('Server'),
+                'label' => $this->ui->lang('Server'),
                 'value' => $host,
             ],
             'name' => [
-                'label' => $this->adminer->lang('Username'),
+                'label' => $this->ui->lang('Username'),
                 'value' => $user,
             ],
             'pass' => [
-                'label' => $this->adminer->lang('Password'),
+                'label' => $this->ui->lang('Password'),
                 'value' => $this->password,
             ],
             'hashed' => [
-                'label' => $this->adminer->lang('Hashed'),
+                'label' => $this->ui->lang('Hashed'),
                 'value' => ($this->password != ''),
             ],
         ];

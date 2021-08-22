@@ -48,10 +48,10 @@ trait TableSelectTrait
         $options = $this->connect($server, $database, $schema);
 
         $this->setBreadcrumbs([$options['name'], $database,
-            $this->adminer->lang('Tables'), $table, $this->adminer->lang('Select')]);
+            $this->ui->lang('Tables'), $table, $this->ui->lang('Select')]);
 
-        $this->adminer->input->table = $table;
-        $this->adminer->input->values = $queryOptions;
+        $this->ui->input->table = $table;
+        $this->ui->input->values = $queryOptions;
         return $this->tableSelect()->getSelectData($table, $queryOptions);
     }
 
@@ -71,8 +71,8 @@ trait TableSelectTrait
     {
         $this->connect($server, $database, $schema);
 
-        $this->adminer->input->table = $table;
-        $this->adminer->input->values = $queryOptions;
+        $this->ui->input->table = $table;
+        $this->ui->input->values = $queryOptions;
         return $this->tableSelect()->execSelect($table, $queryOptions);
     }
 }

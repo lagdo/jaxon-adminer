@@ -48,7 +48,7 @@ trait ExportTrait
         {
             $breadcrumbs[] = $database;
         }
-        $breadcrumbs[] = $this->adminer->lang('Export');
+        $breadcrumbs[] = $this->ui->lang('Export');
         $this->setBreadcrumbs($breadcrumbs);
 
         return $this->export()->getExportOptions($database);

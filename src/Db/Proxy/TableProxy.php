@@ -43,19 +43,19 @@ class TableProxy extends AbstractProxy
     protected function getTableLinks($set = null)
     {
         $links = [
-            'select' => $this->adminer->lang('Select data'),
+            'select' => $this->ui->lang('Select data'),
         ];
         if($this->server->support('table') || $this->server->support('indexes'))
         {
-            $links['table'] = $this->adminer->lang('Show structure');
+            $links['table'] = $this->ui->lang('Show structure');
         }
         if($this->server->support('table'))
         {
-            $links['alter'] = $this->adminer->lang('Alter table');
+            $links['alter'] = $this->ui->lang('Alter table');
         }
         if($set !== null)
         {
-            $links['edit'] = $this->adminer->lang('New item');
+            $links['edit'] = $this->ui->lang('New item');
         }
         // $links['docs'] = \doc_link([$this->server->jush => $this->driver->tableHelp($name)], '?');
 
@@ -72,45 +72,45 @@ class TableProxy extends AbstractProxy
     public function getTableInfo(string $table)
     {
         $main_actions = [
-            'edit-table' => $this->adminer->lang('Alter table'),
-            'drop-table' => $this->adminer->lang('Drop table'),
-            'select-table' => $this->adminer->lang('Select'),
-            'insert-table' => $this->adminer->lang('New item'),
+            'edit-table' => $this->ui->lang('Alter table'),
+            'drop-table' => $this->ui->lang('Drop table'),
+            'select-table' => $this->ui->lang('Select'),
+            'insert-table' => $this->ui->lang('New item'),
         ];
 
         // From table.inc.php
         $status = $this->status($table);
-        $name = $this->adminer->tableName($status);
-        $title = $this->adminer->lang('Table') . ': ' . ($name != '' ? $name : $this->adminer->h($table));
+        $name = $this->ui->tableName($status);
+        $title = $this->ui->lang('Table') . ': ' . ($name != '' ? $name : $this->ui->h($table));
 
         $comment = $status['Comment'] ?? '';
 
         $tabs = [
-            'fields' => $this->adminer->lang('Columns'),
-            // 'indexes' => $this->adminer->lang('Indexes'),
-            // 'foreign-keys' => $this->adminer->lang('Foreign keys'),
-            // 'triggers' => $this->adminer->lang('Triggers'),
+            'fields' => $this->ui->lang('Columns'),
+            // 'indexes' => $this->ui->lang('Indexes'),
+            // 'foreign-keys' => $this->ui->lang('Foreign keys'),
+            // 'triggers' => $this->ui->lang('Triggers'),
         ];
         if($this->server->is_view($status))
         {
             if($this->server->support('view_trigger'))
             {
-                $tabs['triggers'] = $this->adminer->lang('Triggers');
+                $tabs['triggers'] = $this->ui->lang('Triggers');
             }
         }
         else
         {
             if($this->server->support('indexes'))
             {
-                $tabs['indexes'] = $this->adminer->lang('Indexes');
+                $tabs['indexes'] = $this->ui->lang('Indexes');
             }
             if($this->server->fk_support($status))
             {
-                $tabs['foreign-keys'] = $this->adminer->lang('Foreign keys');
+                $tabs['foreign-keys'] = $this->ui->lang('Foreign keys');
             }
             if($this->server->support('trigger'))
             {
-                $tabs['triggers'] = $this->adminer->lang('Triggers');
+                $tabs['triggers'] = $this->ui->lang('Triggers');
             }
         }
 
@@ -136,59 +136,59 @@ class TableProxy extends AbstractProxy
         $main_actions = $this->getTableLinks();
 
         $tabs = [
-            'fields' => $this->adminer->lang('Columns'),
-            // 'indexes' => $this->adminer->lang('Indexes'),
-            // 'foreign-keys' => $this->adminer->lang('Foreign keys'),
-            // 'triggers' => $this->adminer->lang('Triggers'),
+            'fields' => $this->ui->lang('Columns'),
+            // 'indexes' => $this->ui->lang('Indexes'),
+            // 'foreign-keys' => $this->ui->lang('Foreign keys'),
+            // 'triggers' => $this->ui->lang('Triggers'),
         ];
         if($this->server->support('indexes'))
         {
-            $tabs['indexes'] = $this->adminer->lang('Indexes');
+            $tabs['indexes'] = $this->ui->lang('Indexes');
         }
         if($this->server->fk_support($this->status($table)))
         {
-            $tabs['foreign-keys'] = $this->adminer->lang('Foreign keys');
+            $tabs['foreign-keys'] = $this->ui->lang('Foreign keys');
         }
         if($this->server->support('trigger'))
         {
-            $tabs['triggers'] = $this->adminer->lang('Triggers');
+            $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
         $headers = [
-            $this->adminer->lang('Name'),
-            $this->adminer->lang('Type'),
-            $this->adminer->lang('Collation'),
+            $this->ui->lang('Name'),
+            $this->ui->lang('Type'),
+            $this->ui->lang('Collation'),
         ];
         $hasComment = $this->server->support('comment');
         if($hasComment)
         {
-            $headers[] = $this->adminer->lang('Comment');
+            $headers[] = $this->ui->lang('Comment');
         }
 
         $details = [];
         foreach($fields as $field)
         {
-            $type = $this->adminer->h($field['full_type']);
+            $type = $this->ui->h($field['full_type']);
             if($field['null'])
             {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
             if($field['auto_increment'])
             {
-                $type .= ' <i>' . $this->adminer->lang('Auto Increment') . '</i>';
+                $type .= ' <i>' . $this->ui->lang('Auto Increment') . '</i>';
             }
             if(\array_key_exists('default', $field))
             {
-                $type .= /*' ' . $this->adminer->lang('Default value') .*/ ' [<b>' . $this->adminer->h($field['default']) . '</b>]';
+                $type .= /*' ' . $this->ui->lang('Default value') .*/ ' [<b>' . $this->ui->h($field['default']) . '</b>]';
             }
             $detail = [
-                'name' => $this->adminer->h($field['field'] ?? ''),
+                'name' => $this->ui->h($field['field'] ?? ''),
                 'type' => $type,
-                'collation' => $this->adminer->h($field['collation'] ?? ''),
+                'collation' => $this->ui->h($field['collation'] ?? ''),
             ];
             if($hasComment)
             {
-                $detail['comment'] = $this->adminer->h($field['comment'] ?? '');
+                $detail['comment'] = $this->ui->h($field['comment'] ?? '');
             }
 
             $details[] = $detail;
@@ -214,13 +214,13 @@ class TableProxy extends AbstractProxy
         // From table.inc.php
         $indexes = $this->server->indexes($table);
         $main_actions = [
-            'create' => $this->adminer->lang('Alter indexes'),
+            'create' => $this->ui->lang('Alter indexes'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
-            $this->adminer->lang('Type'),
-            $this->adminer->lang('Column'),
+            $this->ui->lang('Name'),
+            $this->ui->lang('Type'),
+            $this->ui->lang('Column'),
         ];
 
         $details = [];
@@ -234,7 +234,7 @@ class TableProxy extends AbstractProxy
             $print = [];
             foreach($index['columns'] as $key => $val)
             {
-                $value = '<i>' . $this->adminer->h($val) . '</i>';
+                $value = '<i>' . $this->ui->h($val) . '</i>';
                 if(\array_key_exists('lengths', $index) &&
                     \is_array($index['lengths']) &&
                     \array_key_exists($key, $index['lengths']))
@@ -250,7 +250,7 @@ class TableProxy extends AbstractProxy
                 $print[] = $value;
             }
             $details[] = [
-                'name' => $this->adminer->h($name),
+                'name' => $this->ui->h($name),
                 'type' => $index['type'],
                 'desc' => \implode(', ', $print),
             ];
@@ -277,15 +277,15 @@ class TableProxy extends AbstractProxy
         // From table.inc.php
         $foreign_keys = $this->server->foreign_keys($table);
         $main_actions = [
-            $this->adminer->lang('Add foreign key'),
+            $this->ui->lang('Add foreign key'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
-            $this->adminer->lang('Source'),
-            $this->adminer->lang('Target'),
-            $this->adminer->lang('ON DELETE'),
-            $this->adminer->lang('ON UPDATE'),
+            $this->ui->lang('Name'),
+            $this->ui->lang('Source'),
+            $this->ui->lang('Target'),
+            $this->ui->lang('ON DELETE'),
+            $this->ui->lang('ON UPDATE'),
         ];
 
         if(!$foreign_keys)
@@ -299,25 +299,25 @@ class TableProxy extends AbstractProxy
             $target = '';
             if(\array_key_exists('db', $foreign_key) && $foreign_key['db'] != '')
             {
-                $target .= '<b>' . $this->adminer->h($foreign_key['db']) . '</b>.';
+                $target .= '<b>' . $this->ui->h($foreign_key['db']) . '</b>.';
             }
             if(\array_key_exists('ns', $foreign_key) && $foreign_key['ns'] != '')
             {
-                $target .= '<b>' . $this->adminer->h($foreign_key['ns']) . '</b>.';
+                $target .= '<b>' . $this->ui->h($foreign_key['ns']) . '</b>.';
             }
-            $target = $this->adminer->h($foreign_key['table']) .
+            $target = $this->ui->h($foreign_key['table']) .
                 '(' . \implode(', ', \array_map(function($key) {
-                    return $this->adminer->h($key);
+                    return $this->ui->h($key);
                 }, $foreign_key['target'])) . ')';
             $details[] = [
-                'name' => $this->adminer->h($name),
+                'name' => $this->ui->h($name),
                 'source' => '<i>' . \implode('</i>, <i>',
                     \array_map(function($key) {
-                        return $this->adminer->h($key);
+                        return $this->ui->h($key);
                     }, $foreign_key['source'])) . '</i>',
                 'target' => $target,
-                'on_delete' => $this->adminer->h($foreign_key['on_delete']),
-                'on_update' => $this->adminer->h($foreign_key['on_update']),
+                'on_delete' => $this->ui->h($foreign_key['on_delete']),
+                'on_update' => $this->ui->h($foreign_key['on_update']),
             ];
         }
 
@@ -342,11 +342,11 @@ class TableProxy extends AbstractProxy
         // From table.inc.php
         $triggers = $this->server->triggers($table);
         $main_actions = [
-            $this->adminer->lang('Add trigger'),
+            $this->ui->lang('Add trigger'),
         ];
 
         $headers = [
-            $this->adminer->lang('Name'),
+            $this->ui->lang('Name'),
             '&nbsp;',
             '&nbsp;',
             '&nbsp;',
@@ -361,10 +361,10 @@ class TableProxy extends AbstractProxy
         foreach($triggers as $key => $val)
         {
             $details[] = [
-                $this->adminer->h($val[0]),
-                $this->adminer->h($val[1]),
-                $this->adminer->h($key),
-                $this->adminer->lang('Alter'),
+                $this->ui->h($val[0]),
+                $this->ui->h($val[1]),
+                $this->ui->h($key),
+                $this->ui->lang('Alter'),
             ];
         }
 
@@ -380,7 +380,7 @@ class TableProxy extends AbstractProxy
      */
     private function getForeignKeys(string $table = '')
     {
-        $this->referencable_primary = $this->adminer->referencable_primary($table);
+        $this->referencable_primary = $this->ui->referencable_primary($table);
         $this->foreign_keys = [];
         foreach($this->referencable_primary as $table_name => $field)
         {
@@ -409,7 +409,7 @@ class TableProxy extends AbstractProxy
         }
         if($this->foreign_keys)
         {
-            $this->server->structured_types[$this->adminer->lang('Foreign keys')] = $this->foreign_keys;
+            $this->server->structured_types[$this->ui->lang('Foreign keys')] = $this->foreign_keys;
         }
         return \array_merge($extra_types, $this->server->structured_types);
     }
@@ -424,8 +424,8 @@ class TableProxy extends AbstractProxy
     public function getTableData(string $table = '')
     {
         $main_actions = [
-            'table-save' => $this->adminer->lang('Save'),
-            'table-cancel' => $this->adminer->lang('Cancel'),
+            'table-save' => $this->ui->lang('Save'),
+            'table-cancel' => $this->ui->lang('Cancel'),
         ];
 
         // From create.inc.php
@@ -436,7 +436,7 @@ class TableProxy extends AbstractProxy
             $status = $this->server->table_status($table);
             if(!$status)
             {
-                throw new Exception($this->adminer->lang('No tables.'));
+                throw new Exception($this->ui->lang('No tables.'));
             }
             $orig_fields = $this->server->fields($table);
             $fields = [];
@@ -471,7 +471,7 @@ class TableProxy extends AbstractProxy
 
             $field['_length_required_'] = !$field['length'] && \preg_match('~var(char|binary)$~', $type);
             $field['_collation_hidden_'] = !\preg_match('~(char|text|enum|set)$~', $type);
-            $field['_unsigned_hidden_'] = !(!$type || \preg_match($this->adminer->number_type(), $type));
+            $field['_unsigned_hidden_'] = !(!$type || \preg_match($this->db->number_type(), $type));
             $field['_on_update_hidden_'] = !\preg_match('~timestamp|datetime~', $type);
             $field['_on_delete_hidden_'] = !\preg_match('~`~', $type);
         }
@@ -480,9 +480,6 @@ class TableProxy extends AbstractProxy
             'on_update' => ['CURRENT_TIMESTAMP'],
             'on_delete' => \explode('|', $this->server->on_actions),
         ];
-
-        // $_GET['create'] = true
-        $this->adminer->input->isCreate = true;
 
         $collations = $this->server->collations();
         $engines = $this->server->engines();
@@ -579,9 +576,9 @@ class TableProxy extends AbstractProxy
                 $field['auto_increment'] = ($key == $values['auto_increment_col']);
                 $field["null"] = isset($field["null"]);
 
-                $process_field = $this->adminer->process_field($field, $type_field);
+                $process_field = $this->ui->process_field($field, $type_field);
                 $all_fields[] = [$field['orig'], $process_field, $after];
-                if(!$orig_field || $process_field != $this->adminer->process_field($orig_field, $orig_field))
+                if(!$orig_field || $process_field != $this->ui->process_field($orig_field, $orig_field))
                 {
                     $fields[] = [$field['orig'], $process_field, $after];
                     if($field['orig'] != '' || $after)
@@ -646,7 +643,7 @@ class TableProxy extends AbstractProxy
         // }
 
         $name = \trim($values['name']);
-        $autoIncrement = $this->adminer->input()->getAutoIncrementStep();
+        $autoIncrement = $this->ui->number($this->ui->input()->getAutoIncrementStep());
         if($this->server->jush == 'sqlite' && ($use_all_fields || $foreign)) {
             $fields = $all_fields;
         }
@@ -655,8 +652,8 @@ class TableProxy extends AbstractProxy
             $comment, $engine, $collation, $autoIncrement, $partitioning);
 
         $message = $table == '' ?
-            $this->adminer->lang('Table has been created.') :
-            $this->adminer->lang('Table has been altered.');
+            $this->ui->lang('Table has been created.') :
+            $this->ui->lang('Table has been altered.');
 
         $error = $this->server->error();
 
@@ -700,7 +697,7 @@ class TableProxy extends AbstractProxy
         $table_status = $this->server->table_status($table);
         if(!$table_status)
         {
-            throw new Exception($this->adminer->lang('No tables.'));
+            throw new Exception($this->ui->lang('No tables.'));
         }
 
         $currComment = $table_status['Comment'] ?? null;
@@ -728,7 +725,7 @@ class TableProxy extends AbstractProxy
 
         $error = $this->server->error();
 
-        $message = $this->adminer->lang('Table has been dropped.');
+        $message = $this->ui->lang('Table has been dropped.');
 
         return \compact('success', 'message', 'error');
     }
