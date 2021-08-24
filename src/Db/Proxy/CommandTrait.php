@@ -26,8 +26,7 @@ trait CommandTrait
      */
     protected function command(string $database, string $schema)
     {
-        if(!$this->commandProxy)
-        {
+        if (!$this->commandProxy) {
             $this->commandProxy = new CommandProxy();
             $this->commandProxy->init($this);
             $this->commandProxy->connect($database, $schema);
@@ -49,8 +48,7 @@ trait CommandTrait
         $options = $this->connect($server, $database, $schema);
 
         $breadcrumbs = [$options['name']];
-        if(($database))
-        {
+        if (($database)) {
             $breadcrumbs[] = $database;
         }
         $breadcrumbs[] = $this->ui->lang('SQL command');
@@ -79,8 +77,15 @@ trait CommandTrait
      *
      * @return array
      */
-    public function executeCommands(string $server, string $query, int $limit,
-        bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
+    public function executeCommands(
+        string $server,
+        string $query,
+        int $limit,
+        bool $errorStops,
+        bool $onlyErrors,
+        string $database = '',
+        string $schema = ''
+    )
     {
         $this->connect($server, $database, $schema);
         return $this->command($database, $schema)

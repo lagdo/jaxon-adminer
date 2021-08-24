@@ -38,8 +38,7 @@ class TableSelectProxy extends AbstractProxy
     private function getFiltersOptions(array $where, array $columns, array $indexes, array $options)
     {
         $fulltexts = [];
-        foreach($indexes as $i => $index)
-        {
+        foreach ($indexes as $i => $index) {
             $fulltexts[$i] = $index["type"] == "FULLTEXT" ? h($options["fulltext"][$i]) : '';
         }
         return [
@@ -64,8 +63,7 @@ class TableSelectProxy extends AbstractProxy
     {
         $values = [];
         $descs = (array)$options["desc"];
-        foreach((array)$options["order"] as $key => $value)
-        {
+        foreach ((array)$options["order"] as $key => $value) {
             $values[] = [
                 'col' => $value,
                 'desc' => $descs[$key] ?? 0,
@@ -95,8 +93,7 @@ class TableSelectProxy extends AbstractProxy
      */
     private function getLengthOptions(string $text_length)
     {
-        if($text_length === null)
-        {
+        if ($text_length === null) {
             return null;
         }
         return ['value' => $this->ui->h($text_length)];
@@ -110,11 +107,9 @@ class TableSelectProxy extends AbstractProxy
     private function getActionOptions(array $indexes)
     {
         $columns = [];
-        foreach($indexes as $index)
-        {
+        foreach ($indexes as $index) {
             $current_key = \reset($index["columns"]);
-            if($index["type"] != "FULLTEXT" && $current_key)
-            {
+            if ($index["type"] != "FULLTEXT" && $current_key) {
                 $columns[$current_key] = 1;
             }
         }
@@ -147,42 +142,42 @@ class TableSelectProxy extends AbstractProxy
      * @return array
      */
     private function getEmailOptions($emailFields, $columns)
-    {}
+    {
+    }
 
     /**
      * Select data from table
      *
-	 * @param string $table
-	 * @param array $select
-	 * @param array $where
-	 * @param array $group
-	 * @param array $order
-	 * @param int $limit
-	 * @param int $page index of page starting at zero
-	 *
-	 * @return string
-	 */
+     * @param string $table
+     * @param array $select
+     * @param array $where
+     * @param array $group
+     * @param array $order
+     * @param int $limit
+     * @param int $page index of page starting at zero
+     *
+     * @return string
+     */
     private function buildSelectQuery($table, $select, $where, $group, $order = [], $limit = 1, $page = 0)
     {
         // From driver.inc.php
-		$is_group = (\count($group) < \count($select));
-		$query = $this->db->buildSelectQuery($select, $where, $group, $order, $limit, $page);
-        if(!$query)
-        {
-			$query = "SELECT" . $this->server->limit(
+        $is_group = (\count($group) < \count($select));
+        $query = $this->db->buildSelectQuery($select, $where, $group, $order, $limit, $page);
+        if (!$query) {
+            $query = "SELECT" . $this->server->limit(
                 ($page != "last" && $limit != "" && $group && $is_group && $this->server->jush == "sql" ?
                     "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->server->table($table),
                 ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $is_group ?
                     "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
-				($limit != "" ? +$limit : null),
-				($page ? $limit * $page : 0),
-				"\n"
-			);
-		}
+                ($limit != "" ? +$limit : null),
+                ($page ? $limit * $page : 0),
+                "\n"
+            );
+        }
 
         // From adminer.inc.php
         return \str_replace("\n", " ", $query);
-	}
+    }
 
     /**
      * Get required data for create/update on tables
@@ -204,16 +199,13 @@ class TableSelectProxy extends AbstractProxy
             'text_length' => '100',
             'page' => '1',
         ];
-        foreach($defaultOptions as $name => $value)
-        {
-            if(!isset($queryOptions[$name]))
-            {
+        foreach ($defaultOptions as $name => $value) {
+            if (!isset($queryOptions[$name])) {
                 $queryOptions[$name] = $value;
             }
         }
         $page = \intval($queryOptions['page']);
-        if($page > 0)
-        {
+        if ($page > 0) {
             $page -= 1; // Page numbers start at 0 here, instead of 1.
         }
         $queryOptions['page'] = $page;
@@ -230,14 +222,11 @@ class TableSelectProxy extends AbstractProxy
         $rights = []; // privilege => 0
         $columns = []; // selectable columns
         $text_length = null;
-        foreach($fields as $key => $field)
-        {
+        foreach ($fields as $key => $field) {
             $name = $this->ui->fieldName($field);
-            if(isset($field["privileges"]["select"]) && $name != "")
-            {
+            if (isset($field["privileges"]["select"]) && $name != "") {
                 $columns[$key] = \html_entity_decode(\strip_tags($name), ENT_QUOTES);
-                if($this->ui->is_shortable($field))
-                {
+                if ($this->ui->is_shortable($field)) {
                     $text_length = $this->ui->selectLengthProcess();
                 }
             }
@@ -265,24 +254,19 @@ class TableSelectProxy extends AbstractProxy
         // }
 
         $primary = $unselected = null;
-        foreach($indexes as $index)
-        {
-            if($index["type"] == "PRIMARY")
-            {
+        foreach ($indexes as $index) {
+            if ($index["type"] == "PRIMARY") {
                 $primary = \array_flip($index["columns"]);
                 $unselected = ($select ? $primary : []);
-                foreach($unselected as $key => $val)
-                {
-                    if(\in_array($this->server->idf_escape($key), $select))
-                    {
+                foreach ($unselected as $key => $val) {
+                    if (\in_array($this->server->idf_escape($key), $select)) {
                         unset($unselected[$key]);
                     }
                 }
                 break;
             }
         }
-        if($oid && !$primary)
-        {
+        if ($oid && !$primary) {
             $primary = $unselected = [$oid => 0];
             $indexes[] = ["type" => "PRIMARY", "columns" => [$oid]];
         }
@@ -302,8 +286,7 @@ class TableSelectProxy extends AbstractProxy
         // }
         // $this->ui->selectLinks($table_status, $set);
 
-        if(!$columns && $this->server->support("table"))
-        {
+        if (!$columns && $this->server->support("table")) {
             throw new Exception($this->ui->lang('Unable to select the table') .
                 ($fields ? "." : ": " . $this->server->error()));
         }
@@ -325,30 +308,23 @@ class TableSelectProxy extends AbstractProxy
 
         $select2 = $select;
         $group2 = $group;
-        if(!$select2)
-        {
+        if (!$select2) {
             $select2[] = "*";
             $convert_fields = $this->db->convert_fields($columns, $fields, $select);
-            if($convert_fields)
-            {
+            if ($convert_fields) {
                 $select2[] = \substr($convert_fields, 2);
             }
         }
-        foreach($select as $key => $val)
-        {
+        foreach ($select as $key => $val) {
             $field = $fields[$this->server->idf_unescape($val)] ?? null;
-            if($field && ($as = $this->server->convert_field($field)))
-            {
+            if ($field && ($as = $this->server->convert_field($field))) {
                 $select2[$key] = "$as AS $val";
             }
         }
-        if(!$is_group && $unselected)
-        {
-            foreach($unselected as $key => $val)
-            {
+        if (!$is_group && $unselected) {
+            foreach ($unselected as $key => $val) {
                 $select2[] = $this->server->idf_escape($key);
-                if($group2)
-                {
+                if ($group2) {
                     $group2[] = $this->server->idf_escape($key);
                 }
             }
@@ -358,7 +334,7 @@ class TableSelectProxy extends AbstractProxy
         // ob_start();
         // $result = $this->driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
         // $query = ob_get_clean();
-		$query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
+        $query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
         return [$table_name, $select, $group, $fields, $foreign_keys, $columns, $indexes,
             $where, $order, $limit, $page, $text_length, $options, $query, $is_group];
@@ -384,7 +360,7 @@ class TableSelectProxy extends AbstractProxy
         ];
 
         return \compact('main_actions', 'options', 'query');
-	}
+    }
 
     /**
      * Get required data for create/update on tables
@@ -406,22 +382,18 @@ class TableSelectProxy extends AbstractProxy
         // From adminer.inc.php
         $duration = $this->ui->format_time($start); // Compute and format the duration
 
-        if(!$result)
-        {
+        if (!$result) {
             return ['error' => $this->server->error()];
         }
         // From select.inc.php
         $rows = [];
-        while(($row = $result->fetch_assoc()))
-        {
-            if($page && $this->server->jush == "oracle")
-            {
+        while (($row = $result->fetch_assoc())) {
+            if ($page && $this->server->jush == "oracle") {
                 unset($row["RNUM"]);
             }
             $rows[] = $row;
         }
-        if(!$rows)
-        {
+        if (!$rows) {
             return ['error' => $this->ui->lang('No rows.')];
         }
         // $backward_keys = $this->db->backwardKeys($table, $table_name);
@@ -434,17 +406,15 @@ class TableSelectProxy extends AbstractProxy
         $functions = [];
         reset($select);
         $rank = 1;
-        foreach($rows[0] as $key => $val)
-        {
+        foreach ($rows[0] as $key => $val) {
             $header = [];
-            if(!isset($unselected[$key]))
-            {
+            if (!isset($unselected[$key])) {
                 $val = $queryOptions["columns"][key($select)] ?? [];
                 $fun = $val["fun"] ?? '';
                 $field = $fields[$select ? ($val ? $val["col"] : current($select)) : $key];
                 $name = ($field ? $this->ui->fieldName($field, $rank) : ($fun ? "*" : $key));
                 $header = \compact('val', 'field', 'name');
-                if($name != "") {
+                if ($name != "") {
                     $rank++;
                     $names[$key] = $name;
                     $column = $this->server->idf_escape($key);
@@ -473,16 +443,12 @@ class TableSelectProxy extends AbstractProxy
         // }
 
         $results = [];
-        foreach($this->db->rowDescriptions($rows, $foreign_keys) as $n => $row)
-        {
+        foreach ($this->db->rowDescriptions($rows, $foreign_keys) as $n => $row) {
             $unique_array = $this->ui->unique_array($rows[$n], $indexes);
-            if(!$unique_array)
-            {
+            if (!$unique_array) {
                 $unique_array = [];
-                foreach($rows[$n] as $key => $val)
-                {
-                    if(!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key))
-                    {
+                foreach ($rows[$n] as $key => $val) {
+                    if (!\preg_match('~^(COUNT\((\*|(DISTINCT )?`(?:[^`]|``)+`)\)|(AVG|GROUP_CONCAT|MAX|MIN|SUM)\(`(?:[^`]|``)+`\))$~', $key)) {
                         //! columns looking like functions
                         $unique_array[$key] = $val;
                     }
@@ -495,25 +461,20 @@ class TableSelectProxy extends AbstractProxy
                 'where' => [],
                 'null' => [],
             ];
-            foreach($unique_array as $key => $val)
-            {
+            foreach ($unique_array as $key => $val) {
                 $key = \trim($key);
                 $type = $fields[$key]["type"] ?? '';
                 $collation = $fields[$key]["collation"] ?? '';
-                if(($this->server->jush == "sql" || $this->server->jush == "pgsql") &&
-                    \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64)
-                {
+                if (($this->server->jush == "sql" || $this->server->jush == "pgsql") &&
+                    \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64) {
                     $key = (\strpos($key, '(') ? $key : $this->server->idf_escape($key)); //! columns looking like functions
                     $key = "MD5(" . ($this->server->jush != 'sql' || \preg_match("~^utf8~", $collation) ?
                         $key : "CONVERT($key USING " . $this->server->charset() . ")") . ")";
                     $val = \md5($val);
                 }
-                if($val !== null)
-                {
+                if ($val !== null) {
                     $rowIds['where'][$this->ui->bracket_escape($key)] = $val;
-                }
-                else
-                {
+                } else {
                     $rowIds['null'][] = $this->ui->bracket_escape($key);
                 }
                 // $unique_idf .= "&" . ($val !== null ? \urlencode("where[" . $this->ui->bracket_escape($key) . "]") .
@@ -521,14 +482,11 @@ class TableSelectProxy extends AbstractProxy
             }
 
             $cols = [];
-            foreach($row as $key => $val)
-            {
-                if(isset($names[$key]))
-                {
+            foreach ($row as $key => $val) {
+                if (isset($names[$key])) {
                     $field = $fields[$key] ?? [];
                     $val = $this->connection->value($val, $field);
-                    if($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != ""))
-                    {
+                    if ($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                         //! filled e-mails can be contained on other pages
                         $email_fields[$key] = ($this->ui->is_mail($val) ? $names[$key] : "");
                     }

@@ -197,8 +197,7 @@ class AdminerUi implements AdminerUiInterface
     public function escape_key($key)
     {
         if (preg_match('(^([\w(]+)(' .
-            str_replace("_", ".*", preg_quote($this->server->idf_escape("_"))) . ')([ \w)]+)$)', $key, $match))
-        {
+            str_replace("_", ".*", preg_quote($this->server->idf_escape("_"))) . ')([ \w)]+)$)', $key, $match)) {
             //! columns looking like functions
             return $match[1] . $this->server->idf_escape($this->server->idf_unescape($match[2])) . $match[3]; //! SQL injection
         }
@@ -225,8 +224,7 @@ class AdminerUi implements AdminerUiInterface
                 $this->server->q(preg_replace('~[_%[]~', '[\0]', $val)) : " = " . // LIKE because of text
                 $this->server->unconvert_field($fields[$key], $this->server->q($val)))); //! enum and set
             if ($this->server->jush == "sql" &&
-                preg_match('~char|text~', $fields[$key]["type"]) && preg_match("~[^ -@]~", $val))
-            {
+                preg_match('~char|text~', $fields[$key]["type"]) && preg_match("~[^ -@]~", $val)) {
                 // not just [a-z] to catch non-ASCII characters
                 $return[] = "$column = " . $this->server->q($val) . " COLLATE " . $this->server->charset() . "_bin";
             }
@@ -285,8 +283,7 @@ class AdminerUi implements AdminerUiInterface
      */
     public function shorten_utf8($string, $length = 80, $suffix = "")
     {
-        if (!preg_match("(^(" . $this->repeat_pattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match))
-        {
+        if (!preg_match("(^(" . $this->repeat_pattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match)) {
             // ~s causes trash in $match[2] under some PHP versions, (.|\n) is slow
             preg_match("(^(" . $this->repeat_pattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
         }
@@ -353,7 +350,8 @@ class AdminerUi implements AdminerUiInterface
      * Returns export format options
      * @return array empty to disable export
      */
-    public function dumpFormat() {
+    public function dumpFormat()
+    {
         return array('sql' => 'SQL', 'csv' => 'CSV,', 'csv;' => 'CSV;', 'tsv' => 'TSV');
     }
 
@@ -361,7 +359,8 @@ class AdminerUi implements AdminerUiInterface
      * Returns export output options
      * @return array
      */
-    public function dumpOutput() {
+    public function dumpOutput()
+    {
         $return = array('text' => $this->lang('open'), 'file' => $this->lang('save'));
         if (function_exists('gzencode')) {
             $return['gz'] = 'gzip';
@@ -373,7 +372,8 @@ class AdminerUi implements AdminerUiInterface
      * Set the path of the file for webserver load
      * @return string path of the sql dump file
      */
-    public function importServerPath() {
+    public function importServerPath()
+    {
         return "adminer.sql";
     }
 
@@ -417,7 +417,8 @@ class AdminerUi implements AdminerUiInterface
      * @param bool
      * @return null
      */
-    public function editRowPrint($table, $fields, $row, $update) {
+    public function editRowPrint($table, $fields, $row, $update)
+    {
     }
 
     /**
@@ -425,7 +426,8 @@ class AdminerUi implements AdminerUiInterface
      * @param array $field Single field from fields()
      * @return array
      */
-    public function editFunctions(array $field) {
+    public function editFunctions(array $field)
+    {
         $return = ($field["null"] ? "NULL/" : "");
         $update = isset($options["select"]) || $this->where([]);
         foreach ($this->server->edit_functions as $key => $functions) {
@@ -558,8 +560,7 @@ class AdminerUi implements AdminerUiInterface
             "><i>" . $this->lang('empty') . "</i></label>";
 
         \preg_match_all("~'((?:[^']|'')*)'~", $field["length"], $matches);
-        foreach($matches[1] as $i => $val)
-        {
+        foreach ($matches[1] as $i => $val) {
             $val = \stripcslashes(\str_replace("''", "'", $val));
             $checked = (\is_int($value) ? $value == $i + 1 :
                 (\is_array($value) ? \in_array($i+1, $value) : $value === $val));
@@ -596,8 +597,7 @@ class AdminerUi implements AdminerUiInterface
                 "compress.zlib://$tmp_name" : $tmp_name); //! may not be reachable because of open_basedir
             if ($decompress) {
                 $start = substr($content, 0, 3);
-                if (function_exists("iconv") && preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs))
-                {
+                if (function_exists("iconv") && preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
                     // not ternary operator to save memory
                     $content = iconv("utf-16", "utf-8", $content);
                 } elseif ($start == "\xEF\xBB\xBF") { // UTF-8 BOM
@@ -726,17 +726,19 @@ class AdminerUi implements AdminerUiInterface
      * @param array
      * @return array (array(select_expressions), array(group_expressions))
      */
-    public function selectColumnsProcess($columns, $indexes) {
+    public function selectColumnsProcess($columns, $indexes)
+    {
         $select = []; // select expressions, empty for *
         $group = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
         foreach ((array) $this->input->values["columns"] as $key => $val) {
             if ($val["fun"] == "count" ||
                 ($val["col"] != "" && (!$val["fun"] ||
                 in_array($val["fun"], $this->server->functions) ||
-                in_array($val["fun"], $this->server->grouping))))
-            {
-                $select[$key] = $this->db->apply_sql_function($val["fun"],
-                    ($val["col"] != "" ? $this->server->idf_escape($val["col"]) : "*"));
+                in_array($val["fun"], $this->server->grouping)))) {
+                $select[$key] = $this->db->apply_sql_function(
+                    $val["fun"],
+                    ($val["col"] != "" ? $this->server->idf_escape($val["col"]) : "*")
+                );
                 if (!in_array($val["fun"], $this->server->grouping)) {
                     $group[] = $select[$key];
                 }
@@ -782,11 +784,12 @@ class AdminerUi implements AdminerUiInterface
      * @param array
      * @return array expressions to join by AND
      */
-    public function selectSearchProcess($fields, $indexes) {
+    public function selectSearchProcess($fields, $indexes)
+    {
         $return = [];
         foreach ($indexes as $i => $index) {
             if ($index["type"] == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
-                $columns = array_map(function($column) {
+                $columns = array_map(function ($column) {
                     return $this->server->idf_escape($column);
                 }, $index["columns"]);
                 $return[] = "MATCH (" . implode(", ", $columns) . ") AGAINST (" .
@@ -814,8 +817,11 @@ class AdminerUi implements AdminerUiInterface
                     $cond .= " " . $this->processInput($fields[$val["col"]], $val["val"]);
                 }
                 if ($val["col"] != "") {
-                    $return[] = $prefix . $this->driver->convertSearch($this->server->idf_escape($val["col"]),
-                        $val, $fields[$val["col"]]) . $cond;
+                    $return[] = $prefix . $this->driver->convertSearch(
+                        $this->server->idf_escape($val["col"]),
+                        $val,
+                        $fields[$val["col"]]
+                    ) . $cond;
                 } else {
                     // find anywhere
                     $cols = [];
@@ -841,7 +847,8 @@ class AdminerUi implements AdminerUiInterface
      * @param array
      * @return array expressions to join by comma
      */
-    public function selectOrderProcess($fields, $indexes) {
+    public function selectOrderProcess($fields, $indexes)
+    {
         $return = [];
         foreach ((array) $this->input->values["order"] as $key => $val) {
             if ($val != "") {
@@ -857,7 +864,8 @@ class AdminerUi implements AdminerUiInterface
      * Process limit box in select
      * @return string expression to use in LIMIT, will be escaped
      */
-    public function selectLimitProcess() {
+    public function selectLimitProcess()
+    {
         return (isset($this->input->values["limit"]) ? $this->input->values["limit"] : "50");
     }
 
@@ -865,7 +873,8 @@ class AdminerUi implements AdminerUiInterface
      * Process length box in select
      * @return string number of characters to shorten texts, will be escaped
      */
-    public function selectLengthProcess() {
+    public function selectLengthProcess()
+    {
         return (isset($this->input->values["text_length"]) ? $this->input->values["text_length"] : "100");
     }
 
@@ -875,7 +884,8 @@ class AdminerUi implements AdminerUiInterface
      * @param array
      * @return bool true if processed, false to process other parts of form
      */
-    public function selectEmailProcess($where, $foreignKeys) {
+    public function selectEmailProcess($where, $foreignKeys)
+    {
         return false;
     }
 
@@ -903,7 +913,8 @@ class AdminerUi implements AdminerUiInterface
      * @param int
      * @return string HTML
      */
-    public function select_value($val, $link, $field, $text_length) {
+    public function select_value($val, $link, $field, $text_length)
+    {
         if (is_array($val)) {
             $return = "";
             foreach ($val as $k => $v) {
@@ -961,9 +972,15 @@ class AdminerUi implements AdminerUiInterface
      * @param string
      * @return bool
      */
-    public function query_redirect($query, $location = null, $message = null,
-        $redirect = false, $execute = true, $failed = false, $time = "")
-    {
+    public function query_redirect(
+        $query,
+        $location = null,
+        $message = null,
+        $redirect = false,
+        $execute = true,
+        $failed = false,
+        $time = ""
+    ) {
         global $error;
         if ($execute) {
             $start = microtime(true);
@@ -1000,8 +1017,19 @@ class AdminerUi implements AdminerUiInterface
      * @param string
      * @return null redirect in success
      */
-    public function drop_create($drop, $create, $drop_created, $test, $drop_test,
-        $location, $message_drop, $message_alter, $message_create, $old_name, $new_name) {
+    public function drop_create(
+        $drop,
+        $create,
+        $drop_created,
+        $test,
+        $drop_test,
+        $location,
+        $message_drop,
+        $message_alter,
+        $message_create,
+        $old_name,
+        $new_name
+    ) {
         if ($old_name == "") {
             $this->query_redirect($drop, $location, $message_drop);
         } elseif ($old_name == "") {
@@ -1025,7 +1053,8 @@ class AdminerUi implements AdminerUiInterface
      * @param string
      * @return null redirect in success
      */
-    public function drop_only($drop, $location, $message_drop) {
+    public function drop_only($drop, $location, $message_drop)
+    {
         return $this->query_redirect($drop, $location, $message_drop);
     }
 }

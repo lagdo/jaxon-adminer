@@ -30,30 +30,23 @@ class UserProxy extends AbstractProxy
         $grants = [];
 
         //! use information_schema for MySQL 5 - column names in column privileges are not escaped
-        if(($result = $this->connection->query("SHOW GRANTS FOR " .
-            $this->server->q($user) . "@" . $this->server->q($host))))
-        {
-            while($row = $result->fetch_row())
-            {
-                if(\preg_match('~GRANT (.*) ON (.*) TO ~', $row[0], $match) &&
-                    \preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~', $match[1], $matches, PREG_SET_ORDER))
-                { //! escape the part between ON and TO
-                    foreach($matches as $val)
-                    {
+        if (($result = $this->connection->query("SHOW GRANTS FOR " .
+            $this->server->q($user) . "@" . $this->server->q($host)))) {
+            while ($row = $result->fetch_row()) {
+                if (\preg_match('~GRANT (.*) ON (.*) TO ~', $row[0], $match) &&
+                    \preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~', $match[1], $matches, PREG_SET_ORDER)) { //! escape the part between ON and TO
+                    foreach ($matches as $val) {
                         $match2 = $match[2] ?? '';
                         $val2 = $val[2] ?? '';
-                        if($val[1] != "USAGE")
-                        {
+                        if ($val[1] != "USAGE") {
                             $grants["$match2$val2"][$val[1]] = true;
                         }
-                        if(\preg_match('~ WITH GRANT OPTION~', $row[0]))
-                        { //! don't check inside strings and identifiers
+                        if (\preg_match('~ WITH GRANT OPTION~', $row[0])) { //! don't check inside strings and identifiers
                             $grants["$match2$val2"]["GRANT OPTION"] = true;
                         }
                     }
                 }
-                if(\preg_match("~ IDENTIFIED BY PASSWORD '([^']+)~", $row[0], $match))
-                {
+                if (\preg_match("~ IDENTIFIED BY PASSWORD '([^']+)~", $row[0], $match)) {
                     $this->password = $match[1];
                 }
             }
@@ -77,37 +70,34 @@ class UserProxy extends AbstractProxy
                 "All privileges" => "",
             ],
         ];
-        foreach($this->db->get_rows("SHOW PRIVILEGES") as $row)
-        {
+        foreach ($this->db->get_rows("SHOW PRIVILEGES") as $row) {
             // Context of "Grant option" privilege is set to empty string
             $contexts = \explode(",", ($row["Privilege"] == "Grant option" ? "" : $row["Context"]));
-            foreach($contexts as $context)
-            {
+            foreach ($contexts as $context) {
                 $features[$context][$row["Privilege"]] = $row["Comment"];
             }
         }
 
         // Privileges of "Server Admin" and "File access on server" are merged
-        $features["Server Admin"] = \array_merge($features["Server Admin"],
-            $features["File access on server"]);
+        $features["Server Admin"] = \array_merge(
+            $features["Server Admin"],
+            $features["File access on server"]
+        );
         // Comment for this is "No privileges - allow connect only"
         unset($features["Server Admin"]["Usage"]);
 
-        if(\array_key_exists("Create routine", $features["Procedures"]))
-        {
+        if (\array_key_exists("Create routine", $features["Procedures"])) {
             // MySQL bug #30305
             $features["Databases"]["Create routine"] = $features["Procedures"]["Create routine"];
             unset($features["Procedures"]["Create routine"]);
         }
 
         $features["Columns"] = [];
-        foreach(["Select", "Insert", "Update", "References"] as $val)
-        {
+        foreach (["Select", "Insert", "Update", "References"] as $val) {
             $features["Columns"][$val] = $features["Tables"][$val];
         }
 
-        foreach($features["Tables"] as $key => $val)
-        {
+        foreach ($features["Tables"] as $key => $val) {
             unset($features["Databases"][$key]);
         }
 
@@ -120,10 +110,8 @@ class UserProxy extends AbstractProxy
             "Columns" => $this->ui->lang('Column'),
             "Procedures" => $this->ui->lang('Routine'),
         ];
-        foreach($contexts as $context => $desc)
-        {
-            foreach((array)$features[$context] as $privilege => $comment)
-            {
+        foreach ($contexts as $context => $desc) {
+            foreach ((array)$features[$context] as $privilege => $comment) {
                 $detail = [
                     $desc,
                     $this->ui->h($privilege),
@@ -131,12 +119,10 @@ class UserProxy extends AbstractProxy
                 // echo "<tr><td" . ($desc ? ">$desc<td" : " colspan='2'") .
                 //     ' lang="en" title="' . h($comment) . '">' . h($privilege);
                 $i = 0;
-                foreach($grants as $object => $grant)
-                {
+                foreach ($grants as $object => $grant) {
                     $name = "'grants[$i][" . $this->ui->h(strtoupper($privilege)) . "]'";
                     $value = $grant[\strtoupper($privilege)] ?? false;
-                    if ($context == "Server Admin" && $object != (isset($grants["*.*"]) ? "*.*" : ".*"))
-                    {
+                    if ($context == "Server Admin" && $object != (isset($grants["*.*"]) ? "*.*" : ".*")) {
                         $detail[] = '';
                     }
                     // elseif(isset($values["grant"]))
@@ -146,8 +132,7 @@ class UserProxy extends AbstractProxy
                     //         "<option value='0'" . ($value == "0" ? " selected" : "") . ">" .
                     //         $this->ui->lang('Revoke') . "</select>";
                     // }
-                    else
-                    {
+                    else {
                         $detail[] = "<input type='checkbox' name=$name" . ($value ? " checked />" : " />");
                     }
                     $i++;
@@ -185,7 +170,7 @@ class UserProxy extends AbstractProxy
             ($database == "" ? "user" : "db WHERE " . $this->server->q($database) . " LIKE Db") .
             " ORDER BY Host, User");
         $grant = $result;
-        if(!$result) {
+        if (!$result) {
             // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
             $result = $this->connection->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
                 "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
@@ -199,8 +184,7 @@ class UserProxy extends AbstractProxy
         }
 
         // Fetch user grants
-        foreach($details as &$detail)
-        {
+        foreach ($details as &$detail) {
             $grants = $this->fetchUserGrants($detail['user'], $detail['host']);
             $detail['grants'] = \array_keys($grants);
         }
@@ -222,8 +206,7 @@ class UserProxy extends AbstractProxy
             $this->ui->lang('Privileges'),
         ];
         $i = 0;
-        foreach($grants as $object => $grant)
-        {
+        foreach ($grants as $object => $grant) {
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
@@ -269,8 +252,7 @@ class UserProxy extends AbstractProxy
     public function getUserPrivileges($user, $host, $database)
     {
         $grants = $this->fetchUserGrants($user, $host);
-        if($database !== '')
-        {
+        if ($database !== '') {
             $grants = \array_key_exists($database, $grants) ? [$database => $grants[$database]] : [];
         }
 
@@ -279,8 +261,7 @@ class UserProxy extends AbstractProxy
             $this->ui->lang('Privileges'),
         ];
         $i = 0;
-        foreach($grants as $object => $grant)
-        {
+        foreach ($grants as $object => $grant) {
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :

@@ -25,8 +25,7 @@ trait ServerTrait
      */
     protected function server(array $options)
     {
-        if(!$this->serverProxy)
-        {
+        if (!$this->serverProxy) {
             $this->serverProxy = new ServerProxy($options);
             $this->serverProxy->init($this);
         }

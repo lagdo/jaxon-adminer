@@ -37,7 +37,7 @@ class Input implements InputInterface
      */
     public function getSelect()
     {
-        if(!isset($this->values['select'])) {
+        if (!isset($this->values['select'])) {
             return [];
         }
         return $this->values['select'];
@@ -48,7 +48,7 @@ class Input implements InputInterface
      */
     public function getWhere()
     {
-        if(!isset($this->values['where'])) {
+        if (!isset($this->values['where'])) {
             return [];
         }
         return $this->values['where'];
@@ -59,7 +59,7 @@ class Input implements InputInterface
      */
     public function getLimit()
     {
-        if(!isset($this->values['limit'])) {
+        if (!isset($this->values['limit'])) {
             return 0;
         }
         return $this->values['limit'];
@@ -70,7 +70,7 @@ class Input implements InputInterface
      */
     public function getFields()
     {
-        if(!isset($this->values['fields'])) {
+        if (!isset($this->values['fields'])) {
             return [];
         }
         return $this->values['fields'];
@@ -81,7 +81,7 @@ class Input implements InputInterface
      */
     public function getAutoIncrementStep()
     {
-        if(!isset($this->values['auto_increment']) || $this->values['auto_increment'] == '') {
+        if (!isset($this->values['auto_increment']) || $this->values['auto_increment'] == '') {
             return '';
         }
         return $this->values['auto_increment'];
@@ -92,7 +92,7 @@ class Input implements InputInterface
      */
     public function getAutoIncrementField()
     {
-        if(!isset($this->values['auto_increment_col'])) {
+        if (!isset($this->values['auto_increment_col'])) {
             return '';
         }
         return $this->values['auto_increment_col'];
@@ -103,7 +103,7 @@ class Input implements InputInterface
      */
     public function getChecks()
     {
-        if(!isset($this->values['checks'])) {
+        if (!isset($this->values['checks'])) {
             return [];
         }
         return $this->values['checks'];
@@ -114,7 +114,7 @@ class Input implements InputInterface
      */
     public function getOverwrite()
     {
-        if(!isset($this->values['overwrite'])) {
+        if (!isset($this->values['overwrite'])) {
             return false;
         }
         return $this->values['overwrite'];

@@ -49,8 +49,7 @@ class AdminerDb implements AdminerDbInterface
         $server = $this->options['host'];
         $port = $this->options['port'] ?? ''; // Optional
         // Append the port to the host if it is defined.
-        if(($port))
-        {
+        if (($port)) {
             $server .= ":$port";
         }
 
@@ -61,7 +60,8 @@ class AdminerDb implements AdminerDbInterface
      * @inheritDoc
      */
     public function connectSsl()
-    {}
+    {
+    }
 
     /**
      * @inheritDoc
@@ -105,9 +105,10 @@ class AdminerDb implements AdminerDbInterface
      */
     public function apply_queries($query, $tables, $escape = null)
     {
-        if(!$escape)
-        {
-            $escape = function($table) { return $this->server->table($table); };
+        if (!$escape) {
+            $escape = function ($table) {
+                return $this->server->table($table);
+            };
         }
         foreach ($tables as $table) {
             if (!$this->queries("$query " . $escape($table))) {
@@ -218,8 +219,7 @@ class AdminerDb implements AdminerDbInterface
     {
         static $set = false;
         // possible false positive
-        if (!$set && preg_match('~\butf8mb4~i', $create))
-        {
+        if (!$set && preg_match('~\butf8mb4~i', $create)) {
             $set = true;
             return "SET NAMES " . $this->server->charset() . ";\n\n";
         }
@@ -233,8 +233,11 @@ class AdminerDb implements AdminerDbInterface
      */
     public function remove_definer($query)
     {
-        return preg_replace('~^([A-Z =]+) DEFINER=`' . preg_replace('~@(.*)~', '`@`(%|\1)',
-            $this->server->logged_user()) . '`~', '\1', $query); //! proper escaping of user
+        return preg_replace('~^([A-Z =]+) DEFINER=`' . preg_replace(
+            '~@(.*)~',
+            '`@`(%|\1)',
+            $this->server->logged_user()
+        ) . '`~', '\1', $query); //! proper escaping of user
     }
 
     /**
@@ -298,7 +301,8 @@ class AdminerDb implements AdminerDbInterface
      * @param string
      * @return array $return[$target_table]["keys"][$key_name][$target_column] = $source_column; $return[$target_table]["name"] = $this->tableName($target_table);
      */
-    public function backwardKeys($table, $tableName) {
+    public function backwardKeys($table, $tableName)
+    {
         return [];
     }
 
@@ -308,7 +312,8 @@ class AdminerDb implements AdminerDbInterface
      * @param array
      * @return array
      */
-    public function rowDescriptions($rows, $foreignKeys) {
+    public function rowDescriptions($rows, $foreignKeys)
+    {
         return $rows;
     }
 }

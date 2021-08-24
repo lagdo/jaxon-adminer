@@ -31,11 +31,10 @@ class ServerProxy extends AbstractProxy
     public function __construct(array $options)
     {
         // Set the user databases, if defined.
-        if(\array_key_exists('access', $options) &&
+        if (\array_key_exists('access', $options) &&
             \is_array($options['access']) &&
             \array_key_exists('databases', $options['access']) &&
-            \is_array($options['access']['databases']))
-        {
+            \is_array($options['access']['databases'])) {
             $this->userDatabases = $options['access']['databases'];
         }
     }
@@ -50,11 +49,9 @@ class ServerProxy extends AbstractProxy
         // Get the database lists
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser are prepended to the Jaxon response.
-        if($this->finalDatabases === null)
-        {
+        if ($this->finalDatabases === null) {
             $this->finalDatabases = $this->server->get_databases(false);
-            if(\is_array($this->userDatabases))
-            {
+            if (\is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
                 $this->finalDatabases = \array_values($this->finalDatabases);
@@ -70,8 +67,12 @@ class ServerProxy extends AbstractProxy
      */
     public function getServerInfo()
     {
-        $server = $this->ui->lang('%s version: %s. PHP extension %s.', $this->server->getName(),
-            "<b>" . $this->ui->h($this->connection->server_info) . "</b>", "<b>{$this->connection->extension}</b>");
+        $server = $this->ui->lang(
+            '%s version: %s. PHP extension %s.',
+            $this->server->getName(),
+            "<b>" . $this->ui->h($this->connection->server_info) . "</b>",
+            "<b>{$this->connection->extension}</b>"
+        );
         $user = $this->ui->lang('Logged as: %s.', "<b>" . $this->ui->h($this->server->logged_user()) . "</b>");
 
         $sql_actions = [
@@ -88,20 +89,16 @@ class ServerProxy extends AbstractProxy
         // {
         //     $menu_actions['databases'] = $this->ui->lang('Databases');
         // }
-        if($this->server->support('privileges'))
-        {
+        if ($this->server->support('privileges')) {
             $menu_actions['privileges'] = $this->ui->lang('Privileges');
         }
-        if($this->server->support('processlist'))
-        {
+        if ($this->server->support('processlist')) {
             $menu_actions['processes'] = $this->ui->lang('Process list');
         }
-        if($this->server->support('variables'))
-        {
+        if ($this->server->support('variables')) {
             $menu_actions['variables'] = $this->ui->lang('Variables');
         }
-        if($this->server->support('status'))
-        {
+        if ($this->server->support('status')) {
             $menu_actions['status'] = $this->ui->lang('Status');
         }
 
@@ -171,8 +168,7 @@ class ServerProxy extends AbstractProxy
 
         $collations = $this->server->collations();
         $details = [];
-        foreach($databases as $database)
-        {
+        foreach ($databases as $database) {
             $details[] = [
                 'name' => $this->ui->h($database),
                 'collation' => $this->ui->h($this->server->db_collation($database, $collations)),
@@ -198,16 +194,13 @@ class ServerProxy extends AbstractProxy
         // TODO: Add a kill column in the headers
         $headers = [];
         $details = [];
-        foreach($processes as $process)
-        {
+        foreach ($processes as $process) {
             // Set the keys of the first etry as headers
-            if(\count($headers) === 0)
-            {
+            if (\count($headers) === 0) {
                 $headers = \array_keys($process);
             }
             $detail = [];
-            foreach($process as $key => $val)
-            {
+            foreach ($process as $key => $val) {
                 $match = \array_key_exists('Command', $process) &&
                     \preg_match("~Query|Killed~", $process["Command"]);
                 $detail[] =
@@ -237,8 +230,7 @@ class ServerProxy extends AbstractProxy
 
         $details = [];
         // From variables.inc.php
-        foreach($variables as $key => $val)
-        {
+        foreach ($variables as $key => $val) {
             $details[] = [$this->ui->h($key), $this->ui->shorten_utf8($val, 50)];
         }
 
@@ -254,8 +246,7 @@ class ServerProxy extends AbstractProxy
     {
         // From variables.inc.php
         $status = $this->server->show_status();
-        if(!\is_array($status))
-        {
+        if (!\is_array($status)) {
             $status = [];
         }
 
@@ -263,8 +254,7 @@ class ServerProxy extends AbstractProxy
 
         $details = [];
         // From variables.inc.php
-        foreach($status as $key => $val)
-        {
+        foreach ($status as $key => $val) {
             $details[] = [$this->ui->h($key), $this->ui->h($val)];
         }
 

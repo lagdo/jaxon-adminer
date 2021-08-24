@@ -23,8 +23,7 @@ trait ViewTrait
      */
     protected function view()
     {
-        if(!$this->viewProxy)
-        {
+        if (!$this->viewProxy) {
             $this->viewProxy = new ViewProxy();
             $this->viewProxy->init($this);
         }

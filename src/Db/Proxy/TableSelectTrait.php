@@ -23,8 +23,7 @@ trait TableSelectTrait
      */
     protected function tableSelect()
     {
-        if(!$this->tableSelectProxy)
-        {
+        if (!$this->tableSelectProxy) {
             $this->tableSelectProxy = new TableSelectProxy();
             $this->tableSelectProxy->init($this);
         }
@@ -42,8 +41,13 @@ trait TableSelectTrait
      *
      * @return array
      */
-    public function getSelectData(string $server, string $database, string $schema,
-        string $table, array $queryOptions = [])
+    public function getSelectData(
+        string $server,
+        string $database,
+        string $schema,
+        string $table,
+        array $queryOptions = []
+    )
     {
         $options = $this->connect($server, $database, $schema);
 
@@ -66,8 +70,13 @@ trait TableSelectTrait
      *
      * @return array
      */
-    public function execSelect(string $server, string $database, string $schema,
-        string $table, array $queryOptions = [])
+    public function execSelect(
+        string $server,
+        string $database,
+        string $schema,
+        string $table,
+        array $queryOptions = []
+    )
     {
         $this->connect($server, $database, $schema);
 

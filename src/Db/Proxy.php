@@ -78,8 +78,7 @@ class Proxy extends Proxy\AbstractProxy
      */
     protected function select(string $database, string $schema)
     {
-        if($database !== '')
-        {
+        if ($database !== '') {
             $this->server->selectDatabase($database, $schema);
         }
     }
@@ -97,8 +96,7 @@ class Proxy extends Proxy\AbstractProxy
     {
         $options = $this->package->getServerOptions($server);
         // Prevent multiple calls.
-        if(($this->db))
-        {
+        if (($this->db)) {
             $this->select($database, $schema);
             return $options;
         }

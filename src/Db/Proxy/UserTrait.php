@@ -23,8 +23,7 @@ trait UserTrait
      */
     protected function user()
     {
-        if(!$this->userProxy)
-        {
+        if (!$this->userProxy) {
             $this->userProxy = new UserProxy();
             $this->userProxy->init($this);
         }

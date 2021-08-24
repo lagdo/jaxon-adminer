@@ -23,8 +23,7 @@ trait TableTrait
      */
     protected function table()
     {
-        if(!$this->tableProxy)
-        {
+        if (!$this->tableProxy) {
             $this->tableProxy = new TableProxy();
             $this->tableProxy->init($this);
         }
@@ -134,13 +133,10 @@ trait TableTrait
         $options = $this->connect($server, $database, $schema);
 
         $breadcrumbs = [$options['name'], $database, $this->ui->lang('Tables')];
-        if(($table))
-        {
+        if (($table)) {
             $breadcrumbs[] = $table;
             $breadcrumbs[] = $this->ui->lang('Alter table');
-        }
-        else
-        {
+        } else {
             $breadcrumbs[] = $this->ui->lang('Create table');
         }
         $this->setBreadcrumbs($breadcrumbs);

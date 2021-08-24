@@ -23,8 +23,7 @@ trait TableQueryTrait
      */
     protected function tableQuery()
     {
-        if(!$this->tableQueryProxy)
-        {
+        if (!$this->tableQueryProxy) {
             $this->tableQueryProxy = new TableQueryProxy();
             $this->tableQueryProxy->init($this);
         }
@@ -43,8 +42,14 @@ trait TableQueryTrait
      *
      * @return array
      */
-    public function getQueryData(string $server, string $database, string $schema,
-        string $table, array $queryOptions = [], string $action = 'New item')
+    public function getQueryData(
+        string $server,
+        string $database,
+        string $schema,
+        string $table,
+        array $queryOptions = [],
+        string $action = 'New item'
+    )
     {
         $options = $this->connect($server, $database, $schema);
 
@@ -67,8 +72,13 @@ trait TableQueryTrait
      *
      * @return array
      */
-    public function insertItem(string $server, string $database, string $schema,
-        string $table, array $queryOptions)
+    public function insertItem(
+        string $server,
+        string $database,
+        string $schema,
+        string $table,
+        array $queryOptions
+    )
     {
         $this->connect($server, $database, $schema);
 
@@ -88,8 +98,13 @@ trait TableQueryTrait
      *
      * @return array
      */
-    public function updateItem(string $server, string $database, string $schema,
-        string $table, array $queryOptions)
+    public function updateItem(
+        string $server,
+        string $database,
+        string $schema,
+        string $table,
+        array $queryOptions
+    )
     {
         $this->connect($server, $database, $schema);
 
@@ -109,8 +124,13 @@ trait TableQueryTrait
      *
      * @return array
      */
-    public function deleteItem(string $server, string $database, string $schema,
-        string $table, array $queryOptions)
+    public function deleteItem(
+        string $server,
+        string $database,
+        string $schema,
+        string $table,
+        array $queryOptions
+    )
     {
         $this->connect($server, $database, $schema);
 

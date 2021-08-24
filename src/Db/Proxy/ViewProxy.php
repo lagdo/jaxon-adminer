@@ -25,8 +25,7 @@ class ViewProxy extends AbstractProxy
      */
     protected function status(string $table)
     {
-        if(!$this->viewStatus)
-        {
+        if (!$this->viewStatus) {
             $this->viewStatus = $this->server->table_status1($table, true);
         }
         return $this->viewStatus;
@@ -45,16 +44,13 @@ class ViewProxy extends AbstractProxy
         $links = [
             "select" => $this->ui->lang('Select data'),
         ];
-        if($this->server->support("table") || $this->server->support("indexes"))
-        {
+        if ($this->server->support("table") || $this->server->support("indexes")) {
             $links["table"] = $this->ui->lang('Show structure');
         }
-        if($this->server->support("table"))
-        {
+        if ($this->server->support("table")) {
             $links["alter"] = $this->ui->lang('Alter view');
         }
-        if($set !== null)
-        {
+        if ($set !== null) {
             $links["edit"] = $this->ui->lang('New item');
         }
         // $links['docs'] = \doc_link([$this->server->jush => $this->driver->tableHelp($name)], "?");
@@ -91,8 +87,7 @@ class ViewProxy extends AbstractProxy
             // 'foreign-keys' => $this->ui->lang('Foreign keys'),
             // 'triggers' => $this->ui->lang('Triggers'),
         ];
-        if($this->server->support("view_trigger"))
-        {
+        if ($this->server->support("view_trigger")) {
             $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
@@ -110,8 +105,7 @@ class ViewProxy extends AbstractProxy
     {
         // From table.inc.php
         $fields = $this->server->fields($table);
-        if(!$fields)
-        {
+        if (!$fields) {
             throw new Exception($this->server->error());
         }
 
@@ -121,8 +115,7 @@ class ViewProxy extends AbstractProxy
             'fields' => $this->ui->lang('Columns'),
             // 'triggers' => $this->ui->lang('Triggers'),
         ];
-        if($this->server->support("view_trigger"))
-        {
+        if ($this->server->support("view_trigger")) {
             $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
@@ -132,25 +125,20 @@ class ViewProxy extends AbstractProxy
             $this->ui->lang('Collation'),
         ];
         $hasComment = $this->server->support('comment');
-        if($hasComment)
-        {
+        if ($hasComment) {
             $headers[] = $this->ui->lang('Comment');
         }
 
         $details = [];
-        foreach($fields as $field)
-        {
+        foreach ($fields as $field) {
             $type = $this->ui->h($field["full_type"]);
-            if($field["null"])
-            {
+            if ($field["null"]) {
                 $type .= " <i>nullable</i>"; // " <i>NULL</i>";
             }
-            if($field["auto_increment"])
-            {
+            if ($field["auto_increment"]) {
                 $type .= " <i>" . $this->ui->lang('Auto Increment') . "</i>";
             }
-            if(\array_key_exists("default", $field))
-            {
+            if (\array_key_exists("default", $field)) {
                 $type .= /*' ' . $this->ui->lang('Default value') .*/ ' [<b>' . $this->ui->h($field["default"]) . '</b>]';
             }
             $detail = [
@@ -158,8 +146,7 @@ class ViewProxy extends AbstractProxy
                 'type' => $type,
                 'collation' => $this->ui->h($field["collation"] ?? ''),
             ];
-            if($hasComment)
-            {
+            if ($hasComment) {
                 $detail['comment'] = $this->ui->h($field["comment"] ?? '');
             }
 
@@ -179,8 +166,7 @@ class ViewProxy extends AbstractProxy
     public function getViewTriggers(string $table)
     {
         $status = $this->status($table);
-        if(!$this->server->support("view_trigger"))
-        {
+        if (!$this->server->support("view_trigger")) {
             return null;
         }
 
@@ -197,14 +183,12 @@ class ViewProxy extends AbstractProxy
             '&nbsp;',
         ];
 
-        if(!$triggers)
-        {
+        if (!$triggers) {
             $triggers = [];
         }
         $details = [];
         // From table.inc.php
-        foreach($triggers as $key => $val)
-        {
+        foreach ($triggers as $key => $val) {
             $details[] = [
                 $this->ui->h($val[0]),
                 $this->ui->h($val[1]),
@@ -227,8 +211,7 @@ class ViewProxy extends AbstractProxy
     {
         // From view.inc.php
         $orig_type = "VIEW";
-        if($this->server->jush == "pgsql")
-        {
+        if ($this->server->jush == "pgsql") {
             $status = $this->server->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
@@ -237,8 +220,7 @@ class ViewProxy extends AbstractProxy
         $values["materialized"] = ($orig_type != "VIEW");
 
         $error = $this->server->error();
-        if(($error))
-        {
+        if (($error)) {
             throw new Exception($error);
         }
 
@@ -281,8 +263,7 @@ class ViewProxy extends AbstractProxy
     {
         // From view.inc.php
         $orig_type = "VIEW";
-        if($this->server->jush == "pgsql")
-        {
+        if ($this->server->jush == "pgsql") {
             $status = $this->server->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
@@ -323,8 +304,7 @@ class ViewProxy extends AbstractProxy
     {
         // From view.inc.php
         $orig_type = "VIEW";
-        if($this->server->jush == "pgsql")
-        {
+        if ($this->server->jush == "pgsql") {
             $status = $this->server->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }

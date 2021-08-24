@@ -26,8 +26,7 @@ trait ImportTrait
      */
     protected function import(string $database = '', string $schema = '')
     {
-        if(!$this->importProxy)
-        {
+        if (!$this->importProxy) {
             $this->importProxy = new ImportProxy($database, $schema);
             $this->importProxy->init($this);
         }
@@ -47,8 +46,7 @@ trait ImportTrait
         $options = $this->connect($server, $database);
 
         $breadcrumbs = [$options['name']];
-        if(($database))
-        {
+        if (($database)) {
             $breadcrumbs[] = $database;
         }
         $breadcrumbs[] = $this->ui->lang('Import');
@@ -69,8 +67,14 @@ trait ImportTrait
      *
      * @return array
      */
-    public function executeSqlFiles(string $server, array $files,
-        bool $errorStops, bool $onlyErrors, string $database = '', string $schema = '')
+    public function executeSqlFiles(
+        string $server,
+        array $files,
+        bool $errorStops,
+        bool $onlyErrors,
+        string $database = '',
+        string $schema = ''
+    )
     {
         $this->connect($server, $database, $schema);
         return $this->import($database, $schema)

@@ -25,8 +25,7 @@ trait DatabaseTrait
      */
     protected function database(array $options)
     {
-        if(!$this->databaseProxy)
-        {
+        if (!$this->databaseProxy) {
             $this->databaseProxy = new DatabaseProxy($options);
             $this->databaseProxy->init($this);
         }

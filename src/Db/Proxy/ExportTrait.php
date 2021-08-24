@@ -23,8 +23,7 @@ trait ExportTrait
      */
     protected function export()
     {
-        if(!$this->exportProxy)
-        {
+        if (!$this->exportProxy) {
             $this->exportProxy = new ExportProxy();
             $this->exportProxy->init($this);
         }
@@ -44,8 +43,7 @@ trait ExportTrait
         $options = $this->connect($server, $database);
 
         $breadcrumbs = [$options['name']];
-        if(($database))
-        {
+        if (($database)) {
             $breadcrumbs[] = $database;
         }
         $breadcrumbs[] = $this->ui->lang('Export');

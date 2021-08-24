@@ -31,11 +31,10 @@ class DatabaseProxy extends AbstractProxy
     public function __construct(array $options)
     {
         // Set the user schemas, if defined.
-        if(\array_key_exists('access', $options) &&
+        if (\array_key_exists('access', $options) &&
             \is_array($options['access']) &&
             \array_key_exists('schemas', $options['access']) &&
-            \is_array($options['access']['schemas']))
-        {
+            \is_array($options['access']['schemas'])) {
             $this->userSchemas = $options['access']['schemas'];
         }
     }
@@ -48,11 +47,9 @@ class DatabaseProxy extends AbstractProxy
     protected function schemas()
     {
         // Get the schema lists
-        if($this->finalSchemas === null)
-        {
+        if ($this->finalSchemas === null) {
             $this->finalSchemas = $this->server->schemas();
-            if(\is_array($this->userSchemas))
-            {
+            if (\is_array($this->userSchemas)) {
                 // Only keep schemas that appear in the config.
                 $this->finalSchemas = \array_intersect($this->finalSchemas, $this->userSchemas);
                 $this->finalSchemas = \array_values($this->finalSchemas);
@@ -82,31 +79,25 @@ class DatabaseProxy extends AbstractProxy
             // 'type' => $this->ui->lang('User types'),
             // 'event' => $this->ui->lang('Events'),
         ];
-        if($this->server->support('view'))
-        {
+        if ($this->server->support('view')) {
             $menu_actions['view'] = $this->ui->lang('Views');
         }
-        if($this->server->support('routine'))
-        {
+        if ($this->server->support('routine')) {
             $menu_actions['routine'] = $this->ui->lang('Routines');
         }
-        if($this->server->support('sequence'))
-        {
+        if ($this->server->support('sequence')) {
             $menu_actions['sequence'] = $this->ui->lang('Sequences');
         }
-        if($this->server->support('type'))
-        {
+        if ($this->server->support('type')) {
             $menu_actions['type'] = $this->ui->lang('User types');
         }
-        if($this->server->support('event'))
-        {
+        if ($this->server->support('event')) {
             $menu_actions['event'] = $this->ui->lang('Events');
         }
 
         // From db.inc.php
         $schemas = null;
-        if($this->server->support("scheme"))
-        {
+        if ($this->server->support("scheme")) {
             $schemas = $this->schemas();
         }
         // $tables_list = $this->server->tables_list();
@@ -148,10 +139,8 @@ class DatabaseProxy extends AbstractProxy
         $table_status = $this->server->table_status(); // Tables details
 
         $details = [];
-        foreach($table_status as $table => $status)
-        {
-            if(!$this->server->is_view($status))
-            {
+        foreach ($table_status as $table => $status) {
+            if (!$this->server->is_view($status)) {
                 $details[] = [
                     'name' => $this->ui->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
@@ -193,10 +182,8 @@ class DatabaseProxy extends AbstractProxy
         $table_status = $this->server->table_status(); // Tables details
 
         $details = [];
-        foreach($table_status as $table => $status)
-        {
-            if($this->server->is_view($status))
-            {
+        foreach ($table_status as $table => $status) {
+            if ($this->server->is_view($status)) {
                 $details[] = [
                     'name' => $this->ui->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
@@ -229,8 +216,7 @@ class DatabaseProxy extends AbstractProxy
         // From db.inc.php
         $routines = $this->server->support("routine") ? $this->server->routines() : [];
         $details = [];
-        foreach($routines as $routine)
-        {
+        foreach ($routines as $routine) {
             // not computed on the pages to be able to print the header first
             // $name = ($routine["SPECIFIC_NAME"] == $routine["ROUTINE_NAME"] ?
             //     "" : "&name=" . urlencode($routine["ROUTINE_NAME"]));
@@ -265,15 +251,13 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         $sequences = [];
-        if($this->server->support("sequence"))
-        {
+        if ($this->server->support("sequence")) {
             // From db.inc.php
             $sequences = $this->db->get_vals("SELECT sequence_name FROM information_schema.sequences ".
                 "WHERE sequence_schema = current_schema() ORDER BY sequence_name");
         }
         $details = [];
-        foreach($sequences as $sequence)
-        {
+        foreach ($sequences as $sequence) {
             $details[] = [
                 'name' => $this->ui->h($sequence),
             ];
@@ -300,8 +284,7 @@ class DatabaseProxy extends AbstractProxy
         // From db.inc.php
         $userTypes = $this->server->support("type") ? $this->server->types() : [];
         $details = [];
-        foreach($userTypes as $userType)
-        {
+        foreach ($userTypes as $userType) {
             $details[] = [
                 'name' => $this->ui->h($userType),
             ];
@@ -331,19 +314,15 @@ class DatabaseProxy extends AbstractProxy
         // From db.inc.php
         $events = $this->server->support("event") ? $this->db->get_rows("SHOW EVENTS") : [];
         $details = [];
-        foreach($events as $event)
-        {
+        foreach ($events as $event) {
             $detail = [
                 'name' => $this->ui->h($event["Name"]),
             ];
-            if(($event["Execute at"]))
-            {
+            if (($event["Execute at"])) {
                 $detail['schedule'] = $this->ui->lang('At given time');
                 $detail['start'] = $event["Execute at"];
-                // $detail['end'] = '';
-            }
-            else
-            {
+            // $detail['end'] = '';
+            } else {
                 $detail['schedule'] = $this->ui->lang('Every') . " " .
                     $event["Interval value"] . " " . $event["Interval field"];
                 $detail['start'] = $event["Starts"];

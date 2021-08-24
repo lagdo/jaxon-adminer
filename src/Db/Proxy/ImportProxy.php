@@ -24,18 +24,14 @@ class ImportProxy extends CommandProxy
         $gz = \extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        if($this->ui->ini_bool('file_uploads'))
-        {
+        if ($this->ui->ini_bool('file_uploads')) {
             $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
-        }
-        else
-        {
+        } else {
             $contents['upload_disabled'] = $this->ui->lang('File uploads are disabled.');
         }
 
         $importServerPath = $this->ui->importServerPath();
-        if(($importServerPath))
-        {
+        if (($importServerPath)) {
             $contents['path'] = $this->ui->h($importServerPath) . $gz;
         }
 
@@ -65,30 +61,24 @@ class ImportProxy extends CommandProxy
     protected function readFiles(array $files, $decompress = false)
     {
         $return = '';
-        foreach($files as $name)
-        {
+        foreach ($files as $name) {
             $compressed = \preg_match('~\.gz$~', $name);
-            $content = \file_get_contents($decompress && $compressed
+            $content = \file_get_contents(
+                $decompress && $compressed
                 ? "compress.zlib://$name"
                 : $name
             ); //! may not be reachable because of open_basedir
-            if($decompress && $compressed)
-            {
+            if ($decompress && $compressed) {
                 $start = \substr($content, 0, 3);
-                if(\function_exists("iconv") && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs))
-                {
+                if (\function_exists("iconv") && \preg_match("~^\xFE\xFF|^\xFF\xFE~", $start, $regs)) {
                     // not ternary operator to save memory
                     $content = \iconv("utf-16", "utf-8", $content);
-                }
-                elseif($start == "\xEF\xBB\xBF")
-                {
+                } elseif ($start == "\xEF\xBB\xBF") {
                     // UTF-8 BOM
                     $content = \substr($content, 3);
                 }
                 $return .= $content . "\n\n";
-            }
-            else
-            {
+            } else {
                 $return .= $content;
             }
         }
