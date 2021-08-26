@@ -12,9 +12,12 @@ use Lagdo\Adminer\Drivers\AdminerDbInterface;
 
 use function adminer\lang;
 
-class AdminerDb implements AdminerDbInterface
+class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterface, ServerInterface
 {
     use AdminerDbTrait;
+    use ConnectionTrait;
+    use DriverTrait;
+    use ServerTrait;
 
     /**
      * @var array

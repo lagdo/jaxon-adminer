@@ -22,8 +22,8 @@ class TableSelectProxy extends AbstractProxy
             'select' => $select,
             'values' => (array)$options["columns"],
             'columns' => $columns,
-            'functions' => $this->server->functions,
-            'grouping' => $this->server->grouping,
+            'functions' => $this->db->functions(),
+            'grouping' => $this->db->grouping(),
         ];
     }
 
@@ -46,7 +46,7 @@ class TableSelectProxy extends AbstractProxy
             'values' => (array)$options["where"],
             'columns' => $columns,
             'indexes' => $indexes,
-            'operators' => $this->server->operators,
+            'operators' => $this->db->operators(),
             'fulltexts' => $fulltexts,
         ];
     }
@@ -123,7 +123,7 @@ class TableSelectProxy extends AbstractProxy
      */
     private function getCommandOptions()
     {
-        return !$this->server->information_schema(DB);
+        return !$this->db->information_schema(DB);
     }
 
     /**
@@ -132,7 +132,7 @@ class TableSelectProxy extends AbstractProxy
      */
     private function getImportOptions()
     {
-        return !$this->server->information_schema(DB);
+        return !$this->db->information_schema(DB);
     }
 
     /**
@@ -164,9 +164,9 @@ class TableSelectProxy extends AbstractProxy
         $is_group = (\count($group) < \count($select));
         $query = $this->db->buildSelectQuery($select, $where, $group, $order, $limit, $page);
         if (!$query) {
-            $query = "SELECT" . $this->server->limit(
-                ($page != "last" && $limit != "" && $group && $is_group && $this->server->jush == "sql" ?
-                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->server->table($table),
+            $query = "SELECT" . $this->db->limit(
+                ($page != "last" && $limit != "" && $group && $is_group && $this->db->jush() == "sql" ?
+                    "SQL_CALC_FOUND_ROWS " : "") . \implode(", ", $select) . "\nFROM " . $this->db->table($table),
                 ($where ? "\nWHERE " . \implode(" AND ", $where) : "") . ($group && $is_group ?
                     "\nGROUP BY " . \implode(", ", $group) : "") . ($order ? "\nORDER BY " . \implode(", ", $order) : ""),
                 ($limit != "" ? +$limit : null),
@@ -213,9 +213,9 @@ class TableSelectProxy extends AbstractProxy
         $this->ui->input->values = $queryOptions;
 
         // From select.inc.php
-        $table_status = $this->server->table_status1($table);
-        $indexes = $this->server->indexes($table);
-        $fields = $this->server->fields($table);
+        $table_status = $this->db->table_status1($table);
+        $indexes = $this->db->indexes($table);
+        $fields = $this->db->fields($table);
         $foreign_keys = $this->db->column_foreign_keys($table);
         $oid = $table_status["Oid"] ?? null;
 
@@ -245,7 +245,7 @@ class TableSelectProxy extends AbstractProxy
         //         $as = convert_field($fields[key($row)]);
         //         $select = array($as ? $as : idf_escape(key($row)));
         //         $where[] = where_check($unique_idf, $fields);
-        //         $return = $this->driver->select($table, $select, $where, $select);
+        //         $return = $this->db->select($table, $select, $where, $select);
         //         if($return) {
         //             echo reset($return->fetch_row());
         //         }
@@ -259,7 +259,7 @@ class TableSelectProxy extends AbstractProxy
                 $primary = \array_flip($index["columns"]);
                 $unselected = ($select ? $primary : []);
                 foreach ($unselected as $key => $val) {
-                    if (\in_array($this->server->idf_escape($key), $select)) {
+                    if (\in_array($this->db->idf_escape($key), $select)) {
                         unset($unselected[$key]);
                     }
                 }
@@ -286,14 +286,14 @@ class TableSelectProxy extends AbstractProxy
         // }
         // $this->ui->selectLinks($table_status, $set);
 
-        if (!$columns && $this->server->support("table")) {
+        if (!$columns && $this->db->support("table")) {
             throw new Exception($this->ui->lang('Unable to select the table') .
-                ($fields ? "." : ": " . $this->server->error()));
+                ($fields ? "." : ": " . $this->db->error()));
         }
 
         // if($page == "last")
         // {
-        //     $found_rows = $this->connection->result($this->db->count_rows($table, $where, $is_group, $group));
+        //     $found_rows = $this->db->result($this->db->count_rows($table, $where, $is_group, $group));
         //     $page = \floor(\max(0, $found_rows - 1) / $limit);
         // }
 
@@ -316,23 +316,23 @@ class TableSelectProxy extends AbstractProxy
             }
         }
         foreach ($select as $key => $val) {
-            $field = $fields[$this->server->idf_unescape($val)] ?? null;
-            if ($field && ($as = $this->server->convert_field($field))) {
+            $field = $fields[$this->db->idf_unescape($val)] ?? null;
+            if ($field && ($as = $this->db->convert_field($field))) {
                 $select2[$key] = "$as AS $val";
             }
         }
         if (!$is_group && $unselected) {
             foreach ($unselected as $key => $val) {
-                $select2[] = $this->server->idf_escape($key);
+                $select2[] = $this->db->idf_escape($key);
                 if ($group2) {
-                    $group2[] = $this->server->idf_escape($key);
+                    $group2[] = $this->db->idf_escape($key);
                 }
             }
         }
 
         // $print = true; // Output the SQL select query
         // ob_start();
-        // $result = $this->driver->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
+        // $result = $this->db->select($table, $select2, $where, $group2, $order, $limit, $page, $print);
         // $query = ob_get_clean();
         $query = $this->buildSelectQuery($table, $select2, $where, $group2, $order, $limit, $page);
 
@@ -378,17 +378,17 @@ class TableSelectProxy extends AbstractProxy
         $error = null;
         // From driver.inc.php
         $start = microtime(true);
-        $result = $this->connection->query($query);
+        $result = $this->db->query($query);
         // From adminer.inc.php
         $duration = $this->ui->format_time($start); // Compute and format the duration
 
         if (!$result) {
-            return ['error' => $this->server->error()];
+            return ['error' => $this->db->error()];
         }
         // From select.inc.php
         $rows = [];
         while (($row = $result->fetch_assoc())) {
-            if ($page && $this->server->jush == "oracle") {
+            if ($page && $this->db->jush() == "oracle") {
                 unset($row["RNUM"]);
             }
             $rows[] = $row;
@@ -417,7 +417,7 @@ class TableSelectProxy extends AbstractProxy
                 if ($name != "") {
                     $rank++;
                     $names[$key] = $name;
-                    $column = $this->server->idf_escape($key);
+                    $column = $this->db->idf_escape($key);
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
@@ -465,11 +465,11 @@ class TableSelectProxy extends AbstractProxy
                 $key = \trim($key);
                 $type = $fields[$key]["type"] ?? '';
                 $collation = $fields[$key]["collation"] ?? '';
-                if (($this->server->jush == "sql" || $this->server->jush == "pgsql") &&
+                if (($this->db->jush() == "sql" || $this->db->jush() == "pgsql") &&
                     \preg_match('~char|text|enum|set~', $type) && strlen($val) > 64) {
-                    $key = (\strpos($key, '(') ? $key : $this->server->idf_escape($key)); //! columns looking like functions
-                    $key = "MD5(" . ($this->server->jush != 'sql' || \preg_match("~^utf8~", $collation) ?
-                        $key : "CONVERT($key USING " . $this->server->charset() . ")") . ")";
+                    $key = (\strpos($key, '(') ? $key : $this->db->idf_escape($key)); //! columns looking like functions
+                    $key = "MD5(" . ($this->db->jush() != 'sql' || \preg_match("~^utf8~", $collation) ?
+                        $key : "CONVERT($key USING " . $this->db−>charset() . ")") . ")";
                     $val = \md5($val);
                 }
                 if ($val !== null) {
@@ -485,7 +485,7 @@ class TableSelectProxy extends AbstractProxy
             foreach ($row as $key => $val) {
                 if (isset($names[$key])) {
                     $field = $fields[$key] ?? [];
-                    $val = $this->connection->value($val, $field);
+                    $val = $this->db->value($val, $field);
                     if ($val != "" && (!isset($email_fields[$key]) || $email_fields[$key] != "")) {
                         //! filled e-mails can be contained on other pages
                         $email_fields[$key] = ($this->ui->is_mail($val) ? $names[$key] : "");
@@ -502,7 +502,7 @@ class TableSelectProxy extends AbstractProxy
             $results[] = ['ids' => $rowIds, 'cols' => $cols];
         }
 
-        $total = $this->connection->result($this->db->count_rows($table, $where, $is_group, $group));
+        $total = $this->db->result($this->db->count_rows($table, $where, $is_group, $group));
 
         $rows = $results;
         return \compact('duration', 'headers', 'query', 'rows', 'limit', 'total', 'error');

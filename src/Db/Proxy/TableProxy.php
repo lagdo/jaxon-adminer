@@ -26,7 +26,7 @@ class TableProxy extends AbstractProxy
     protected function status(string $table)
     {
         if (!$this->tableStatus) {
-            $this->tableStatus = $this->server->table_status1($table, true);
+            $this->tableStatus = $this->db->table_status1($table, true);
         }
         return $this->tableStatus;
     }
@@ -44,16 +44,16 @@ class TableProxy extends AbstractProxy
         $links = [
             'select' => $this->ui->lang('Select data'),
         ];
-        if ($this->server->support('table') || $this->server->support('indexes')) {
+        if ($this->db->support('table') || $this->db->support('indexes')) {
             $links['table'] = $this->ui->lang('Show structure');
         }
-        if ($this->server->support('table')) {
+        if ($this->db->support('table')) {
             $links['alter'] = $this->ui->lang('Alter table');
         }
         if ($set !== null) {
             $links['edit'] = $this->ui->lang('New item');
         }
-        // $links['docs'] = \doc_link([$this->server->jush => $this->driver->tableHelp($name)], '?');
+        // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], '?');
 
         return $links;
     }
@@ -87,18 +87,18 @@ class TableProxy extends AbstractProxy
             // 'foreign-keys' => $this->ui->lang('Foreign keys'),
             // 'triggers' => $this->ui->lang('Triggers'),
         ];
-        if ($this->server->is_view($status)) {
-            if ($this->server->support('view_trigger')) {
+        if ($this->db->is_view($status)) {
+            if ($this->db->support('view_trigger')) {
                 $tabs['triggers'] = $this->ui->lang('Triggers');
             }
         } else {
-            if ($this->server->support('indexes')) {
+            if ($this->db->support('indexes')) {
                 $tabs['indexes'] = $this->ui->lang('Indexes');
             }
-            if ($this->server->fk_support($status)) {
+            if ($this->db->fk_support($status)) {
                 $tabs['foreign-keys'] = $this->ui->lang('Foreign keys');
             }
-            if ($this->server->support('trigger')) {
+            if ($this->db->support('trigger')) {
                 $tabs['triggers'] = $this->ui->lang('Triggers');
             }
         }
@@ -116,9 +116,9 @@ class TableProxy extends AbstractProxy
     public function getTableFields(string $table)
     {
         // From table.inc.php
-        $fields = $this->server->fields($table);
+        $fields = $this->db->fields($table);
         if (!$fields) {
-            throw new Exception($this->server->error());
+            throw new Exception($this->db->error());
         }
 
         $main_actions = $this->getTableLinks();
@@ -129,13 +129,13 @@ class TableProxy extends AbstractProxy
             // 'foreign-keys' => $this->ui->lang('Foreign keys'),
             // 'triggers' => $this->ui->lang('Triggers'),
         ];
-        if ($this->server->support('indexes')) {
+        if ($this->db->support('indexes')) {
             $tabs['indexes'] = $this->ui->lang('Indexes');
         }
-        if ($this->server->fk_support($this->status($table))) {
+        if ($this->db->fk_support($this->status($table))) {
             $tabs['foreign-keys'] = $this->ui->lang('Foreign keys');
         }
-        if ($this->server->support('trigger')) {
+        if ($this->db->support('trigger')) {
             $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
@@ -144,7 +144,7 @@ class TableProxy extends AbstractProxy
             $this->ui->lang('Type'),
             $this->ui->lang('Collation'),
         ];
-        $hasComment = $this->server->support('comment');
+        $hasComment = $this->db->support('comment');
         if ($hasComment) {
             $headers[] = $this->ui->lang('Comment');
         }
@@ -185,12 +185,12 @@ class TableProxy extends AbstractProxy
      */
     public function getTableIndexes(string $table)
     {
-        if (!$this->server->support('indexes')) {
+        if (!$this->db->support('indexes')) {
             return null;
         }
 
         // From table.inc.php
-        $indexes = $this->server->indexes($table);
+        $indexes = $this->db->indexes($table);
         $main_actions = [
             'create' => $this->ui->lang('Alter indexes'),
         ];
@@ -243,12 +243,12 @@ class TableProxy extends AbstractProxy
     public function getTableForeignKeys(string $table)
     {
         $status = $this->status($table);
-        if (!$this->server->fk_support($status)) {
+        if (!$this->db->fk_support($status)) {
             return null;
         }
 
         // From table.inc.php
-        $foreign_keys = $this->server->foreign_keys($table);
+        $foreign_keys = $this->db->foreign_keys($table);
         $main_actions = [
             $this->ui->lang('Add foreign key'),
         ];
@@ -305,12 +305,12 @@ class TableProxy extends AbstractProxy
     public function getTableTriggers(string $table)
     {
         $status = $this->status($table);
-        if (!$this->server->support('trigger')) {
+        if (!$this->db->support('trigger')) {
             return null;
         }
 
         // From table.inc.php
-        $triggers = $this->server->triggers($table);
+        $triggers = $this->db->triggers($table);
         $main_actions = [
             $this->ui->lang('Add trigger'),
         ];
@@ -369,14 +369,14 @@ class TableProxy extends AbstractProxy
     {
         // From includes/editing.inc.php
         $extra_types = [];
-        if ($type && !isset($this->server->types[$type]) &&
+        if ($type && !$this->db->typeExists($type) &&
             !isset($this->foreign_keys[$type]) && !\in_array($type, $extra_types)) {
             $extra_types[] = $type;
         }
         if ($this->foreign_keys) {
-            $this->server->structured_types[$this->ui->lang('Foreign keys')] = $this->foreign_keys;
+            $this->db->setStructuredType($this->ui->lang('Foreign keys'), $this->foreign_keys);
         }
-        return \array_merge($extra_types, $this->server->structured_types);
+        return \array_merge($extra_types, $this->db->structuredTypes());
     }
 
     /**
@@ -397,11 +397,11 @@ class TableProxy extends AbstractProxy
         $status = [];
         $fields = [];
         if ($table !== '') {
-            $status = $this->server->table_status($table);
+            $status = $this->db->table_status($table);
             if (!$status) {
                 throw new Exception($this->ui->lang('No tables.'));
             }
-            $orig_fields = $this->server->fields($table);
+            $orig_fields = $this->db->fields($table);
             $fields = [];
             foreach ($orig_fields as $field) {
                 $field['has_default'] = isset($field['default']);
@@ -436,21 +436,21 @@ class TableProxy extends AbstractProxy
         $options = [
             'has_auto_increment' => $hasAutoIncrement,
             'on_update' => ['CURRENT_TIMESTAMP'],
-            'on_delete' => \explode('|', $this->server->on_actions),
+            'on_delete' => $this->db->onActions(),
         ];
 
-        $collations = $this->server->collations();
-        $engines = $this->server->engines();
+        $collations = $this->db->collations();
+        $engines = $this->db->engines();
         $support = [
-            'columns' => $this->server->support('columns'),
-            'comment' => $this->server->support('comment'),
-            'partitioning' => $this->server->support('partitioning'),
-            'move_col' => $this->server->support('move_col'),
-            'drop_col' => $this->server->support('drop_col'),
+            'columns' => $this->db->support('columns'),
+            'comment' => $this->db->support('comment'),
+            'partitioning' => $this->db->support('partitioning'),
+            'move_col' => $this->db->support('move_col'),
+            'drop_col' => $this->db->support('drop_col'),
         ];
 
         $foreign_keys = $this->foreign_keys;
-        $unsigned = $this->server->unsigned;
+        $unsigned = $this->db->unsigned();
         // Give the var a better name
         $table = $status;
         return \compact(
@@ -555,15 +555,15 @@ class TableProxy extends AbstractProxy
                     }
                 }
                 if ($foreign_key !== null) {
-                    $foreign[$this->server->idf_escape($field['field'])] = ($table != '' && $this->server->jush != 'sqlite' ? 'ADD' : ' ') .
-                        $this->server->format_foreign_key([
+                    $foreign[$this->db->idf_escape($field['field'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
+                        $this->db->format_foreign_key([
                             'table' => $this->foreign_keys[$field['type']],
                             'source' => [$field['field']],
                             'target' => [$type_field['field']],
                             'on_delete' => $field['on_delete'],
                         ]);
                 }
-                $after = ' AFTER ' . $this->server->idf_escape($field['field']);
+                $after = ' AFTER ' . $this->db->idf_escape($field['field']);
             } elseif ($field['orig'] != '') {
                 // A missing "field" field and a not empty "orig" field means the column is to be dropped.
                 // We also append null in the array because the drivers code accesses field at position 1.
@@ -588,7 +588,7 @@ class TableProxy extends AbstractProxy
         //         foreach(\array_filter($values['partition_names']) as $key => $val)
         //         {
         //             $value = $values['partition_values'][$key];
-        //             $partitions[] = "\n  PARTITION " . $this->server->idf_escape($val) .
+        //             $partitions[] = "\n  PARTITION " . $this->db->idf_escape($val) .
         //                 ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
         //                 ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
         //         }
@@ -599,7 +599,7 @@ class TableProxy extends AbstractProxy
         //         : ($values['partitions'] ? ' PARTITIONS ' . (+$values['partitions']) : '')
         //     );
         // }
-        // elseif($this->server->support('partitioning') &&
+        // elseif($this->db->support('partitioning') &&
         //     \preg_match('~partitioned~', $table_status['Create_options']))
         // {
         //     $partitioning .= "\nREMOVE PARTITIONING";
@@ -607,11 +607,11 @@ class TableProxy extends AbstractProxy
 
         $name = \trim($values['name']);
         $autoIncrement = $this->ui->number($this->ui->input()->getAutoIncrementStep());
-        if ($this->server->jush == 'sqlite' && ($use_all_fields || $foreign)) {
+        if ($this->db->jush() == 'sqlite' && ($use_all_fields || $foreign)) {
             $fields = $all_fields;
         }
 
-        $success = $this->server->alter_table(
+        $success = $this->db->alter_table(
             $table,
             $name,
             $fields,
@@ -627,7 +627,7 @@ class TableProxy extends AbstractProxy
             $this->ui->lang('Table has been created.') :
             $this->ui->lang('Table has been altered.');
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         // From functions.inc.php
         // queries_redirect(ME . (support('table') ? 'table=' : 'select=') . urlencode($name), $message, $redirect);
@@ -672,8 +672,8 @@ class TableProxy extends AbstractProxy
      */
     public function alterTable(string $table, array $values)
     {
-        $orig_fields = $this->server->fields($table);
-        $table_status = $this->server->table_status($table);
+        $orig_fields = $this->db->fields($table);
+        $table_status = $this->db->table_status($table);
         if (!$table_status) {
             throw new Exception($this->ui->lang('No tables.'));
         }
@@ -705,9 +705,9 @@ class TableProxy extends AbstractProxy
      */
     public function dropTable(string $table)
     {
-        $success = $this->server->drop_tables([$table]);
+        $success = $this->db->drop_tables([$table]);
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         $message = $this->ui->lang('Table has been dropped.');
 

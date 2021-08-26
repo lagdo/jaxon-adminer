@@ -33,7 +33,7 @@ class TableQueryProxy extends AbstractProxy
             $value = \call_user_func_array('json_encode', $args); //! requires PHP 5.2
             $function = "json";
         }
-        $reset = ($this->server->jush == "mssql" && $field["auto_increment"]);
+        $reset = ($this->db->jush() == "mssql" && $field["auto_increment"]);
         if ($reset && !$save) {
             $function = null;
         }
@@ -86,7 +86,7 @@ class TableQueryProxy extends AbstractProxy
         } elseif (\preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->ui->ini_bool("file_uploads")) {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
         } elseif (($text = \preg_match('~text|lob|memo~i', $field["type"])) || \preg_match("~\n~", $value)) {
-            if ($text && $this->server->jush != "sqlite") {
+            if ($text && $this->db->jush() != "sqlite") {
                 $attrs .= " cols='50' rows='12'";
             } else {
                 $rows = \min(12, \substr_count($value, "\n") + 1);
@@ -102,8 +102,8 @@ class TableQueryProxy extends AbstractProxy
                 \preg_match('~^(\d+)(,(\d+))?$~', $field["length"], $match) ?
                 ((\preg_match("~binary~", $field["type"]) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
                 (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
-                ($this->server->types[$field["type"]] ? $this->server->types[$field["type"]] + ($unsigned ? 0 : 1) : 0));
-            if ($this->server->jush == 'sql' && $this->server->min_version(5.6) && \preg_match('~time~', $field["type"])) {
+                ($this->db->typeExists($field["type"]) ? $this->db->type($field["type"]) + ($unsigned ? 0 : 1) : 0));
+            if ($this->db->jush() == 'sql' && $this->db->min_version(5.6) && \preg_match('~time~', $field["type"])) {
                 $maxlength += 7; // microtime
             }
             // type='date' and type='time' display localized value which may be confusing,
@@ -129,7 +129,7 @@ class TableQueryProxy extends AbstractProxy
     private function getFields(string $table, array $queryOptions)
     {
         // From edit.inc.php
-        $fields = $this->server->fields($table);
+        $fields = $this->db->fields($table);
 
         //!!!! $queryOptions["select"] is never set here !!!!//
 
@@ -168,24 +168,24 @@ class TableQueryProxy extends AbstractProxy
             $select = [];
             foreach ($fields as $name => $field) {
                 if (isset($field["privileges"]["select"])) {
-                    $as = $this->server->convert_field($field);
+                    $as = $this->db->convert_field($field);
                     if ($queryOptions["clone"] && $field["auto_increment"]) {
                         $as = "''";
                     }
-                    if ($this->server->jush == "sql" && \preg_match("~enum|set~", $field["type"])) {
-                        $as = "1*" . $this->server->idf_escape($name);
+                    if ($this->db->jush() == "sql" && \preg_match("~enum|set~", $field["type"])) {
+                        $as = "1*" . $this->db->idf_escape($name);
                     }
-                    $select[] = ($as ? "$as AS " : "") . $this->server->idf_escape($name);
+                    $select[] = ($as ? "$as AS " : "") . $this->db->idf_escape($name);
                 }
             }
             $row = [];
-            if (!$this->server->support("table")) {
+            if (!$this->db->support("table")) {
                 $select = ["*"];
             }
             if ($select) {
-                $result = $this->driver->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
+                $result = $this->db->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
                 if (!$result) {
-                    // $error = $this->server->error();
+                    // $error = $this->db->error();
                 } else {
                     $row = $result->fetch_assoc();
                     if (!$row) {
@@ -201,13 +201,14 @@ class TableQueryProxy extends AbstractProxy
             }
         }
 
-        if (!$this->server->support("table") && !$fields) {
+        if (!$this->db->support("table") && !$fields) {
+            $primary = $this->db->primary();
             if (!$where) {
                 // insert
-                $result = $this->driver->select($table, ["*"], $where, ["*"]);
+                $result = $this->db->select($table, ["*"], $where, ["*"]);
                 $row = ($result ? $result->fetch_assoc() : false);
                 if (!$row) {
-                    $row = [$this->driver->primary => ""];
+                    $row = [$primary => ""];
                 }
             }
             if ($row) {
@@ -217,8 +218,8 @@ class TableQueryProxy extends AbstractProxy
                     }
                     $fields[$key] = [
                         "field" => $key,
-                        "null" => ($key != $this->driver->primary),
-                        "auto_increment" => ($key == $this->driver->primary)
+                        "null" => ($key != $primary),
+                        "auto_increment" => ($key == $primary)
                     ];
                 }
             }
@@ -226,7 +227,7 @@ class TableQueryProxy extends AbstractProxy
 
         // From functions.inc.php (function edit_form($table, $fields, $row, $update))
         $entries = [];
-        $table_name = $this->ui->tableName($this->server->table_status1($table, true));
+        $table_name = $this->ui->tableName($this->db->table_status1($table, true));
         $error = null;
         if ($row === false) {
             $error = $this->ui->lang('No rows.');
@@ -245,7 +246,7 @@ class TableQueryProxy extends AbstractProxy
                 $value = (
                     $row !== null
                     ? (
-                        $row[$name] != "" && $this->server->jush == "sql" && \preg_match("~enum|set~", $field["type"])
+                        $row[$name] != "" && $this->db->jush() == "sql" && \preg_match("~enum|set~", $field["type"])
                         ? (\is_array($row[$name]) ? \array_sum($row[$name]) : +$row[$name])
                         : (\is_bool($row[$name]) ? +$row[$name] : $row[$name])
                     )
@@ -305,15 +306,15 @@ class TableQueryProxy extends AbstractProxy
         foreach ($fields as $name => $field) {
             $val = $this->ui->process_input($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->server->idf_escape($name)] = $val;
+                $set[$this->db->idf_escape($name)] = $val;
             }
         }
 
-        $result = $this->driver->insert($table, $set);
-        $lastId = ($result ? $this->server->last_id() : 0);
+        $result = $this->db->insert($table, $set);
+        $lastId = ($result ? $this->db->last_id() : 0);
         $message = $this->ui->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -331,7 +332,7 @@ class TableQueryProxy extends AbstractProxy
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $indexes = $this->server->indexes($table);
+        $indexes = $this->db->indexes($table);
         $unique_array = $this->ui->unique_array($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
@@ -339,14 +340,14 @@ class TableQueryProxy extends AbstractProxy
         foreach ($fields as $name => $field) {
             $val = $this->ui->process_input($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->server->idf_escape($name)] = $val;
+                $set[$this->db->idf_escape($name)] = $val;
             }
         }
 
-        $result = $this->driver->update($table, $set, $query_where, !$unique_array);
+        $result = $this->db->update($table, $set, $query_where, !$unique_array);
         $message = $this->ui->lang('Item has been updated.');
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -364,14 +365,14 @@ class TableQueryProxy extends AbstractProxy
         list($fields, $where, $update) = $this->getFields($table, $queryOptions);
 
         // From edit.inc.php
-        $indexes = $this->server->indexes($table);
+        $indexes = $this->db->indexes($table);
         $unique_array = $this->ui->unique_array($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
-        $result = $this->driver->delete($table, $query_where, !$unique_array);
+        $result = $this->db->delete($table, $query_where, !$unique_array);
         $message = $this->ui->lang('Item has been deleted.');
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         return \compact('result', 'message', 'error');
     }

@@ -30,8 +30,8 @@ class UserProxy extends AbstractProxy
         $grants = [];
 
         //! use information_schema for MySQL 5 - column names in column privileges are not escaped
-        if (($result = $this->connection->query("SHOW GRANTS FOR " .
-            $this->server->q($user) . "@" . $this->server->q($host)))) {
+        if (($result = $this->db->query("SHOW GRANTS FOR " .
+            $this->db->quote($user) . "@" . $this->db->quote($host)))) {
             while ($row = $result->fetch_row()) {
                 if (\preg_match('~GRANT (.*) ON (.*) TO ~', $row[0], $match) &&
                     \preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~', $match[1], $matches, PREG_SET_ORDER)) { //! escape the part between ON and TO
@@ -166,13 +166,13 @@ class UserProxy extends AbstractProxy
         ];
 
         // From privileges.inc.php
-        $result = $this->connection->query("SELECT User, Host FROM mysql." .
-            ($database == "" ? "user" : "db WHERE " . $this->server->q($database) . " LIKE Db") .
+        $result = $this->db->query("SELECT User, Host FROM mysql." .
+            ($database == "" ? "user" : "db WHERE " . $this->db->quote($database) . " LIKE Db") .
             " ORDER BY Host, User");
         $grant = $result;
         if (!$result) {
             // list logged user, information_schema.USER_PRIVILEGES lists just the current user too
-            $result = $this->connection->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
+            $result = $this->db->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) " .
                 "AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");
         }
         $details = [];

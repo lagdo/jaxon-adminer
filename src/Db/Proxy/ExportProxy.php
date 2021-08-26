@@ -51,7 +51,7 @@ class ExportProxy extends AbstractProxy
         $db_style = ['', 'USE', 'DROP+CREATE', 'CREATE'];
         $table_style = ['', 'DROP+CREATE', 'CREATE'];
         $data_style = ['', 'TRUNCATE+INSERT', 'INSERT'];
-        if ($this->server->jush == 'sql') { //! use insertUpdate() in all drivers
+        if ($this->db->jush() == 'sql') { //! use insertUpdate() in all drivers
             $data_style[] = 'INSERT+UPDATE';
         }
         // \parse_str($_COOKIE['adminer_export'], $row);
@@ -95,20 +95,20 @@ class ExportProxy extends AbstractProxy
                 'value' => $row['data_style'],
             ],
         ];
-        if ($this->server->jush !== 'sqlite') {
+        if ($this->db->jush() !== 'sqlite') {
             $options['db_style'] = [
                 'label' => $this->ui->lang('Database'),
                 'options' => $db_style,
                 'value' => $row['db_style'],
             ];
-            if ($this->server->support('routine')) {
+            if ($this->db->support('routine')) {
                 $options['routines'] = [
                     'label' => $this->ui->lang('Routines'),
                     'value' => 1,
                     'checked' => $row['routines'],
                 ];
             }
-            if ($this->server->support('event')) {
+            if ($this->db->support('event')) {
                 $options['events'] = [
                     'label' => $this->ui->lang('Events'),
                     'value' => 1,
@@ -116,7 +116,7 @@ class ExportProxy extends AbstractProxy
                 ];
             }
         }
-        if ($this->server->support('trigger')) {
+        if ($this->db->support('trigger')) {
             $options['triggers'] = [
                 'label' => $this->ui->lang('Triggers'),
                 'value' => 1,
@@ -133,7 +133,7 @@ class ExportProxy extends AbstractProxy
                 'headers' => [$this->ui->lang('Tables'), $this->ui->lang('Data')],
                 'details' => [],
             ];
-            $tables_list = $this->server->tables_list();
+            $tables_list = $this->db->tables_list();
             foreach ($tables_list as $name => $type) {
                 $prefix = \preg_replace('~_.*~', '', $name);
                 //! % may be part of table name
@@ -150,7 +150,7 @@ class ExportProxy extends AbstractProxy
             ];
             $databases_list = $this->db->databases(false) ?? [];
             foreach ($databases_list as $name) {
-                if (!$this->server->information_schema($name)) {
+                if (!$this->db->information_schema($name)) {
                     $prefix = \preg_replace('~_.*~', '', $name);
                     // $results['prefixes'][$prefix]++;
 
@@ -181,23 +181,23 @@ class ExportProxy extends AbstractProxy
         $queries = [];
 
         if ($this->options["routines"]) {
-            $sql = "SHOW FUNCTION STATUS WHERE Db = " . $this->server->q($database);
+            $sql = "SHOW FUNCTION STATUS WHERE Db = " . $this->db->quote($database);
             foreach ($this->db->get_rows($sql, null, "-- ") as $row) {
-                $sql = "SHOW CREATE FUNCTION " . $this->server->idf_escape($row["Name"]);
-                $create = $this->db->remove_definer($this->connection->result($sql, 2));
+                $sql = "SHOW CREATE FUNCTION " . $this->db->idf_escape($row["Name"]);
+                $create = $this->db->remove_definer($this->db->result($sql, 2));
                 $queries[] = $this->db->set_utf8mb4($create);
                 if ($style != 'DROP+CREATE') {
-                    $queries[] = "DROP FUNCTION IF EXISTS " . $this->server->idf_escape($row["Name"]) . ";;";
+                    $queries[] = "DROP FUNCTION IF EXISTS " . $this->db->idf_escape($row["Name"]) . ";;";
                 }
                 $queries[] = "$create;;\n";
             }
-            $sql = "SHOW PROCEDURE STATUS WHERE Db = " . $this->server->q($database);
+            $sql = "SHOW PROCEDURE STATUS WHERE Db = " . $this->db->quote($database);
             foreach ($this->db->get_rows($sql, null, "-- ") as $row) {
-                $sql = "SHOW CREATE PROCEDURE " . $this->server->idf_escape($row["Name"]);
-                $create = $this->db->remove_definer($this->connection->result($sql, 2));
+                $sql = "SHOW CREATE PROCEDURE " . $this->db->idf_escape($row["Name"]);
+                $create = $this->db->remove_definer($this->db->result($sql, 2));
                 $queries[] = $this->db->set_utf8mb4($create);
                 if ($style != 'DROP+CREATE') {
-                    $queries[] = "DROP PROCEDURE IF EXISTS " . $this->server->idf_escape($row["Name"]) . ";;";
+                    $queries[] = "DROP PROCEDURE IF EXISTS " . $this->db->idf_escape($row["Name"]) . ";;";
                 }
                 $queries[] = "$create;;\n";
             }
@@ -205,11 +205,11 @@ class ExportProxy extends AbstractProxy
 
         if ($this->options["events"]) {
             foreach ($this->db->get_rows("SHOW EVENTS", null, "-- ") as $row) {
-                $sql = "SHOW CREATE EVENT " . $this->server->idf_escape($row["Name"]);
-                $create = $this->db->remove_definer($this->connection->result($sql, 3));
+                $sql = "SHOW CREATE EVENT " . $this->db->idf_escape($row["Name"]);
+                $create = $this->db->remove_definer($this->db->result($sql, 3));
                 $queries[] = $this->db->set_utf8mb4($create);
                 if ($style != 'DROP+CREATE') {
-                    $queries[] = "DROP EVENT IF EXISTS " . $this->server->idf_escape($row["Name"]) . ";;";
+                    $queries[] = "DROP EVENT IF EXISTS " . $this->db->idf_escape($row["Name"]) . ";;";
                 }
                 $queries[] = "$create;;\n";
             }
@@ -258,11 +258,11 @@ class ExportProxy extends AbstractProxy
         if ($val === null) {
             return "NULL";
         }
-        return $this->server->unconvert_field($field, \preg_match(
+        return $this->db->unconvert_field($field, \preg_match(
             $this->db->number_type(),
             $field["type"]
         ) && !\preg_match('~\[~', $field["full_type"]) &&
-            \is_numeric($val) ? $val : $this->server->q(($val === false ? 0 : $val)));
+            \is_numeric($val) ? $val : $this->db->quote(($val === false ? 0 : $val)));
     }
 
     /**
@@ -280,25 +280,25 @@ class ExportProxy extends AbstractProxy
         if ($this->options['format'] != "sql") {
             $this->queries[] = "\xef\xbb\xbf"; // UTF-8 byte order mark
             if ($style) {
-                $this->dumpCsv(\array_keys($this->server->fields($table)));
+                $this->dumpCsv(\array_keys($this->db->fields($table)));
             }
             return;
         }
 
         if ($is_view == 2) {
             $fields = [];
-            foreach ($this->server->fields($table) as $name => $field) {
-                $fields[] = $this->server->idf_escape($name) . ' ' . $field['full_type'];
+            foreach ($this->db->fields($table) as $name => $field) {
+                $fields[] = $this->db->idf_escape($name) . ' ' . $field['full_type'];
             }
-            $create = "CREATE TABLE " . $this->server->table($table) . " (" . \implode(", ", $fields) . ")";
+            $create = "CREATE TABLE " . $this->db->table($table) . " (" . \implode(", ", $fields) . ")";
         } else {
-            $create = $this->server->create_sql($table, $this->options['auto_increment'], $style);
+            $create = $this->db->create_sql($table, $this->options['auto_increment'], $style);
         }
         $this->db->set_utf8mb4($create);
         if ($style && $create) {
             if ($style == "DROP+CREATE" || $is_view == 1) {
                 $this->queries[] = "DROP " . ($is_view == 2 ? "VIEW" : "TABLE") .
-                    " IF EXISTS " . $this->server->table($table) . ';';
+                    " IF EXISTS " . $this->db->table($table) . ';';
             }
             if ($is_view == 1) {
                 $create = $this->db->remove_definer($create);
@@ -318,15 +318,15 @@ class ExportProxy extends AbstractProxy
     protected function dumpData($table, $style, $query)
     {
         $fields = [];
-        $max_packet = ($this->server->jush == "sqlite" ? 0 : 1048576); // default, minimum is 1024
+        $max_packet = ($this->db->jush() == "sqlite" ? 0 : 1048576); // default, minimum is 1024
         if ($style) {
             if ($this->options["format"] == "sql") {
                 if ($style == "TRUNCATE+INSERT") {
-                    $this->queries[] = $this->server->truncate_sql($table) . ";\n";
+                    $this->queries[] = $this->db->truncate_sql($table) . ";\n";
                 }
-                $fields = $this->server->fields($table);
+                $fields = $this->db->fields($table);
             }
-            $result = $this->connection->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
+            $result = $this->db->query($query, 1); // 1 - MYSQLI_USE_RESULT //! enum and set as numbers
             if ($result) {
                 $insert = "";
                 $buffer = "";
@@ -339,7 +339,7 @@ class ExportProxy extends AbstractProxy
                         foreach ($row as $val) {
                             $field = $result->fetch_field();
                             $keys[] = $field->name;
-                            $key = $this->server->idf_escape($field->name);
+                            $key = $this->db->idf_escape($field->name);
                             $values[] = "$key = VALUES($key)";
                         }
                         $suffix = ";\n";
@@ -355,9 +355,9 @@ class ExportProxy extends AbstractProxy
                         $this->dumpCsv($row);
                     } else {
                         if (!$insert) {
-                            $insert = "INSERT INTO " . $this->server->table($table) . " (" .
+                            $insert = "INSERT INTO " . $this->db->table($table) . " (" .
                                 \implode(", ", \array_map(function ($key) {
-                                    return $this->server->idf_escape($key);
+                                    return $this->db->idf_escape($key);
                                 }, $keys)) . ") VALUES";
                         }
                         foreach ($row as $key => $val) {
@@ -379,7 +379,7 @@ class ExportProxy extends AbstractProxy
                     $this->queries[] = $buffer . $suffix;
                 }
             } elseif ($this->options["format"] == "sql") {
-                $this->queries[] = "-- " . \str_replace("\n", " ", $this->connection->error) . "\n";
+                $this->queries[] = "-- " . \str_replace("\n", " ", $this->db->errorMessage()) . "\n";
             }
         }
     }
@@ -401,7 +401,7 @@ class ExportProxy extends AbstractProxy
             \in_array($database, $this->databases["list"]);
         $dbDumpData = \in_array($database, $this->databases["data"]);
         $views = [];
-        $dbTables = $this->server->table_status('', true);
+        $dbTables = $this->db->table_status('', true);
         foreach ($dbTables as $table => $table_status) {
             $dumpTable = $dbDumpTable || \in_array($table, $this->tables['list']);
             $dumpData = $dbDumpData || \in_array($table, $this->tables["data"]);
@@ -415,18 +415,18 @@ class ExportProxy extends AbstractProxy
                 $this->dumpTable(
                     $table,
                     ($dumpTable ? $this->options["table_style"] : ""),
-                    ($this->server->is_view($table_status) ? 2 : 0)
+                    ($this->db->is_view($table_status) ? 2 : 0)
                 );
-                if ($this->server->is_view($table_status)) {
+                if ($this->db->is_view($table_status)) {
                     $views[] = $table;
                 } elseif ($dumpData) {
-                    $fields = $this->server->fields($table);
+                    $fields = $this->db->fields($table);
                     $query = "SELECT *" . $this->db->convert_fields($fields, $fields) .
-                        " FROM " . $this->server->table($table);
+                        " FROM " . $this->db->table($table);
                     $this->dumpData($table, $this->options["data_style"], $query);
                 }
                 if ($this->options['is_sql'] && $this->options["triggers"] && $dumpTable &&
-                    ($triggers = $this->server->trigger_sql($table))) {
+                    ($triggers = $this->db->trigger_sql($table))) {
                     $this->queries[] = "DELIMITER ;";
                     $this->queries[] = $triggers;
                     $this->queries[] = "DELIMITER ;";
@@ -444,11 +444,11 @@ class ExportProxy extends AbstractProxy
         }
 
         // add FKs after creating tables (except in MySQL which uses SET FOREIGN_KEY_CHECKS=0)
-        if ($this->server->support('fkeys_sql')) {
+        if ($this->db->support('fkeys_sql')) {
             foreach ($dbTables as $table => $table_status) {
                 $dumpTable = true; // (DB == "" || \in_array($table, $this->options["tables"]));
-                if ($dumpTable && !$this->server->is_view($table_status)) {
-                    $this->queries[] = $this->server->foreign_keys_sql($table);
+                if ($dumpTable && !$this->db->is_view($table_status)) {
+                    $this->queries[] = $this->db->foreign_keys_sql($table);
                 }
             }
         }
@@ -485,19 +485,19 @@ class ExportProxy extends AbstractProxy
         if ($this->options['is_sql']) {
             $headers = [
                 'version' => $this->db->version(),
-                'driver' => $this->server->getName(),
-                'server' => \str_replace("\n", " ", $this->connection->server_info),
+                'driver' => $this->db->getName(),
+                'server' => \str_replace("\n", " ", $this->db->serverInfo()),
                 'sql' => false,
                 'data_style' => false,
             ];
-            if ($this->server->jush == "sql") {
+            if ($this->db->jush() == "sql") {
                 $headers['sql'] = true;
                 if (isset($options["data_style"])) {
                     $headers['data_style'] = true;
                 }
                 // Set some options in database server
-                $this->connection->query("SET time_zone = '+00:00'");
-                $this->connection->query("SET sql_mode = ''");
+                $this->db->query("SET time_zone = '+00:00'");
+                $this->db->query("SET sql_mode = ''");
             }
         }
 
@@ -505,19 +505,19 @@ class ExportProxy extends AbstractProxy
 
         foreach (\array_unique(\array_merge($databases['list'], $databases['data'])) as $db) {
             // $this->ui->dumpDatabase($db);
-            if ($this->connection->select_db($db)) {
-                $sql = "SHOW CREATE DATABASE " . $this->server->idf_escape($db);
+            if ($this->db->select_db($db)) {
+                $sql = "SHOW CREATE DATABASE " . $this->db->idf_escape($db);
                 if ($this->options['is_sql'] && \preg_match('~CREATE~', $style) &&
-                    ($create = $this->connection->result($sql, 1))) {
+                    ($create = $this->db->result($sql, 1))) {
                     $this->db->set_utf8mb4($create);
                     if ($style == "DROP+CREATE") {
-                        $this->queries[] = "DROP DATABASE IF EXISTS " . $this->server->idf_escape($db) . ";";
+                        $this->queries[] = "DROP DATABASE IF EXISTS " . $this->db->idf_escape($db) . ";";
                     }
                     $this->queries[] = $create . ";\n";
                 }
                 if ($this->options['is_sql']) {
                     if ($style) {
-                        if (($query = $this->server->use_sql($db))) {
+                        if (($query = $this->db->use_sql($db))) {
                             $this->queries[] = $query . ";";
                         }
                         $this->queries[] = ''; // Empty line
@@ -531,7 +531,7 @@ class ExportProxy extends AbstractProxy
         }
 
         if ($this->options['is_sql']) {
-            $this->queries[] = "-- " . $this->connection->result("SELECT NOW()");
+            $this->queries[] = "-- " . $this->db->result("SELECT NOW()");
         }
 
         return [

@@ -26,7 +26,7 @@ class ViewProxy extends AbstractProxy
     protected function status(string $table)
     {
         if (!$this->viewStatus) {
-            $this->viewStatus = $this->server->table_status1($table, true);
+            $this->viewStatus = $this->db->table_status1($table, true);
         }
         return $this->viewStatus;
     }
@@ -44,16 +44,17 @@ class ViewProxy extends AbstractProxy
         $links = [
             "select" => $this->ui->lang('Select data'),
         ];
-        if ($this->server->support("table") || $this->server->support("indexes")) {
+        if ($this->db->support("indexes")) {
             $links["table"] = $this->ui->lang('Show structure');
         }
-        if ($this->server->support("table")) {
+        if ($this->db->support("table")) {
+            $links["table"] = $this->ui->lang('Show structure');
             $links["alter"] = $this->ui->lang('Alter view');
         }
         if ($set !== null) {
             $links["edit"] = $this->ui->lang('New item');
         }
-        // $links['docs'] = \doc_link([$this->server->jush => $this->driver->tableHelp($name)], "?");
+        // $links['docs'] = \doc_link([$this->db->jush() => $this->db->tableHelp($name)], "?");
 
         return $links;
     }
@@ -87,7 +88,7 @@ class ViewProxy extends AbstractProxy
             // 'foreign-keys' => $this->ui->lang('Foreign keys'),
             // 'triggers' => $this->ui->lang('Triggers'),
         ];
-        if ($this->server->support("view_trigger")) {
+        if ($this->db->support("view_trigger")) {
             $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
@@ -104,9 +105,9 @@ class ViewProxy extends AbstractProxy
     public function getViewFields(string $table)
     {
         // From table.inc.php
-        $fields = $this->server->fields($table);
+        $fields = $this->db->fields($table);
         if (!$fields) {
-            throw new Exception($this->server->error());
+            throw new Exception($this->db->error());
         }
 
         $main_actions = $this->getViewLinks();
@@ -115,7 +116,7 @@ class ViewProxy extends AbstractProxy
             'fields' => $this->ui->lang('Columns'),
             // 'triggers' => $this->ui->lang('Triggers'),
         ];
-        if ($this->server->support("view_trigger")) {
+        if ($this->db->support("view_trigger")) {
             $tabs['triggers'] = $this->ui->lang('Triggers');
         }
 
@@ -124,7 +125,7 @@ class ViewProxy extends AbstractProxy
             $this->ui->lang('Type'),
             $this->ui->lang('Collation'),
         ];
-        $hasComment = $this->server->support('comment');
+        $hasComment = $this->db->support('comment');
         if ($hasComment) {
             $headers[] = $this->ui->lang('Comment');
         }
@@ -166,12 +167,12 @@ class ViewProxy extends AbstractProxy
     public function getViewTriggers(string $table)
     {
         $status = $this->status($table);
-        if (!$this->server->support("view_trigger")) {
+        if (!$this->db->support("view_trigger")) {
             return null;
         }
 
         // From table.inc.php
-        $triggers = $this->server->triggers($table);
+        $triggers = $this->db->triggers($table);
         $main_actions = [
             $this->ui->lang('Add trigger'),
         ];
@@ -211,15 +212,15 @@ class ViewProxy extends AbstractProxy
     {
         // From view.inc.php
         $orig_type = "VIEW";
-        if ($this->server->jush == "pgsql") {
-            $status = $this->server->table_status($view);
+        if ($this->db->jush() == "pgsql") {
+            $status = $this->db->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
-        $values = $this->server->view($view);
+        $values = $this->db->view($view);
         $values["name"] = $view;
         $values["materialized"] = ($orig_type != "VIEW");
 
-        $error = $this->server->error();
+        $error = $this->db->error();
         if (($error)) {
             throw new Exception($error);
         }
@@ -242,11 +243,11 @@ class ViewProxy extends AbstractProxy
         $message = $this->ui->lang('View has been created.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
 
-        $sql = ($this->server->jush == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
-            " $type " . $this->server->table($name) . " AS\n" . $values['select'];
+        $sql = ($this->db->jush() == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
+            " $type " . $this->db->table($name) . " AS\n" . $values['select'];
         $success = $this->ui->query_redirect($sql, $location, $message);
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         return \compact('success', 'message', 'error');
     }
@@ -263,8 +264,8 @@ class ViewProxy extends AbstractProxy
     {
         // From view.inc.php
         $orig_type = "VIEW";
-        if ($this->server->jush == "pgsql") {
-            $status = $this->server->table_status($view);
+        if ($this->db->jush() == "pgsql") {
+            $status = $this->db->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
 
@@ -275,11 +276,11 @@ class ViewProxy extends AbstractProxy
         $temp_name = $name . "_adminer_" . \uniqid();
 
         $this->ui->drop_create(
-            "DROP $orig_type " . $this->server->table($view),
-            "CREATE $type " . $this->server->table($name) . " AS\n" . $values['select'],
-            "DROP $type " . $this->server->table($name),
-            "CREATE $type " . $this->server->table($temp_name) . " AS\n" . $values['select'],
-            "DROP $type " . $this->server->table($temp_name),
+            "DROP $orig_type " . $this->db->table($view),
+            "CREATE $type " . $this->db->table($name) . " AS\n" . $values['select'],
+            "DROP $type " . $this->db->table($name),
+            "CREATE $type " . $this->db->table($temp_name) . " AS\n" . $values['select'],
+            "DROP $type " . $this->db->table($temp_name),
             $location,
             $this->ui->lang('View has been dropped.'),
             $message,
@@ -288,7 +289,7 @@ class ViewProxy extends AbstractProxy
             $name
         );
 
-        $error = $this->server->error();
+        $error = $this->db->error();
         $success = !$error;
         return \compact('success', 'message', 'error');
     }
@@ -304,17 +305,17 @@ class ViewProxy extends AbstractProxy
     {
         // From view.inc.php
         $orig_type = "VIEW";
-        if ($this->server->jush == "pgsql") {
-            $status = $this->server->table_status($view);
+        if ($this->db->jush() == "pgsql") {
+            $status = $this->db->table_status($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
 
-        $sql = "DROP $orig_type " . $this->server->table($view);
+        $sql = "DROP $orig_type " . $this->db->table($view);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
         $message = $this->ui->lang('View has been dropped.');
         $success =$this->ui->drop_only($sql, $location, $message);
 
-        $error = $this->server->error();
+        $error = $this->db->error();
 
         return \compact('success', 'message', 'error');
     }

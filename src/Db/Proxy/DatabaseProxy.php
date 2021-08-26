@@ -48,7 +48,7 @@ class DatabaseProxy extends AbstractProxy
     {
         // Get the schema lists
         if ($this->finalSchemas === null) {
-            $this->finalSchemas = $this->server->schemas();
+            $this->finalSchemas = $this->db->schemas();
             if (\is_array($this->userSchemas)) {
                 // Only keep schemas that appear in the config.
                 $this->finalSchemas = \array_intersect($this->finalSchemas, $this->userSchemas);
@@ -79,28 +79,28 @@ class DatabaseProxy extends AbstractProxy
             // 'type' => $this->ui->lang('User types'),
             // 'event' => $this->ui->lang('Events'),
         ];
-        if ($this->server->support('view')) {
+        if ($this->db->support('view')) {
             $menu_actions['view'] = $this->ui->lang('Views');
         }
-        if ($this->server->support('routine')) {
+        if ($this->db->support('routine')) {
             $menu_actions['routine'] = $this->ui->lang('Routines');
         }
-        if ($this->server->support('sequence')) {
+        if ($this->db->support('sequence')) {
             $menu_actions['sequence'] = $this->ui->lang('Sequences');
         }
-        if ($this->server->support('type')) {
+        if ($this->db->support('type')) {
             $menu_actions['type'] = $this->ui->lang('User types');
         }
-        if ($this->server->support('event')) {
+        if ($this->db->support('event')) {
             $menu_actions['event'] = $this->ui->lang('Events');
         }
 
         // From db.inc.php
         $schemas = null;
-        if ($this->server->support("scheme")) {
+        if ($this->db->support("scheme")) {
             $schemas = $this->schemas();
         }
-        // $tables_list = $this->server->tables_list();
+        // $tables_list = $this->db->tables_list();
 
         // $tables = [];
         // foreach($table_status as $table)
@@ -135,12 +135,12 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        // $table_status = $this->server->table_status('', true); // Tables details
-        $table_status = $this->server->table_status(); // Tables details
+        // $table_status = $this->db->table_status('', true); // Tables details
+        $table_status = $this->db->table_status(); // Tables details
 
         $details = [];
         foreach ($table_status as $table => $status) {
-            if (!$this->server->is_view($status)) {
+            if (!$this->db->is_view($status)) {
                 $details[] = [
                     'name' => $this->ui->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
@@ -178,12 +178,12 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        // $table_status = $this->server->table_status('', true); // Tables details
-        $table_status = $this->server->table_status(); // Tables details
+        // $table_status = $this->db->table_status('', true); // Tables details
+        $table_status = $this->db->table_status(); // Tables details
 
         $details = [];
         foreach ($table_status as $table => $status) {
-            if ($this->server->is_view($status)) {
+            if ($this->db->is_view($status)) {
                 $details[] = [
                     'name' => $this->ui->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
@@ -214,7 +214,7 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        $routines = $this->server->support("routine") ? $this->server->routines() : [];
+        $routines = $this->db->support("routine") ? $this->db->routines() : [];
         $details = [];
         foreach ($routines as $routine) {
             // not computed on the pages to be able to print the header first
@@ -251,7 +251,7 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         $sequences = [];
-        if ($this->server->support("sequence")) {
+        if ($this->db->support("sequence")) {
             // From db.inc.php
             $sequences = $this->db->get_vals("SELECT sequence_name FROM information_schema.sequences ".
                 "WHERE sequence_schema = current_schema() ORDER BY sequence_name");
@@ -282,7 +282,7 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        $userTypes = $this->server->support("type") ? $this->server->types() : [];
+        $userTypes = $this->db->support("type") ? $this->db->user_types() : [];
         $details = [];
         foreach ($userTypes as $userType) {
             $details[] = [
@@ -312,7 +312,7 @@ class DatabaseProxy extends AbstractProxy
         ];
 
         // From db.inc.php
-        $events = $this->server->support("event") ? $this->db->get_rows("SHOW EVENTS") : [];
+        $events = $this->db->support("event") ? $this->db->get_rows("SHOW EVENTS") : [];
         $details = [];
         foreach ($events as $event) {
             $detail = [

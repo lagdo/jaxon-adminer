@@ -50,7 +50,7 @@ class ServerProxy extends AbstractProxy
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser are prepended to the Jaxon response.
         if ($this->finalDatabases === null) {
-            $this->finalDatabases = $this->server->get_databases(false);
+            $this->finalDatabases = $this->db->get_databases(false);
             if (\is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);
@@ -69,11 +69,11 @@ class ServerProxy extends AbstractProxy
     {
         $server = $this->ui->lang(
             '%s version: %s. PHP extension %s.',
-            $this->server->getName(),
-            "<b>" . $this->ui->h($this->connection->server_info) . "</b>",
-            "<b>{$this->connection->extension}</b>"
+            $this->db->getName(),
+            "<b>" . $this->ui->h($this->db->serverInfo()) . "</b>",
+            "<b>{$this->db->extension()}</b>"
         );
-        $user = $this->ui->lang('Logged as: %s.', "<b>" . $this->ui->h($this->server->logged_user()) . "</b>");
+        $user = $this->ui->lang('Logged as: %s.', "<b>" . $this->ui->h($this->db->logged_user()) . "</b>");
 
         $sql_actions = [
             'server-command' => $this->ui->lang('SQL command'),
@@ -85,20 +85,20 @@ class ServerProxy extends AbstractProxy
         $menu_actions = [
             'databases' => $this->ui->lang('Databases'),
         ];
-        // if($this->server->support('database'))
+        // if($this->db->support('database'))
         // {
         //     $menu_actions['databases'] = $this->ui->lang('Databases');
         // }
-        if ($this->server->support('privileges')) {
+        if ($this->db->support('privileges')) {
             $menu_actions['privileges'] = $this->ui->lang('Privileges');
         }
-        if ($this->server->support('processlist')) {
+        if ($this->db->support('processlist')) {
             $menu_actions['processes'] = $this->ui->lang('Process list');
         }
-        if ($this->server->support('variables')) {
+        if ($this->db->support('variables')) {
             $menu_actions['variables'] = $this->ui->lang('Variables');
         }
-        if ($this->server->support('status')) {
+        if ($this->db->support('status')) {
             $menu_actions['status'] = $this->ui->lang('Status');
         }
 
@@ -118,7 +118,7 @@ class ServerProxy extends AbstractProxy
      */
     public function createDatabase(string $database, string $collation = '')
     {
-        return $this->server->create_database($database, $collation);
+        return $this->db->create_database($database, $collation);
     }
 
     /**
@@ -130,7 +130,7 @@ class ServerProxy extends AbstractProxy
      */
     public function dropDatabase(string $database)
     {
-        return $this->server->drop_databases([$database]);
+        return $this->db->drop_databases([$database]);
     }
 
     /**
@@ -140,7 +140,7 @@ class ServerProxy extends AbstractProxy
      */
     public function getCollations()
     {
-        return $this->server->collations();
+        return $this->db->collations();
     }
 
     /**
@@ -152,7 +152,7 @@ class ServerProxy extends AbstractProxy
     {
         // Get the database list
         $databases = $this->databases();
-        $tables = $this->server->count_tables($databases);
+        $tables = $this->db->count_tables($databases);
 
         $main_actions = [
             'add-database' => $this->ui->lang('Create database'),
@@ -166,12 +166,12 @@ class ServerProxy extends AbstractProxy
             '',
         ];
 
-        $collations = $this->server->collations();
+        $collations = $this->db->collations();
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
                 'name' => $this->ui->h($database),
-                'collation' => $this->ui->h($this->server->db_collation($database, $collations)),
+                'collation' => $this->ui->h($this->db->db_collation($database, $collations)),
                 'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => $this->ui->format_number($this->db->db_size($database)),
             ];
@@ -188,8 +188,9 @@ class ServerProxy extends AbstractProxy
     public function getProcesses()
     {
         // From processlist.inc.php
-        $processes = $this->server->process_list();
+        $processes = $this->db->process_list();
 
+        $jush = $this->db->jush();
         // From processlist.inc.php
         // TODO: Add a kill column in the headers
         $headers = [];
@@ -204,10 +205,10 @@ class ServerProxy extends AbstractProxy
                 $match = \array_key_exists('Command', $process) &&
                     \preg_match("~Query|Killed~", $process["Command"]);
                 $detail[] =
-                    ($this->server->jush == "sql" && $key == "Info" && $match && $val != "") ||
-                    ($this->server->jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
-                    ($this->server->jush == "oracle" && $key == "sql_text" && $val != "") ?
-                    "<code class='jush-{$this->server->jush}'>" . $this->ui->shorten_utf8($val, 50) .
+                    ($jush == "sql" && $key == "Info" && $match && $val != "") ||
+                    ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
+                    ($jush == "oracle" && $key == "sql_text" && $val != "") ?
+                    "<code class='jush-{$jush}'>" . $this->ui->shorten_utf8($val, 50) .
                     "</code>" . $this->ui->lang('Clone') : $this->ui->h($val);
             }
             $details[] = $detail;
@@ -224,7 +225,7 @@ class ServerProxy extends AbstractProxy
     public function getVariables()
     {
         // From variables.inc.php
-        $variables = $this->server->show_variables();
+        $variables = $this->db->show_variables();
 
         $headers = false;
 
@@ -245,7 +246,7 @@ class ServerProxy extends AbstractProxy
     public function getStatus()
     {
         // From variables.inc.php
-        $status = $this->server->show_status();
+        $status = $this->db->show_status();
         if (!\is_array($status)) {
             $status = [];
         }

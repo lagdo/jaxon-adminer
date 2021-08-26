@@ -79,7 +79,7 @@ class Proxy extends Proxy\AbstractProxy
     protected function select(string $database, string $schema)
     {
         if ($database !== '') {
-            $this->server->selectDatabase($database, $schema);
+            $this->db->selectDatabase($database, $schema);
         }
     }
 
@@ -104,10 +104,7 @@ class Proxy extends Proxy\AbstractProxy
         // The Adminer constructor connects to the database.
         $this->db = new AdminerDb($options);
         $this->ui = new AdminerUi($this->db);
-        $this->db->connect($this->db, $this->ui, $options['driver']);
-        $this->server = $this->ui->server = $this->db->server;
-        $this->connection = $this->ui->connection = $this->db->connection;
-        $this->driver = $this->ui->driver = $this->db->driver;
+        $this->db->connect($this->ui, $options['driver']);
 
         $this->select($database, $schema);
         return $options;
@@ -124,6 +121,6 @@ class Proxy extends Proxy\AbstractProxy
     public function support(string $server, string $feature)
     {
         $this->connect($server);
-        return $this->server->support($feature);
+        return $this->db->support($feature);
     }
 }

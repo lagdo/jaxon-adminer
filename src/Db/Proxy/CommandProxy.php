@@ -32,11 +32,11 @@ class CommandProxy extends AbstractProxy
         if ($database != '') {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
-            $connection = $this->server->connect();
+            $connection = $this->db->createConnection();
             if (\is_object($connection)) {
                 $connection->select_db($database);
                 if ($schema !== '') {
-                    $this->server->set_schema($schema, $connection);
+                    $this->db->set_schema($schema, $connection);
                 }
                 $this->connection2 = $connection;
             }
@@ -72,7 +72,7 @@ class CommandProxy extends AbstractProxy
             foreach ($row as $key => $val) {
                 $link = "";
                 if (isset($links[$key]) && !$columns[$links[$key]]) {
-                    if ($orgtables && $this->server->jush == "sql") { // MySQL EXPLAIN
+                    if ($orgtables && $this->db->jush() == "sql") { // MySQL EXPLAIN
                         $table = $row[\array_search("table=", $links)];
                         $link = ME . $links[$key] .
                             \urlencode($orgtables[$table] != "" ? $orgtables[$table] : $table);
@@ -118,13 +118,13 @@ class CommandProxy extends AbstractProxy
             $orgname = $field->orgname;
             // PostgreSQL fix: the table field can be missing.
             $tables[$field->table ?? $orgtable] = $orgtable;
-            if ($orgtables && $this->server->jush == "sql") { // MySQL EXPLAIN
+            if ($orgtables && $this->db->jush() == "sql") { // MySQL EXPLAIN
                 $links[$j] = ($name == "table" ? "table=" : ($name == "possible_keys" ? "indexes=" : null));
             } elseif ($orgtable != "") {
                 if (!isset($indexes[$orgtable])) {
                     // find primary key in each table
                     $indexes[$orgtable] = [];
-                    foreach ($this->server->indexes($orgtable, $this->connection2) as $index) {
+                    foreach ($this->db->indexes($orgtable, $this->connection2) as $index) {
                         if ($index["type"] == "PRIMARY") {
                             $indexes[$orgtable] = \array_flip($index["columns"]);
                             break;
@@ -186,10 +186,10 @@ class CommandProxy extends AbstractProxy
         $commands = 0;
         $timestamps = [];
         $parse = '[\'"' .
-            ($this->server->jush == "sql" ? '`#' :
-            ($this->server->jush == "sqlite" ? '`[' :
-            ($this->server->jush == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
-            ($this->server->jush == "pgsql" ? '|\$[^$]*\$' : '');
+            ($this->db->jush() == "sql" ? '`#' :
+            ($this->db->jush() == "sqlite" ? '`[' :
+            ($this->db->jush() == "mssql" ? '[' : ''))) . ']|/\*|-- |$' .
+            ($this->db->jush() == "pgsql" ? '|\$[^$]*\$' : '');
         // $total_start = \microtime(true);
         // \parse_str($_COOKIE["adminer_export"], $adminer_export);
         // $dump_format = $this->ui->dumpFormat();
@@ -241,9 +241,9 @@ class CommandProxy extends AbstractProxy
             $empty = false;
             $q = \substr($queries, 0, $pos);
             $commands++;
-            // $print = "<pre id='sql-$commands'><code class='jush-$this->server->jush'>" .
+            // $print = "<pre id='sql-$commands'><code class='jush-$this->db->jush()'>" .
             //     $this->ui->sqlCommandQuery($q) . "</code></pre>\n";
-            if ($this->server->jush == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match)) {
+            if ($this->db->jush() == "sqlite" && \preg_match("~^$space*+ATTACH\\b~i", $q, $match)) {
                 // PHP doesn't support setting SQLITE_LIMIT_ATTACHED
                 // $errors[] = " <a href='#sql-$commands'>$commands</a>";
                 $errors[] = $this->ui->lang('ATTACH queries are not supported.');
@@ -265,25 +265,21 @@ class CommandProxy extends AbstractProxy
                 // }
                 $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
-                if ($this->connection->multi_query($q) && \is_object($this->connection2) && \preg_match("~^$space*+USE\\b~i", $q)) {
+                if ($this->db->multi_query($q) && \is_object($this->connection2) && \preg_match("~^$space*+USE\\b~i", $q)) {
                     $this->connection2->query($q);
                 }
 
                 do {
-                    $result = $this->connection->store_result();
+                    $result = $this->db->store_result();
 
-                    if ($this->connection->error) {
-                        // echo ($onlyErrors ? $print : "");
-                        // echo "<p class='error'>" . $this->ui->lang('Error in query') . ($this->connection->errno ?
-                        //     " ($this->connection->errno)" : "") . ": " . $this->server->error() . "\n";
-                        // $errors[] = " <a href='#sql-$commands'>$commands</a>";
-                        $error = $this->server->error();
-                        if (isset($this->connection->errno)) {
-                            $error = "($this->connection->errno): $error";
+                    if ($this->db->errorMessage()) {
+                        $error = $this->db->error();
+                        if ($this->db->hasErrorNumber()) {
+                            $error = "(" . $this->db->errorNumber() . "): $error";
                         }
                         $errors[] = $error;
                     } else {
-                        $affected = $this->connection->affected_rows; // getting warnigns overwrites this
+                        $affected = $this->db->affectedRows(); // getting warnigns overwrites this
                         if (\is_object($result)) {
                             if (!$onlyErrors) {
                                 $select = $this->select($result, [], $limit);
@@ -291,7 +287,7 @@ class CommandProxy extends AbstractProxy
                             }
                         } else {
                             if (!$onlyErrors) {
-                                // $title = $this->ui->h($this->connection->info);
+                                // $title = $this->ui->h($this->db->info());
                                 $messages[] = $this->ui->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
                             }
                         }
@@ -304,12 +300,12 @@ class CommandProxy extends AbstractProxy
                         'select' => $select,
                     ];
 
-                    if ($this->connection->error && $errorStops) {
+                    if ($this->db->errorMessage() && $errorStops) {
                         break 2;
                     }
 
                     $start = \microtime(true);
-                } while ($this->connection->next_result());
+                } while ($this->db->next_result());
             }
 
             $queries = \substr($queries, $offset);

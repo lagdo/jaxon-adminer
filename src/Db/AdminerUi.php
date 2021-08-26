@@ -10,21 +10,6 @@ use function adminer\format_number;
 class AdminerUi implements AdminerUiInterface
 {
     /**
-     * @var ServerInterface
-     */
-    public $server = null;
-
-    /**
-     * @var DriverInterface
-     */
-    public $driver = null;
-
-    /**
-     * @var ConnectionInterface
-     */
-    public $connection = null;
-
-    /**
      * @var Input
      */
     public $input;
@@ -197,11 +182,11 @@ class AdminerUi implements AdminerUiInterface
     public function escape_key($key)
     {
         if (preg_match('(^([\w(]+)(' .
-            str_replace("_", ".*", preg_quote($this->server->idf_escape("_"))) . ')([ \w)]+)$)', $key, $match)) {
+            str_replace("_", ".*", preg_quote($this->db->idf_escape("_"))) . ')([ \w)]+)$)', $key, $match)) {
             //! columns looking like functions
-            return $match[1] . $this->server->idf_escape($this->server->idf_unescape($match[2])) . $match[3]; //! SQL injection
+            return $match[1] . $this->db->idf_escape($this->db->idf_unescape($match[2])) . $match[3]; //! SQL injection
         }
-        return $this->server->idf_escape($key);
+        return $this->db->idf_escape($key);
     }
 
     /**
@@ -219,14 +204,14 @@ class AdminerUi implements AdminerUiInterface
             $column = $this->escape_key($key);
             $return[] = $column .
                 // LIKE because of floats but slow with ints
-                ($this->server->jush == "sql" && is_numeric($val) && preg_match('~\.~', $val) ? " LIKE " .
-                $this->server->q($val) : ($this->server->jush == "mssql" ? " LIKE " .
-                $this->server->q(preg_replace('~[_%[]~', '[\0]', $val)) : " = " . // LIKE because of text
-                $this->server->unconvert_field($fields[$key], $this->server->q($val)))); //! enum and set
-            if ($this->server->jush == "sql" &&
+                ($this->db->jush() == "sql" && is_numeric($val) && preg_match('~\.~', $val) ? " LIKE " .
+                $this->db->quote($val) : ($this->db->jush() == "mssql" ? " LIKE " .
+                $this->db->quote(preg_replace('~[_%[]~', '[\0]', $val)) : " = " . // LIKE because of text
+                $this->db->unconvert_field($fields[$key], $this->db->quote($val)))); //! enum and set
+            if ($this->db->jush() == "sql" &&
                 preg_match('~char|text~', $fields[$key]["type"]) && preg_match("~[^ -@]~", $val)) {
                 // not just [a-z] to catch non-ASCII characters
-                $return[] = "$column = " . $this->server->q($val) . " COLLATE " . $this->server->charset() . "_bin";
+                $return[] = "$column = " . $this->db->quote($val) . " COLLATE " . $this->db−>charset() . "_bin";
             }
         }
         $nulls = $where["null"] ?? [];
@@ -239,23 +224,24 @@ class AdminerUi implements AdminerUiInterface
     /**
      * @inheritDoc
      */
-    public function fields_from_edit($primary)
+    public function fields_from_edit()
     {
         $return = [];
-        foreach ((array) $this->input->values["field_keys"] as $key => $val) {
+        $values = $this->input->values;
+        foreach ((array) $values["field_keys"] as $key => $val) {
             if ($val != "") {
                 $val = $this->bracket_escape($val);
-                $this->input->values["function"][$val] = $this->input->values["field_funs"][$key];
-                $this->input->values["fields"][$val] = $this->input->values["field_vals"][$key];
+                $values["function"][$val] = $values["field_funs"][$key];
+                $values["fields"][$val] = $values["field_vals"][$key];
             }
         }
-        foreach ((array) $this->input->values["fields"] as $key => $val) {
+        foreach ((array) $values["fields"] as $key => $val) {
             $name = $this->bracket_escape($key, 1); // 1 - back
             $return[$name] = array(
                 "field" => $name,
                 "privileges" => array("insert" => 1, "update" => 1),
                 "null" => 1,
-                "auto_increment" => ($key == $primary),
+                "auto_increment" => ($key == $this->db->primary()),
             );
         }
         return $return;
@@ -393,9 +379,9 @@ class AdminerUi implements AdminerUiInterface
     public function referencable_primary($self)
     {
         $return = []; // table_name => field
-        foreach ($this->server->table_status('', true) as $table_name => $table) {
-            if ($table_name != $self && $this->server->fk_support($table)) {
-                foreach ($this->server->fields($table_name) as $field) {
+        foreach ($this->db->table_status('', true) as $table_name => $table) {
+            if ($table_name != $self && $this->db->fk_support($table)) {
+                foreach ($this->db->fields($table_name) as $field) {
                     if (isset($field["primary"])) {
                         if (isset($return[$table_name])) { // multi column primary key
                             unset($return[$table_name]);
@@ -430,7 +416,7 @@ class AdminerUi implements AdminerUiInterface
     {
         $return = ($field["null"] ? "NULL/" : "");
         $update = isset($options["select"]) || $this->where([]);
-        foreach ($this->server->edit_functions as $key => $functions) {
+        foreach ($this->db->editFunctions() as $key => $functions) {
             if (!$key || (!isset($options["call"]) && $update)) { // relative functions
                 foreach ($functions as $pattern => $val) {
                     if (!$pattern || preg_match("~$pattern~", $field["type"])) {
@@ -642,9 +628,9 @@ class AdminerUi implements AdminerUiInterface
         ];
         return " $field[type]" . $this->process_length($field["length"]) .
             (preg_match($this->db->number_type(), $field["type"]) &&
-            in_array($values["unsigned"], $this->server->unsigned) ?
+            in_array($values["unsigned"], $this->db->unsigned()) ?
             " $values[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field["type"]) &&
-            $values["collation"] ? " $collate " . $this->server->q($values["collation"]) : "")
+            $values["collation"] ? " $collate " . $this->db->quote($values["collation"]) : "")
         ;
     }
 
@@ -657,15 +643,15 @@ class AdminerUi implements AdminerUiInterface
     public function process_field($field, $type_field)
     {
         return array(
-            $this->server->idf_escape(trim($field["field"])),
+            $this->db->idf_escape(trim($field["field"])),
             $this->process_type($type_field),
             ($field["null"] ? " NULL" : " NOT NULL"), // NULL for timestamp
             $this->db->default_value($field),
             (preg_match('~timestamp|datetime~', $field["type"]) && $field["on_update"] ?
                 " ON UPDATE $field[on_update]" : ""),
-            ($this->server->support("comment") && $field["comment"] != "" ?
-                " COMMENT " . $this->server->q($field["comment"]) : ""),
-            ($field["auto_increment"] ? $this->server->auto_increment() : null),
+            ($this->db->support("comment") && $field["comment"] != "" ?
+                " COMMENT " . $this->db->quote($field["comment"]) : ""),
+            ($field["auto_increment"] ? $this->db->auto_increment() : null),
         );
     }
 
@@ -694,7 +680,7 @@ class AdminerUi implements AdminerUiInterface
         }
         if ($function == "orig") {
             return (preg_match('~^CURRENT_TIMESTAMP~i', $field["on_update"]) ?
-                $this->server->idf_escape($field["field"]) : false);
+                $this->db->idf_escape($field["field"]) : false);
         }
         if ($function == "NULL") {
             return "NULL";
@@ -715,7 +701,7 @@ class AdminerUi implements AdminerUiInterface
             if (!is_string($file)) {
                 return false; //! report errors
             }
-            return $this->driver->quoteBinary($file);
+            return $this->db->quoteBinary($file);
         }
         return $this->processInput($field, $value, $function);
     }
@@ -733,13 +719,13 @@ class AdminerUi implements AdminerUiInterface
         foreach ((array) $this->input->values["columns"] as $key => $val) {
             if ($val["fun"] == "count" ||
                 ($val["col"] != "" && (!$val["fun"] ||
-                in_array($val["fun"], $this->server->functions) ||
-                in_array($val["fun"], $this->server->grouping)))) {
+                in_array($val["fun"], $this->db->functions()) ||
+                in_array($val["fun"], $this->db->grouping())))) {
                 $select[$key] = $this->db->apply_sql_function(
                     $val["fun"],
-                    ($val["col"] != "" ? $this->server->idf_escape($val["col"]) : "*")
+                    ($val["col"] != "" ? $this->db->idf_escape($val["col"]) : "*")
                 );
-                if (!in_array($val["fun"], $this->server->grouping)) {
+                if (!in_array($val["fun"], $this->db->grouping())) {
                     $group[] = $select[$key];
                 }
             }
@@ -760,22 +746,22 @@ class AdminerUi implements AdminerUiInterface
             return $value; // SQL injection
         }
         $name = $field["field"];
-        $return = $this->server->q($value);
+        $return = $this->db->quote($value);
         if (preg_match('~^(now|getdate|uuid)$~', $function)) {
             $return = "$function()";
         } elseif (preg_match('~^current_(date|timestamp)$~', $function)) {
             $return = $function;
         } elseif (preg_match('~^([+-]|\|\|)$~', $function)) {
-            $return = $this->server->idf_escape($name) . " $function $return";
+            $return = $this->db->idf_escape($name) . " $function $return";
         } elseif (preg_match('~^[+-] interval$~', $function)) {
-            $return = $this->server->idf_escape($name) . " $function " .
+            $return = $this->db->idf_escape($name) . " $function " .
                 (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) ? $value : $return);
         } elseif (preg_match('~^(addtime|subtime|concat)$~', $function)) {
-            $return = "$function(" . $this->server->idf_escape($name) . ", $return)";
+            $return = "$function(" . $this->db->idf_escape($name) . ", $return)";
         } elseif (preg_match('~^(md5|sha1|password|encrypt)$~', $function)) {
             $return = "$function($return)";
         }
-        return $this->server->unconvert_field($field, $return);
+        return $this->db->unconvert_field($field, $return);
     }
 
     /**
@@ -790,15 +776,15 @@ class AdminerUi implements AdminerUiInterface
         foreach ($indexes as $i => $index) {
             if ($index["type"] == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
                 $columns = array_map(function ($column) {
-                    return $this->server->idf_escape($column);
+                    return $this->db->idf_escape($column);
                 }, $index["columns"]);
                 $return[] = "MATCH (" . implode(", ", $columns) . ") AGAINST (" .
-                    $this->server->q($this->input->values["fulltext"][$i]) .
+                    $this->db->quote($this->input->values["fulltext"][$i]) .
                     (isset($this->input->values["boolean"][$i]) ? " IN BOOLEAN MODE" : "") . ")";
             }
         }
         foreach ((array) $this->input->values["where"] as $key => $val) {
-            if ("$val[col]$val[val]" != "" && in_array($val["op"], $this->server->operators)) {
+            if ("$val[col]$val[val]" != "" && in_array($val["op"], $this->db->operators())) {
                 $prefix = "";
                 $cond = " $val[op]";
                 if (preg_match('~IN$~', $val["op"])) {
@@ -817,8 +803,8 @@ class AdminerUi implements AdminerUiInterface
                     $cond .= " " . $this->processInput($fields[$val["col"]], $val["val"]);
                 }
                 if ($val["col"] != "") {
-                    $return[] = $prefix . $this->driver->convertSearch(
-                        $this->server->idf_escape($val["col"]),
+                    $return[] = $prefix . $this->db->convertSearch(
+                        $this->db->idf_escape($val["col"]),
                         $val,
                         $fields[$val["col"]]
                     ) . $cond;
@@ -831,7 +817,7 @@ class AdminerUi implements AdminerUiInterface
                             (!preg_match("~[\x80-\xFF]~", $val["val"]) || preg_match('~char|text|enum|set~', $field["type"])) &&
                             (!preg_match('~date|timestamp~', $field["type"]) || preg_match('~^\d+-\d+-\d+~', $val["val"]))
                         ) {
-                            $cols[] = $prefix . $this->driver->convertSearch($this->server->idf_escape($name), $val, $field) . $cond;
+                            $cols[] = $prefix . $this->db->convertSearch($this->db->idf_escape($name), $val, $field) . $cond;
                         }
                     }
                     $return[] = ($cols ? "(" . implode(" OR ", $cols) . ")" : "1 = 0");
@@ -853,7 +839,7 @@ class AdminerUi implements AdminerUiInterface
         foreach ((array) $this->input->values["order"] as $key => $val) {
             if ($val != "") {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
-                $return[] = (preg_match($regexp, $val) ? $val : $this->server->idf_escape($val)) . //! MS SQL uses []
+                $return[] = (preg_match($regexp, $val) ? $val : $this->db->idf_escape($val)) . //! MS SQL uses []
                     (isset($this->input->values["desc"][$key]) ? " DESC" : "");
             }
         }
@@ -984,7 +970,7 @@ class AdminerUi implements AdminerUiInterface
         global $error;
         if ($execute) {
             $start = microtime(true);
-            $failed = !$this->connection->query($query);
+            $failed = !$this->db->query($query);
             $time = $this->format_time($start);
         }
         $sql = "";
@@ -992,8 +978,8 @@ class AdminerUi implements AdminerUiInterface
             $sql = $this->messageQuery($query, $time, $failed);
         }
         if ($failed) {
-            throw new DbException($this->server->error() . $sql);
-            // $error = $this->server->error() . $sql . script("messagesPrint();");
+            throw new DbException($this->db->error() . $sql);
+            // $error = $this->db->error() . $sql . script("messagesPrint();");
             // return false;
         }
         // if ($redirect) {
@@ -1004,32 +990,22 @@ class AdminerUi implements AdminerUiInterface
 
     /**
      * Drop old object and create a new one
-     * @param string drop old object query
-     * @param string create new object query
-     * @param string drop new object query
-     * @param string create test object query
-     * @param string drop test object query
-     * @param string
-     * @param string
-     * @param string
-     * @param string
-     * @param string
-     * @param string
+     * @param string $drop drop old object query
+     * @param string $create create new object query
+     * @param string $drop_created drop new object query
+     * @param string $test create test object query
+     * @param string $drop_test drop test object query
+     * @param string $location
+     * @param string $message_drop
+     * @param string $message_alter
+     * @param string $message_create
+     * @param string $old_name
+     * @param string $new_name
      * @return null redirect in success
      */
-    public function drop_create(
-        $drop,
-        $create,
-        $drop_created,
-        $test,
-        $drop_test,
-        $location,
-        $message_drop,
-        $message_alter,
-        $message_create,
-        $old_name,
-        $new_name
-    ) {
+    public function drop_create($drop, $create, $drop_created, $test, $drop_test,
+        $location, $message_drop, $message_alter, $message_create, $old_name, $new_name)
+    {
         if ($old_name == "") {
             $this->query_redirect($drop, $location, $message_drop);
         } elseif ($old_name == "") {
