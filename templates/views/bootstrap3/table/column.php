@@ -7,7 +7,7 @@
             <div class="col-md-3 adminer-table-column-left">
                 <input class="form-control column-name" name="<?php
                     echo $this->prefixFields ?>[field]" placeholder="<?php
-                    echo \adminer\lang('Name') ?>" data-field="field" value="<?php
+                    echo $this->trans->lang('Name') ?>" data-field="field" value="<?php
                     echo $this->field['field'] ?>" data-maxlength="64" autocapitalize="off" />
                 <input type="hidden" name="<?php echo $this->prefixFields ?>[orig]" value="<?php
                     echo $this->field['field'] ?>" data-field="orig" />
@@ -16,7 +16,7 @@
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[collation]" data-field="collation"<?php
                     if($this->field['_collation_hidden_']): ?> readonly<?php endif ?>>
-                    <option value="">(<?php echo \adminer\lang('collation') ?>)</option>
+                    <option value="">(<?php echo $this->trans->lang('collation') ?>)</option>
 <?php foreach($this->collations as $group => $collations): ?>
                     <optgroup label="<?php echo $group ?>">
 <?php foreach($collations as $collation): ?>
@@ -36,7 +36,7 @@
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[on_update]" data-field="on_update"<?php
                     if($this->field['_on_update_hidden_']): ?> readonly<?php endif ?>>
-                    <option value="">(<?php echo \adminer\lang('ON UPDATE') ?>)</option>
+                    <option value="">(<?php echo $this->trans->lang('ON UPDATE') ?>)</option>
 <?php foreach($this->options['on_update'] as $group => $option): ?>
                     <option <?php if($this->field['on_update'] === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
@@ -48,7 +48,7 @@
                 <input class="form-control" name="<?php
                     echo $this->prefixFields ?>[comment]" data-field="comment" value="<?php
                     echo $this->field['comment'] ?? '' ?>" placeholder="<?php
-                    echo \adminer\lang('Comment') ?>" />
+                    echo $this->trans->lang('Comment') ?>" />
             </div>
             <!-- End first line -->
             <!-- Start second line -->
@@ -68,7 +68,7 @@
             <div class="col-md-1 adminer-table-column-middle second-line">
                 <input class="form-control" name="<?php
                     echo $this->prefixFields ?>[length]" placeholder="<?php
-                    echo \adminer\lang('Length') ?>" data-field="length"<?php
+                    echo $this->trans->lang('Length') ?>" data-field="length"<?php
                     if($this->field['_length_required_']): ?> required<?php endif ?> value="<?php
                     echo $this->field['length'] ?>" size="3">
             </div>
@@ -95,7 +95,7 @@
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[on_delete]" data-field="on_delete"<?php
                     if($this->field['_on_delete_hidden_']): ?> readonly<?php endif ?>>
-                    <option value="">(<?php echo \adminer\lang('ON DELETE') ?>)</option>
+                    <option value="">(<?php echo $this->trans->lang('ON DELETE') ?>)</option>
 <?php foreach($this->options['on_delete'] as $option): ?>
                     <option <?php if($this->field['on_delete'] === $option): ?>selected<?php
                         endif ?>><?php echo $option ?></option>
@@ -113,7 +113,7 @@
                     <input class="form-control" name="<?php
                         echo $this->prefixFields ?>[default]" data-field="default" value="<?php
                         echo $this->field['default'] ?? '' ?>" placeholder="<?php
-                        echo \adminer\lang('Default value') ?>">
+                        echo $this->trans->lang('Default value') ?>">
                 </div>
             </div>
             <div class="col-md-2 second-line">

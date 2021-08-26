@@ -33,16 +33,16 @@
 <?php if($this->support['comment']): ?>
             <div class="col-md-4 adminer-table-column-middle">
                 <input name="comment" class="form-control" value="" placeholder="<?php
-                    echo \adminer\lang('Comment') ?>" />
+                    echo $this->trans->lang('Comment') ?>" />
             </div>
 <?php endif ?>
         </div>
         <div class="form-group row adminer-table-column-header">
-            <label class="col-md-5 adminer-table-column-left"><?php echo \adminer\lang('Column') ?></label>
+            <label class="col-md-5 adminer-table-column-left"><?php echo $this->trans->lang('Column') ?></label>
             <label class="col-md-1 adminer-table-column-null-header" for="auto_increment_col">
                 <input type="radio" name="auto_increment_col" value="" checked /> AI
             </label>
-            <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
+            <label class="col-md-4 adminer-table-column-middle"><?php echo $this->trans->lang('Options') ?></label>
             <div class="col-md-2 adminer-table-column-buttons-header">
 <?php if($this->support['columns']): ?>
                 <button type="button" class="btn btn-primary btn-sm" id="adminer-table-column-add">

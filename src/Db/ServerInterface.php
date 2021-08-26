@@ -96,7 +96,7 @@ interface ServerInterface
      *
      * @return array
      */
-    public function get_databases($flush);
+    public function databases($flush);
 
     /**
      * Formulate SQL query with limit

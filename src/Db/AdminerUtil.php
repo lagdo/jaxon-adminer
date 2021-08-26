@@ -4,8 +4,7 @@ namespace Lagdo\Adminer\Db;
 
 use Lagdo\Adminer\Drivers\AdminerUtilInterface;
 use Lagdo\Adminer\Exception\DbException;
-
-use function adminer\format_number;
+use Lagdo\Adminer\Translator;
 
 class AdminerUtil implements AdminerUtilInterface
 {
@@ -15,13 +14,20 @@ class AdminerUtil implements AdminerUtilInterface
     public $input;
 
     /**
+     * @var Translator
+     */
+    protected $translator;
+
+    /**
      * The constructor
      *
-     * @param array $options
+     * @param AdminerDb $db
+     * @param Translator $translator
      */
-    public function __construct(AdminerDb $db)
+    public function __construct(AdminerDb $db, Translator $translator)
     {
         $this->db = $db;
+        $this->translator = $translator;
         $this->input = new Input();
     }
 
@@ -56,7 +62,7 @@ class AdminerUtil implements AdminerUtilInterface
      */
     public function lang($idf)
     {
-        return \call_user_func_array("\\adminer\\lang", \func_get_args());
+        return \call_user_func_array([$this->translator, "lang"], \func_get_args());
     }
 
     /**
@@ -163,7 +169,7 @@ class AdminerUtil implements AdminerUtilInterface
      */
     public function format_number($val)
     {
-        return format_number($val);
+        return $this->translator->format_number($val);
     }
 
     /**

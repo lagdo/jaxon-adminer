@@ -150,7 +150,7 @@ class DatabaseFacade extends AbstractFacade
             }
         }
 
-        $select = \adminer\lang('Select');
+        $select = $this->util->lang('Select');
         return \compact('main_actions', 'headers', 'details', 'select');
     }
 

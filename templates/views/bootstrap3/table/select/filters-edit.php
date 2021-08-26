@@ -19,7 +19,7 @@
             <div class="col-md-4">
                 <select name="where[<?php echo $i ?>][col]" class="form-control">
                     <option value="" <?php if($value['col'] == ''): ?>selected<?php
-                        endif ?>>(<?php echo \adminer\lang('anywhere') ?>)</option>
+                        endif ?>>(<?php echo $this->trans->lang('anywhere') ?>)</option>
 <?php foreach($this->options['columns'] as $column): ?>
                     <option <?php if($value['col'] == $column): ?>selected<?php
                         endif ?>><?php echo $column ?></option>
@@ -50,7 +50,7 @@
         <div class="form-group" id="<?php echo $this->formId ?>-item-__index__">
             <div class="col-md-4">
                 <select name="where[__index__][col]" class="form-control">
-                    <option value="" selected>(<?php echo \adminer\lang('anywhere') ?>)</option>
+                    <option value="" selected>(<?php echo $this->trans->lang('anywhere') ?>)</option>
 <?php foreach($this->options['columns'] as $column): ?>
                     <option><?php echo $column ?></option>
 <?php endforeach ?>

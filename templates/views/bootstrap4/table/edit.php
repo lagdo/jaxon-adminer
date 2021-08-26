@@ -37,17 +37,17 @@
             <div class="col-md-4 adminer-table-column-middle">
                 <input name="comment" class="form-control" value="<?php
                     echo $this->table['Comment'] ?? '' ?>" placeholder="<?php
-                    echo \adminer\lang('Comment') ?>" />
+                    echo $this->trans->lang('Comment') ?>" />
             </div>
 <?php endif ?>
         </div>
         <div class="form-group row adminer-table-column-header">
-            <label class="col-md-5 adminer-table-column-left"><?php echo \adminer\lang('Column') ?></label>
+            <label class="col-md-5 adminer-table-column-left"><?php echo $this->trans->lang('Column') ?></label>
             <label class="col-md-1 adminer-table-column-null-header" for="auto_increment_col">
                 <input type="radio" name="auto_increment_col" value="" <?php
                     if(!$this->options['has_auto_increment']): ?>checked <?php endif ?>/> AI
             </label>
-            <label class="col-md-4 adminer-table-column-middle"><?php echo \adminer\lang('Options') ?></label>
+            <label class="col-md-4 adminer-table-column-middle"><?php echo $this->trans->lang('Options') ?></label>
             <div class="col-md-2 adminer-table-column-buttons-header">
 <?php if($this->support['columns']): ?>
                 <button type="button" class="btn btn-primary btn-sm" id="adminer-table-column-add">
@@ -58,6 +58,7 @@
         </div>
 <?php foreach($this->fields as $index => $field): ?>
 <?php echo $this->render('adminer::views::table/column', [
+    'trans' => $this->trans,
     'class' => $this->formId . '-column',
     'index' => $index,
     'field' => $field,

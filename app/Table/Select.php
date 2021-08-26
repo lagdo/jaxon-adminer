@@ -132,7 +132,7 @@ class Select extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -162,7 +162,7 @@ class Select extends CallableClass
         $updateCall = $this->cl(Query::class)->rq()->showUpdate($server, $database, $schema, $table,
             \pm()->js("rowIds[rowId]"), $options);
         $deleteCall = $this->cl(Query::class)->rq()->execDelete($server, $database, $schema, $table,
-            \pm()->js("rowIds[rowId]"), $options)->confirm(\adminer\lang('Delete this item?'));
+            \pm()->js("rowIds[rowId]"), $options)->confirm($this->dbAdmin->lang('Delete this item?'));
 
         // Wrap the ajax calls into functions
         $this->response->setFunction('updateRowItem', 'rowId', $updateCall);

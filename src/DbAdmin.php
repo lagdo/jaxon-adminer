@@ -39,6 +39,11 @@ class DbAdmin extends Facade\AbstractFacade
     protected $package;
 
     /**
+     * @var Translator
+     */
+    protected $translator;
+
+    /**
      * The constructor
      *
      * @param Package $package    The Adminer package
@@ -46,6 +51,22 @@ class DbAdmin extends Facade\AbstractFacade
     public function __construct(Package $package)
     {
         $this->package = $package;
+        $this->translator = new Translator();
+        // Make the translator available into views
+        \jaxon()->view()->share('trans', $this->translator);
+    }
+
+    /**
+     * Get a translated string
+     * The first parameter is mandatory. Optional parameters can follow.
+     *
+     * @param string
+     *
+     * @return string
+     */
+    public function lang($idf)
+    {
+        return \call_user_func_array([$this->translator, "lang"], \func_get_args());
     }
 
     /**
@@ -105,7 +126,7 @@ class DbAdmin extends Facade\AbstractFacade
 
         // The Adminer constructor connects to the database.
         $this->db = new AdminerDb($options);
-        $this->util = new AdminerUtil($this->db);
+        $this->util = new AdminerUtil($this->db, $this->translator);
         $this->db->connect($this->util, $options['driver']);
 
         $this->select($database, $schema);

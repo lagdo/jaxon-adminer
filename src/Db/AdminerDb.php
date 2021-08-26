@@ -2,15 +2,8 @@
 
 namespace Lagdo\Adminer\Db;
 
-global $LANG, $translations;
-
-include __DIR__ . '/../../adminer/lang.inc.php';
-include __DIR__ . "/../../adminer/lang/en.inc.php";
-
 use Lagdo\Adminer\Drivers\AdminerDbTrait;
 use Lagdo\Adminer\Drivers\AdminerDbInterface;
-
-use function adminer\lang;
 
 class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterface, ServerInterface
 {

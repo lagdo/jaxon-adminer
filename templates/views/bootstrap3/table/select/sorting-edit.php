@@ -31,7 +31,7 @@
                             if($value['desc']): ?> checked<?php endif ?> value="1" />
                     </span>
                     <label for="desc[<?php echo $i ?>]" class="form-control"><?php
-                        echo \adminer\lang('descending') ?></label>
+                        echo $this->trans->lang('descending') ?></label>
                 </div>
             </div>
             <div class="col-md-1">
@@ -57,7 +57,7 @@
                         <input name="desc[__index__]" type="checkbox" value="1" />
                     </span>
                     <label for="desc[__index__]" class="form-control"><?php
-                        echo \adminer\lang('descending') ?></label>
+                        echo $this->trans->lang('descending') ?></label>
                 </div>
             </div>
             <div class="col-md-1">

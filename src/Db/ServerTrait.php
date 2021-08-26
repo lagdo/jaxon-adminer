@@ -129,7 +129,7 @@ trait ServerTrait
      *
      * @return array
      */
-    public function get_databases($flush)
+    public function databases($flush)
     {
         return $this->server->get_databases($flush);
     }

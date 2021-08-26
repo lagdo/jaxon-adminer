@@ -6,21 +6,21 @@
                     <div class="btn-group btn-group-justified" role="group">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default" id="<?php
-                                echo $this->btnColumnsId ?>"><?php echo \adminer\lang('Columns') ?></button>
+                                echo $this->btnColumnsId ?>"><?php echo $this->trans->lang('Columns') ?></button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default" id="<?php
-                                echo $this->btnFiltersId ?>"><?php echo \adminer\lang('Filters') ?></button>
+                                echo $this->btnFiltersId ?>"><?php echo $this->trans->lang('Filters') ?></button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default" id="<?php
-                                echo $this->btnSortingId ?>"><?php echo \adminer\lang('Order') ?></button>
+                                echo $this->btnSortingId ?>"><?php echo $this->trans->lang('Order') ?></button>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="input-group">
-                        <span class="input-group-addon"><?php echo \adminer\lang('Limit') ?></span>
+                        <span class="input-group-addon"><?php echo $this->trans->lang('Limit') ?></span>
                         <input type="number" name="limit" class="form-control" value="<?php
                             echo $this->options['limit']['value'] ?>" />
                         <span class="input-group-btn">
@@ -32,7 +32,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="input-group">
-                        <span class="input-group-addon"><?php echo \adminer\lang('Text length') ?></span>
+                        <span class="input-group-addon"><?php echo $this->trans->lang('Text length') ?></span>
                         <input type="number" name="text_length" class="form-control" value="<?php
                             echo $this->options['length']['value'] ?>" />
                         <span class="input-group-btn">
@@ -46,16 +46,19 @@
             <div class="form-group" style="display:none">
                 <div class="col-md-4" id="adminer-table-select-columns-show">
 <?php echo $this->render('adminer::views::table/select/columns-show', [
+    'trans' => $this->trans,
     'options' => $this->options['columns'],
 ]) ?>
                 </div>
                 <div class="col-md-4" id="adminer-table-select-filters-show">
 <?php echo $this->render('adminer::views::table/select/filters-show', [
+    'trans' => $this->trans,
     'options' => $this->options['filters'],
 ]) ?>
                 </div>
                 <div class="col-md-4" id="adminer-table-select-sorting-show">
 <?php echo $this->render('adminer::views::table/select/sorting-show', [
+    'trans' => $this->trans,
     'options' => $this->options['sorting'],
 ]) ?>
                 </div>
@@ -68,11 +71,11 @@
                     <div class="btn-group btn-group-justified" role="group">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default" id="<?php
-                                echo $this->btnEditId ?>"><?php echo \adminer\lang('Edit') ?></button>
+                                echo $this->btnEditId ?>"><?php echo $this->trans->lang('Edit') ?></button>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary" id="<?php
-                                echo $this->btnExecId ?>"><?php echo \adminer\lang('Execute') ?></button>
+                                echo $this->btnExecId ?>"><?php echo $this->trans->lang('Execute') ?></button>
                         </div>
                     </div>
                 </div>

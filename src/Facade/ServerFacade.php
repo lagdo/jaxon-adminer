@@ -50,7 +50,7 @@ class ServerFacade extends AbstractFacade
         // Passing false as parameter to this call prevent from using the slow_query() function,
         // which outputs data to the browser are prepended to the Jaxon response.
         if ($this->finalDatabases === null) {
-            $this->finalDatabases = $this->db->get_databases(false);
+            $this->finalDatabases = $this->db->databases(false);
             if (\is_array($this->userDatabases)) {
                 // Only keep databases that appear in the config.
                 $this->finalDatabases = \array_intersect($this->finalDatabases, $this->userDatabases);

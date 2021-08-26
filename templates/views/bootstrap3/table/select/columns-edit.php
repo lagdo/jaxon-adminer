@@ -19,13 +19,13 @@
             <div class="col-md-6">
                 <select name="columns[<?php echo $i ?>][fun]" class="form-control">
                     <option value="" <?php if($value['fun'] == ''): ?>selected<?php endif ?>></option>
-                    <optgroup label="<?php echo \adminer\lang('Functions') ?>">
+                    <optgroup label="<?php echo $this->trans->lang('Functions') ?>">
 <?php foreach($this->options['functions'] as $function): ?>
                         <option <?php if($value['fun'] == $function): ?>selected<?php
                             endif ?>><?php echo $function ?></option>
 <?php endforeach ?>
                     </optgroup>
-                    <optgroup label="<?php echo \adminer\lang('Aggregation') ?>">
+                    <optgroup label="<?php echo $this->trans->lang('Aggregation') ?>">
 <?php foreach($this->options['grouping'] as $grouping): ?>
                         <option <?php if($value['fun'] == $grouping): ?>selected<?php
                             endif ?>><?php echo $grouping ?></option>
@@ -54,12 +54,12 @@
             <div class="col-md-6">
                 <select name="columns[__index__][fun]" class="form-control">
                     <option value="" selected></option>
-                    <optgroup label="<?php echo \adminer\lang('Functions') ?>">
+                    <optgroup label="<?php echo $this->trans->lang('Functions') ?>">
 <?php foreach($this->options['functions'] as $function): ?>
                         <option><?php echo $function ?></option>
 <?php endforeach ?>
                     </optgroup>
-                    <optgroup label="<?php echo \adminer\lang('Aggregation') ?>">
+                    <optgroup label="<?php echo $this->trans->lang('Aggregation') ?>">
 <?php foreach($this->options['grouping'] as $grouping): ?>
                         <option><?php echo $grouping ?></option>
 <?php endforeach ?>

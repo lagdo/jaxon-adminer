@@ -35,7 +35,7 @@ class Query extends CallableClass
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -53,7 +53,7 @@ class Query extends CallableClass
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execInsert($server, $database, $schema, $table, $options)
-            ->confirm(\adminer\lang('Save this item?')));
+            ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
             ->click($this->cl(Table::class)->rq()->show($server, $database, $schema, $table));
 
@@ -79,10 +79,10 @@ class Query extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
         $this->showInsert($server, $database, $schema, $table);
 
         return $this->response;
@@ -107,7 +107,7 @@ class Query extends CallableClass
         // Show the error
         if(($queryData['error']))
         {
-            $this->response->dialog->error($queryData['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($queryData['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
         // Make data available to views
@@ -125,7 +125,7 @@ class Query extends CallableClass
         // Set onclick handlers on buttons
         $this->jq('#adminer-main-action-query-save')
             ->click($this->rq()->execUpdate($server, $database, $schema, $table, $rowIds, $options, $selects)
-            ->confirm(\adminer\lang('Save this item?')));
+            ->confirm($this->dbAdmin->lang('Save this item?')));
         $this->jq('#adminer-main-action-query-cancel')
             ->click($this->rq()->backToSelect($server, $database, $schema, $table, $selects));
 
@@ -155,10 +155,10 @@ class Query extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
         $this->backToSelect($server, $database, $schema, $table, $selects);
 
         return $this->response;
@@ -184,10 +184,10 @@ class Query extends CallableClass
         // Show the error
         if(($results['error']))
         {
-            $this->response->dialog->error($results['error'], \adminer\lang('Error'));
+            $this->response->dialog->error($results['error'], $this->dbAdmin->lang('Error'));
             return $this->response;
         }
-        $this->response->dialog->success($results['message'], \adminer\lang('Success'));
+        $this->response->dialog->success($results['message'], $this->dbAdmin->lang('Success'));
         $this->backToSelect($server, $database, $schema, $table, $selects);
 
         return $this->response;
