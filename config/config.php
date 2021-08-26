@@ -2,8 +2,8 @@
 
 return [
     'directories' => [
-        __DIR__ . '/../src/Ajax' => [
-            'namespace' => 'Lagdo\\Adminer\\Ajax',
+        __DIR__ . '/../app' => [
+            'namespace' => 'Lagdo\\Adminer\\App',
             'autoload' => false,
             'classes' => require( __DIR__ . '/classes.php'),
         ],

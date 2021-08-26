@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\Adminer\Ajax\Table;
+namespace Lagdo\Adminer\App\Table;
 
-use Lagdo\Adminer\Ajax\Table;
-use Lagdo\Adminer\Ajax\Command;
+use Lagdo\Adminer\App\Table;
+use Lagdo\Adminer\App\Command;
 use Lagdo\Adminer\CallableClass;
 
 use Exception;

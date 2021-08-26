@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer\Ajax;
+namespace Lagdo\Adminer\App;
 
 use Lagdo\Adminer\CallableClass;
 
