@@ -88,15 +88,14 @@ class TableSelectFacade extends AbstractFacade
 
     /**
      * Print text length box in select
-     * @param string result of selectLengthProcess()
-     * @return array|null
+     * @param string|null result of selectLengthProcess()
+     * @return array
      */
-    private function getLengthOptions(string $text_length)
+    private function getLengthOptions($text_length)
     {
-        if ($text_length === null) {
-            return null;
-        }
-        return ['value' => $this->util->h($text_length)];
+        return [
+            'value' => $text_length === null ? 0 : $this->util->h($text_length),
+        ];
     }
 
     /**
