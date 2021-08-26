@@ -18,22 +18,22 @@ class CallableClass extends JaxonCallableClass
     protected $package;
 
     /**
-     * The proxy to Adminer functions
+     * The facade to database functions
      *
-     * @var DbProxy
+     * @var DbAdmin
      */
-    protected $dbProxy;
+    protected $dbAdmin;
 
     /**
      * The constructor
      *
      * @param Package $package    The Adminer package
-     * @param DbProxy $dbProxy    The proxy to Adminer
+     * @param DbAdmin $dbAdmin    The facade to database functions
      */
-    public function __construct(Package $package, Db\Proxy $dbProxy)
+    public function __construct(Package $package, DbAdmin $dbAdmin)
     {
         $this->package = $package;
-        $this->dbProxy = $dbProxy;
+        $this->dbAdmin = $dbAdmin;
     }
 
     /**
@@ -57,7 +57,7 @@ class CallableClass extends JaxonCallableClass
     protected function showBreadcrumbs()
     {
         $content = $this->render('main/breadcrumbs', [
-            'breadcrumbs' => $this->dbProxy->getBreadcrumbs(),
+            'breadcrumbs' => $this->dbAdmin->getBreadcrumbs(),
         ]);
         $this->response->html($this->package->getBreadcrumbsId(), $content);
     }

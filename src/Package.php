@@ -3,7 +3,7 @@
 namespace Lagdo\Adminer;
 
 use Jaxon\Plugin\Package as JaxonPackage;
-use Lagdo\Adminer\Ajax\Server;
+use Lagdo\Adminer\App\Server;
 
 /**
  * Adminer package

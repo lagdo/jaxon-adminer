@@ -20,11 +20,11 @@ trait DriverTrait
      * Select data from table
      *
      * @param string $table
-     * @param array $select result of $this->ui->selectColumnsProcess()[0]
-     * @param array $where result of $this->ui->selectSearchProcess()
-     * @param array $group result of $this->ui->selectColumnsProcess()[1]
-     * @param array $order result of $this->ui->selectOrderProcess()
-     * @param int $limit result of $this->ui->selectLimitProcess()
+     * @param array $select result of $this->util->selectColumnsProcess()[0]
+     * @param array $where result of $this->util->selectSearchProcess()
+     * @param array $group result of $this->util->selectColumnsProcess()[1]
+     * @param array $order result of $this->util->selectOrderProcess()
+     * @param int $limit result of $this->util->selectLimitProcess()
      * @param int $page index of page starting at zero
      *
      * @return Statement

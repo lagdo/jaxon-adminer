@@ -2,8 +2,8 @@
 
 return [
     'directories' => [
-        __DIR__ . '/../src/Ajax' => [
-            'namespace' => 'Lagdo\\Adminer\\Ajax',
+        __DIR__ . '/../app' => [
+            'namespace' => 'Lagdo\\Adminer\\App',
             'autoload' => false,
             'classes' => require( __DIR__ . '/classes.php'),
         ],
@@ -30,9 +30,9 @@ return [
         // ],
     ],
     'container' => [
-        Lagdo\Adminer\Db\Proxy::class => function($di) {
+        Lagdo\Adminer\DbAdmin::class => function($di) {
             $package = $di->get(Lagdo\Adminer\Package::class);
-            return new Lagdo\Adminer\Db\Proxy($package);
+            return new Lagdo\Adminer\DbAdmin($package);
         },
     ],
 ];
