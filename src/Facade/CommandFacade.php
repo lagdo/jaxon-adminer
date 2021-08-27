@@ -2,7 +2,7 @@
 
 namespace Lagdo\Adminer\Facade;
 
-use Lagdo\Adminer\Drivers\ConnectionInterface;
+use Lagdo\DbAdmin\Driver\ConnectionInterface;
 
 use Exception;
 

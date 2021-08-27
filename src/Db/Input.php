@@ -2,7 +2,7 @@
 
 namespace Lagdo\Adminer\Db;
 
-use Lagdo\Adminer\Drivers\InputInterface;
+use Lagdo\DbAdmin\Driver\InputInterface;
 
 class Input implements InputInterface
 {

@@ -2,7 +2,7 @@
 
 namespace Lagdo\Adminer\Db;
 
-use Lagdo\Adminer\Drivers\AdminerUtilInterface;
+use Lagdo\DbAdmin\Driver\AdminerUtilInterface;
 use Lagdo\Adminer\Exception\DbException;
 use Lagdo\Adminer\Translator;
 

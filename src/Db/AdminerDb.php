@@ -2,8 +2,8 @@
 
 namespace Lagdo\Adminer\Db;
 
-use Lagdo\Adminer\Drivers\AdminerDbTrait;
-use Lagdo\Adminer\Drivers\AdminerDbInterface;
+use Lagdo\DbAdmin\Driver\AdminerDbTrait;
+use Lagdo\DbAdmin\Driver\AdminerDbInterface;
 
 class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterface, ServerInterface
 {
