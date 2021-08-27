@@ -28,5 +28,10 @@
         "files": [
             "src/start.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lagdo\\Adminer\\Tests\\": "tests/"
+        }
     }
 }
