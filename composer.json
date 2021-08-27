@@ -9,7 +9,7 @@
         }
     ],
     "homepage": "https://github.com/lagdo/jaxon-adminer",
-    "license": "BSD-3-Clause",
+    "license": "Apache-2.0",
     "keywords": ["Adminer", "PostgreSQL", "MySQL", "Oracle", "MsSQL", "Sqlite",
         "MondoDb", "ElasticSearch", "Sql", "Dashboard", "Jaxon", "Ajax"],
     "support": {
