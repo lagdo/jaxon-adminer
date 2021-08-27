@@ -25,6 +25,13 @@ class DbAdmin extends Facade\AbstractFacade
     use Facade\ImportTrait;
 
     /**
+     * The supported databases servers
+     *
+     * @var array
+     */
+    protected static $servers = [];
+
+    /**
      * The breadcrumbs items
      *
      * @var array
@@ -54,6 +61,19 @@ class DbAdmin extends Facade\AbstractFacade
         $this->translator = new Translator();
         // Make the translator available into views
         \jaxon()->view()->share('trans', $this->translator);
+    }
+
+    /**
+     * Define a supported database server
+     *
+     * @param string $name
+     * @param string $class
+     *
+     * @return void
+     */
+    public static function addServer(string $name, string $class)
+    {
+        self::$servers[$name] = $class;
     }
 
     /**
@@ -124,10 +144,11 @@ class DbAdmin extends Facade\AbstractFacade
             return $options;
         }
 
-        // The Adminer constructor connects to the database.
         $this->db = new AdminerDb($options);
         $this->util = new AdminerUtil($this->db, $this->translator);
-        $this->db->connect($this->util, $options['driver']);
+
+        // Connect to the selected server
+        $this->db->connect($this->util, self::$servers[$options['driver']]);
 
         $this->select($database, $schema);
         return $options;
