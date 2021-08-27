@@ -109,7 +109,7 @@ class Translator
      */
     public function format_number($val)
     {
-        return strtr(number_format($val, 0, ".", $this->lang(',')),
+        return strtr(number_format(intval($val), 0, ".", $this->lang(',')),
             preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
     }
 
