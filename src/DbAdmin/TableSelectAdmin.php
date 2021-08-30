@@ -1,13 +1,13 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to the Adminer functions
+ * Admin table select functions
  */
-class TableSelectFacade extends AbstractFacade
+class TableSelectAdmin extends AbstractAdmin
 {
     /**
      * Print columns box in select

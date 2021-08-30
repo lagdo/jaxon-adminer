@@ -1,15 +1,15 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Lagdo\DbAdmin\Driver\ConnectionInterface;
 
 use Exception;
 
 /**
- * Facade to calls to the Adminer functions
+ * Admin command functions
  */
-class CommandFacade extends AbstractFacade
+class CommandAdmin extends AbstractAdmin
 {
     /**
      * Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
@@ -22,25 +22,23 @@ class CommandFacade extends AbstractFacade
     /**
      * Open a second connection to the server
      *
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     *
-     * @return void
+     * @return ConnectionInterface|null
      */
-    public function connect(string $database = '', string $schema = '')
+    private function connection()
     {
-        if ($database != '') {
+        if ($this->connection2 === null && $this->db->database !== '') {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
             $connection = $this->db->createConnection();
-            if (\is_object($connection)) {
-                $connection->select_db($database);
-                if ($schema !== '') {
-                    $this->db->set_schema($schema, $connection);
+            if (($connection)) {
+                $connection->select_db($this->db->database);
+                if ($this->db->schema !== '') {
+                    $this->db->set_schema($this->db->schema, $connection);
                 }
                 $this->connection2 = $connection;
             }
         }
+        return $this->connection2;
     }
 
     /**
@@ -111,6 +109,7 @@ class CommandFacade extends AbstractFacade
 
         // Table header
         $headers = [];
+        $connection = $this->connection();
         for ($j = 0; $j < $colCount; $j++) {
             $field = $result->fetch_field();
             $name = $field->name;
@@ -124,7 +123,7 @@ class CommandFacade extends AbstractFacade
                 if (!isset($indexes[$orgtable])) {
                     // find primary key in each table
                     $indexes[$orgtable] = [];
-                    foreach ($this->db->indexes($orgtable, $this->connection2) as $index) {
+                    foreach ($this->db->indexes($orgtable, $connection) as $index) {
                         if ($index["type"] == "PRIMARY") {
                             $indexes[$orgtable] = \array_flip($index["columns"]);
                             break;
@@ -265,8 +264,9 @@ class CommandFacade extends AbstractFacade
                 // }
                 $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
-                if ($this->db->multi_query($q) && \is_object($this->connection2) && \preg_match("~^$space*+USE\\b~i", $q)) {
-                    $this->connection2->query($q);
+                $connection = $this->connection();
+                if ($this->db->multi_query($q) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $q)) {
+                    $connection->query($q);
                 }
 
                 do {

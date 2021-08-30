@@ -1,13 +1,13 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to the Adminer functions
+ * Admin view functions
  */
-class ViewFacade extends AbstractFacade
+class ViewAdmin extends AbstractAdmin
 {
     /**
      * The current table status

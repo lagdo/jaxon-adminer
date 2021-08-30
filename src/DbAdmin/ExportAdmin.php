@@ -1,13 +1,13 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to the Adminer functions
+ * Admin export functions
  */
-class ExportFacade extends AbstractFacade
+class ExportAdmin extends AbstractAdmin
 {
     /**
      * The databases to dump

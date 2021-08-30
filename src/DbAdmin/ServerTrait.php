@@ -1,35 +1,35 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to server functions
+ * Admin server functions
  */
 trait ServerTrait
 {
     /**
      * The proxy
      *
-     * @var ServerFacade
+     * @var ServerAdmin
      */
-    protected $serverFacade = null;
+    protected $serverAdmin = null;
 
     /**
      * Get the proxy
      *
      * @param array $options    The server config options
      *
-     * @return ServerFacade
+     * @return ServerAdmin
      */
     protected function server(array $options)
     {
-        if (!$this->serverFacade) {
-            $this->serverFacade = new ServerFacade($options);
-            $this->serverFacade->init($this);
+        if (!$this->serverAdmin) {
+            $this->serverAdmin = new ServerAdmin($options);
+            $this->serverAdmin->init($this);
         }
-        return $this->serverFacade;
+        return $this->serverAdmin;
     }
 
     /**

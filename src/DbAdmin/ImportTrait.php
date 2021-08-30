@@ -1,20 +1,20 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to import functions
+ * Admin import functions
  */
 trait ImportTrait
 {
     /**
      * The proxy
      *
-     * @var ImportFacade
+     * @var ImportAdmin
      */
-    protected $importFacade = null;
+    protected $importAdmin = null;
 
     /**
      * Get the proxy
@@ -22,15 +22,15 @@ trait ImportTrait
      * @param string $database      The database name
      * @param string $schema        The database schema
      *
-     * @return ImportFacade
+     * @return ImportAdmin
      */
     protected function import(string $database = '', string $schema = '')
     {
-        if (!$this->importFacade) {
-            $this->importFacade = new ImportFacade($database, $schema);
-            $this->importFacade->init($this);
+        if (!$this->importAdmin) {
+            $this->importAdmin = new ImportAdmin($database, $schema);
+            $this->importAdmin->init($this);
         }
-        return $this->importFacade;
+        return $this->importAdmin;
     }
 
     /**

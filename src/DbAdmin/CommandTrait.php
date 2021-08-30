@@ -1,37 +1,33 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to command functions
+ * Admin command functions
  */
 trait CommandTrait
 {
     /**
      * The proxy
      *
-     * @var CommandFacade
+     * @var CommandAdmin
      */
-    protected $commandFacade = null;
+    protected $commandAdmin = null;
 
     /**
      * Get the proxy
      *
-     * @param string $database      The database name
-     * @param string $schema        The database schema
-     *
-     * @return CommandFacade
+     * @return CommandAdmin
      */
-    protected function command(string $database, string $schema)
+    protected function command()
     {
-        if (!$this->commandFacade) {
-            $this->commandFacade = new CommandFacade();
-            $this->commandFacade->init($this);
-            $this->commandFacade->connect($database, $schema);
+        if (!$this->commandAdmin) {
+            $this->commandAdmin = new CommandAdmin();
+            $this->commandAdmin->init($this);
         }
-        return $this->commandFacade;
+        return $this->commandAdmin;
     }
 
     /**
@@ -88,7 +84,6 @@ trait CommandTrait
     )
     {
         $this->connect($server, $database, $schema);
-        return $this->command($database, $schema)
-            ->executeCommands($query, $limit, $errorStops, $onlyErrors);
+        return $this->command()->executeCommands($query, $limit, $errorStops, $onlyErrors);
     }
 }

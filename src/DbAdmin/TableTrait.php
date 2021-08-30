@@ -1,33 +1,33 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to table functions
+ * Admin table functions
  */
 trait TableTrait
 {
     /**
      * The proxy
      *
-     * @var TableFacade
+     * @var TableAdmin
      */
-    protected $tableFacade = null;
+    protected $tableAdmin = null;
 
     /**
      * Get the proxy
      *
-     * @return TableFacade
+     * @return TableAdmin
      */
     protected function table()
     {
-        if (!$this->tableFacade) {
-            $this->tableFacade = new TableFacade();
-            $this->tableFacade->init($this);
+        if (!$this->tableAdmin) {
+            $this->tableAdmin = new TableAdmin();
+            $this->tableAdmin->init($this);
         }
-        return $this->tableFacade;
+        return $this->tableAdmin;
     }
 
     /**

@@ -1,33 +1,33 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to view functions
+ * Admin view functions
  */
 trait ViewTrait
 {
     /**
      * The proxy
      *
-     * @var ViewFacade
+     * @var ViewAdmin
      */
-    protected $viewFacade = null;
+    protected $viewAdmin = null;
 
     /**
      * Get the proxy
      *
-     * @return ViewFacade
+     * @return ViewAdmin
      */
     protected function view()
     {
-        if (!$this->viewFacade) {
-            $this->viewFacade = new ViewFacade();
-            $this->viewFacade->init($this);
+        if (!$this->viewAdmin) {
+            $this->viewAdmin = new ViewAdmin();
+            $this->viewAdmin->init($this);
         }
-        return $this->viewFacade ;
+        return $this->viewAdmin ;
     }
 
     /**

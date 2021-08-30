@@ -2,12 +2,12 @@
 
 namespace Lagdo\Adminer\Db;
 
-use Lagdo\DbAdmin\Driver\AdminerDbTrait;
-use Lagdo\DbAdmin\Driver\AdminerDbInterface;
+use Lagdo\DbAdmin\Driver\DbTrait;
+use Lagdo\DbAdmin\Driver\DbInterface;
 
-class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterface, ServerInterface
+class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInterface
 {
-    use AdminerDbTrait;
+    use DbTrait;
     use ConnectionTrait;
     use DriverTrait;
     use ServerTrait;
@@ -16,6 +16,20 @@ class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterf
      * @var array
      */
     public $options;
+
+    /**
+     * The current database name
+     *
+     * @var string
+     */
+    public $database = '';
+
+    /**
+     * The current schema name
+     *
+     * @var string
+     */
+    public $schema = '';
 
     /**
      * The constructor
@@ -132,13 +146,13 @@ class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterf
     /**
      * @inheritDoc
      */
-    public function get_key_vals($query, $connection2 = null, $set_keys = true)
+    public function get_key_vals($query, $connection = null, $set_keys = true)
     {
-        if (!is_object($connection2)) {
-            $connection2 = $this->connection;
+        if (!is_object($connection)) {
+            $connection = $this->connection;
         }
         $return = [];
-        $result = $connection2->query($query);
+        $result = $connection->query($query);
         if (is_object($result)) {
             while ($row = $result->fetch_row()) {
                 if ($set_keys) {
@@ -154,11 +168,13 @@ class AdminerDb implements AdminerDbInterface, ConnectionInterface, DriverInterf
     /**
      * @inheritDoc
      */
-    public function get_rows($query, $connection2 = null)
+    public function get_rows($query, $connection = null)
     {
-        $conn = (is_object($connection2) ? $connection2 : $this->connection);
+        if (!is_object($connection)) {
+            $connection = $this->connection;
+        }
         $return = [];
-        $result = $conn->query($query);
+        $result = $connection->query($query);
         if (is_object($result)) { // can return true
             while ($row = $result->fetch_assoc()) {
                 $return[] = $row;

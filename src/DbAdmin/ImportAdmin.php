@@ -1,13 +1,13 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to the Adminer functions
+ * Admin import functions
  */
-class ImportFacade extends CommandFacade
+class ImportAdmin extends CommandAdmin
 {
     /**
      * Get data for import

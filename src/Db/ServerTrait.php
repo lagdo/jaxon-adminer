@@ -15,14 +15,15 @@ trait ServerTrait
     }
 
     /**
-     * Connect to the database server
+     * Create a new connection to the database server
      * Return a string for error
      *
      * @return ConnectionInterface|string
      */
     public function createConnection()
     {
-        return $this->server->connect();
+        // Returns the existing connection. A new connection is not created. Todo?
+        return $this->server->getConnection();
     }
 
     /**

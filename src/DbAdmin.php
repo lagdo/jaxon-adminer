@@ -2,27 +2,26 @@
 
 namespace Lagdo\Adminer;
 
-use Lagdo\Adminer\Package;
-use Lagdo\Adminer\Db\AdminerDb;
-use Lagdo\Adminer\Db\AdminerUtil;
+use Lagdo\Adminer\Db\Db;
+use Lagdo\Adminer\Db\Util;
 
 use Exception;
 
 /**
- * Facade to calls to the database functions
+ * Admin to calls to the database functions
  */
-class DbAdmin extends Facade\AbstractFacade
+class DbAdmin extends DbAdmin\AbstractAdmin
 {
-    use Facade\ServerTrait;
-    use Facade\UserTrait;
-    use Facade\DatabaseTrait;
-    use Facade\TableTrait;
-    use Facade\TableSelectTrait;
-    use Facade\TableQueryTrait;
-    use Facade\ViewTrait;
-    use Facade\CommandTrait;
-    use Facade\ExportTrait;
-    use Facade\ImportTrait;
+    use DbAdmin\ServerTrait;
+    use DbAdmin\UserTrait;
+    use DbAdmin\DatabaseTrait;
+    use DbAdmin\TableTrait;
+    use DbAdmin\TableSelectTrait;
+    use DbAdmin\TableQueryTrait;
+    use DbAdmin\ViewTrait;
+    use DbAdmin\CommandTrait;
+    use DbAdmin\ExportTrait;
+    use DbAdmin\ImportTrait;
 
     /**
      * The supported databases servers
@@ -121,6 +120,8 @@ class DbAdmin extends Facade\AbstractFacade
      */
     protected function select(string $database, string $schema)
     {
+        $this->db->database = $database;
+        $this->db->schema = $schema;
         if ($database !== '') {
             $this->db->selectDatabase($database, $schema);
         }
@@ -144,8 +145,8 @@ class DbAdmin extends Facade\AbstractFacade
             return $options;
         }
 
-        $this->db = new AdminerDb($options);
-        $this->util = new AdminerUtil($this->db, $this->translator);
+        $this->db = new Db($options);
+        $this->util = new Util($this->db, $this->translator);
 
         // Connect to the selected server
         $this->db->connect($this->util, self::$servers[$options['driver']]);

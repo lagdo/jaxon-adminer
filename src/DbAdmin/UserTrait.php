@@ -1,33 +1,33 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to user functions
+ * Admin user functions
  */
 trait UserTrait
 {
     /**
      * The proxy
      *
-     * @var UserFacade
+     * @var UserAdmin
      */
-    protected $userFacade = null;
+    protected $userAdmin = null;
 
     /**
      * Get the proxy to user features
      *
-     * @return UserFacade
+     * @return UserAdmin
      */
     protected function user()
     {
-        if (!$this->userFacade) {
-            $this->userFacade = new UserFacade();
-            $this->userFacade->init($this);
+        if (!$this->userAdmin) {
+            $this->userAdmin = new UserAdmin();
+            $this->userAdmin->init($this);
         }
-        return $this->userFacade;
+        return $this->userAdmin;
     }
 
     /**

@@ -1,13 +1,13 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to the Adminer functions
+ * Admin server functions
  */
-class ServerFacade extends AbstractFacade
+class ServerAdmin extends AbstractAdmin
 {
     /**
      * The final database list

@@ -1,33 +1,33 @@
 <?php
 
-namespace Lagdo\Adminer\Facade;
+namespace Lagdo\Adminer\DbAdmin;
 
 use Exception;
 
 /**
- * Facade to calls to export functions
+ * Admin export functions
  */
 trait ExportTrait
 {
     /**
      * The proxy
      *
-     * @var ExportFacade
+     * @var ExportAdmin
      */
-    protected $exportFacade = null;
+    protected $exportAdmin = null;
 
     /**
      * Get the proxy
      *
-     * @return ExportFacade
+     * @return ExportAdmin
      */
     protected function export()
     {
-        if (!$this->exportFacade) {
-            $this->exportFacade = new ExportFacade();
-            $this->exportFacade->init($this);
+        if (!$this->exportAdmin) {
+            $this->exportAdmin = new ExportAdmin();
+            $this->exportAdmin->init($this);
         }
-        return $this->exportFacade;
+        return $this->exportAdmin;
     }
 
     /**

@@ -2,11 +2,11 @@
 
 namespace Lagdo\Adminer\Db;
 
-use Lagdo\DbAdmin\Driver\AdminerUtilInterface;
+use Lagdo\DbAdmin\Driver\UtilInterface;
 use Lagdo\Adminer\Exception\DbException;
 use Lagdo\Adminer\Translator;
 
-class AdminerUtil implements AdminerUtilInterface
+class Util implements UtilInterface
 {
     /**
      * @var Input
@@ -21,10 +21,10 @@ class AdminerUtil implements AdminerUtilInterface
     /**
      * The constructor
      *
-     * @param AdminerDb $db
+     * @param Db $db
      * @param Translator $translator
      */
-    public function __construct(AdminerDb $db, Translator $translator)
+    public function __construct(Db $db, Translator $translator)
     {
         $this->db = $db;
         $this->translator = $translator;
