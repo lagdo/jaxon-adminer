@@ -61,7 +61,7 @@ trait ConnectionTrait
      */
     public function serverInfo()
     {
-        return $this->connection->server_info;
+        return $this->connection->getServerInfo();
     }
 
     /**
