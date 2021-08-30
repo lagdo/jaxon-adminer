@@ -32,6 +32,27 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     public $schema = '';
 
     /**
+     * The last error code
+     *
+     * @var int
+     */
+    protected $errno = 0;
+
+    /**
+     * The last error message
+     *
+     * @var string
+     */
+    protected $error = '';
+
+    /**
+     * The number of rows affected by the last query
+     *
+     * @var int
+     */
+    protected $affected_rows;
+
+    /**
      * The constructor
      *
      * @param array $options
@@ -49,6 +70,70 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     public function version()
     {
         return "4.8.1-dev";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setError(string $error = '')
+    {
+        $this->error = $error;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function error()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasError()
+    {
+        return $this->error !== '';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setErrno($errno)
+    {
+        $this->errno = $errno;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function errno()
+    {
+        return $this->errno;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasErrno()
+    {
+        return $this->errno !== 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAffectedRows($affected_rows)
+    {
+        $this->affected_rows = $affected_rows;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function affectedRows()
+    {
+        return $this->affected_rows;
     }
 
     /**

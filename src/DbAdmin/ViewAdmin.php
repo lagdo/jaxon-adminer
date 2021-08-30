@@ -107,7 +107,7 @@ class ViewAdmin extends AbstractAdmin
         // From table.inc.php
         $fields = $this->db->fields($table);
         if (!$fields) {
-            throw new Exception($this->db->error());
+            throw new Exception($this->util->error());
         }
 
         $main_actions = $this->getViewLinks();
@@ -220,7 +220,7 @@ class ViewAdmin extends AbstractAdmin
         $values["name"] = $view;
         $values["materialized"] = ($orig_type != "VIEW");
 
-        $error = $this->db->error();
+        $error = $this->util->error();
         if (($error)) {
             throw new Exception($error);
         }
@@ -247,7 +247,7 @@ class ViewAdmin extends AbstractAdmin
             " $type " . $this->db->table($name) . " AS\n" . $values['select'];
         $success = $this->util->query_redirect($sql, $location, $message);
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         return \compact('success', 'message', 'error');
     }
@@ -289,7 +289,7 @@ class ViewAdmin extends AbstractAdmin
             $name
         );
 
-        $error = $this->db->error();
+        $error = $this->util->error();
         $success = !$error;
         return \compact('success', 'message', 'error');
     }
@@ -315,7 +315,7 @@ class ViewAdmin extends AbstractAdmin
         $message = $this->util->lang('View has been dropped.');
         $success =$this->util->drop_only($sql, $location, $message);
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         return \compact('success', 'message', 'error');
     }

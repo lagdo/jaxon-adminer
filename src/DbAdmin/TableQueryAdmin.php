@@ -185,7 +185,7 @@ class TableQueryAdmin extends AbstractAdmin
             if ($select) {
                 $result = $this->db->select($table, $select, [$where], $select, [], (isset($queryOptions["select"]) ? 2 : 1));
                 if (!$result) {
-                    // $error = $this->db->error();
+                    // $error = $this->util->error();
                 } else {
                     $row = $result->fetch_assoc();
                     if (!$row) {
@@ -314,7 +314,7 @@ class TableQueryAdmin extends AbstractAdmin
         $lastId = ($result ? $this->db->last_id() : 0);
         $message = $this->util->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -347,7 +347,7 @@ class TableQueryAdmin extends AbstractAdmin
         $result = $this->db->update($table, $set, $query_where, !$unique_array);
         $message = $this->util->lang('Item has been updated.');
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         return \compact('result', 'message', 'error');
     }
@@ -372,7 +372,7 @@ class TableQueryAdmin extends AbstractAdmin
         $result = $this->db->delete($table, $query_where, !$unique_array);
         $message = $this->util->lang('Item has been deleted.');
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         return \compact('result', 'message', 'error');
     }

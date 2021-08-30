@@ -287,7 +287,7 @@ class TableSelectAdmin extends AbstractAdmin
 
         if (!$columns && $this->db->support("table")) {
             throw new Exception($this->util->lang('Unable to select the table') .
-                ($fields ? "." : ": " . $this->db->error()));
+                ($fields ? "." : ": " . $this->util->error()));
         }
 
         // if($page == "last")
@@ -382,7 +382,7 @@ class TableSelectAdmin extends AbstractAdmin
         $duration = $this->util->format_time($start); // Compute and format the duration
 
         if (!$result) {
-            return ['error' => $this->db->error()];
+            return ['error' => $this->util->error()];
         }
         // From select.inc.php
         $rows = [];

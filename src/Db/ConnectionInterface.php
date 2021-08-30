@@ -8,34 +8,6 @@ namespace Lagdo\Adminer\Db;
 interface ConnectionInterface
 {
     /**
-     * Get the last error message
-     *
-     * @return string
-     */
-    public function errorMessage();
-
-    /**
-     * Get the last error number
-     *
-     * @return string
-     */
-    public function errorNumber();
-
-    /**
-     * Check if the last query returned an error number
-     *
-     * @return string
-     */
-    public function hasErrorNumber();
-
-    /**
-     * Get the number of rows affected by the last query
-     *
-     * @return integer
-     */
-    public function affectedRows();
-
-    /**
      * Get information about the last query
      *
      * @return string

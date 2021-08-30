@@ -379,7 +379,7 @@ class ExportAdmin extends AbstractAdmin
                     $this->queries[] = $buffer . $suffix;
                 }
             } elseif ($this->options["format"] == "sql") {
-                $this->queries[] = "-- " . \str_replace("\n", " ", $this->db->errorMessage()) . "\n";
+                $this->queries[] = "-- " . \str_replace("\n", " ", $this->db->error()) . "\n";
             }
         }
     }

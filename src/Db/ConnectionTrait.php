@@ -5,46 +5,6 @@ namespace Lagdo\Adminer\Db;
 trait ConnectionTrait
 {
     /**
-     * Get the last error message
-     *
-     * @return string
-     */
-    public function errorMessage()
-    {
-        return $this->connection->error;
-    }
-
-    /**
-     * Get the last error number
-     *
-     * @return string
-     */
-    public function errorNumber()
-    {
-        return $this->connection->errno;
-    }
-
-    /**
-     * Check if the last query returned an error number
-     *
-     * @return string
-     */
-    public function hasErrorNumber()
-    {
-        return isset($this->connection->errno);
-    }
-
-    /**
-     * Get the number of rows affected by the last query
-     *
-     * @return integer
-     */
-    public function affectedRows()
-    {
-        return $this->connection->affected_rows;
-    }
-
-    /**
      * Get information about the last query
      *
      * @return string

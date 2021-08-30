@@ -9,14 +9,19 @@ use Lagdo\Adminer\Translator;
 class Util implements UtilInterface
 {
     /**
-     * @var Input
+     * @var Db
      */
-    public $input;
+    public $db;
 
     /**
      * @var Translator
      */
     protected $translator;
+
+    /**
+     * @var Input
+     */
+    public $input;
 
     /**
      * The constructor
@@ -88,6 +93,16 @@ class Util implements UtilInterface
     {
         // don't print control chars except \t\r\n
         return (preg_match('~~u', $val) && !preg_match('~[\0-\x8\xB\xC\xE-\x1F]~', $val));
+    }
+
+    /**
+     * Get escaped error message
+     *
+     * @return string
+     */
+    public function error()
+    {
+        return $this->h($this->db->error());
     }
 
     /**
@@ -984,8 +999,8 @@ class Util implements UtilInterface
             $sql = $this->messageQuery($query, $time, $failed);
         }
         if ($failed) {
-            throw new DbException($this->db->error() . $sql);
-            // $error = $this->db->error() . $sql . script("messagesPrint();");
+            throw new DbException($this->error() . $sql);
+            // $error = $this->error() . $sql . script("messagesPrint();");
             // return false;
         }
         // if ($redirect) {

@@ -235,12 +235,6 @@ interface ServerInterface
     public function information_schema($db);
 
     /**
-     * Get escaped error message
-     * @return string
-     */
-    public function error();
-
-    /**
      * Create database
      * @param string
      * @param string

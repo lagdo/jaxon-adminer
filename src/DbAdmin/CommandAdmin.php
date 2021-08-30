@@ -272,10 +272,10 @@ class CommandAdmin extends AbstractAdmin
                 do {
                     $result = $this->db->store_result();
 
-                    if ($this->db->errorMessage()) {
-                        $error = $this->db->error();
-                        if ($this->db->hasErrorNumber()) {
-                            $error = "(" . $this->db->errorNumber() . "): $error";
+                    if ($this->db->hasError()) {
+                        $error = $this->util->error();
+                        if ($this->db->hasErrno()) {
+                            $error = "(" . $this->db->errno() . "): $error";
                         }
                         $errors[] = $error;
                     } else {
@@ -300,7 +300,7 @@ class CommandAdmin extends AbstractAdmin
                         'select' => $select,
                     ];
 
-                    if ($this->db->errorMessage() && $errorStops) {
+                    if ($this->db->hasError() && $errorStops) {
                         break 2;
                     }
 

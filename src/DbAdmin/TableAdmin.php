@@ -118,7 +118,7 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         $fields = $this->db->fields($table);
         if (!$fields) {
-            throw new Exception($this->db->error());
+            throw new Exception($this->util->error());
         }
 
         $main_actions = $this->getTableLinks();
@@ -627,7 +627,7 @@ class TableAdmin extends AbstractAdmin
             $this->util->lang('Table has been created.') :
             $this->util->lang('Table has been altered.');
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         // From functions.inc.php
         // queries_redirect(ME . (support('table') ? 'table=' : 'select=') . urlencode($name), $message, $redirect);
@@ -707,7 +707,7 @@ class TableAdmin extends AbstractAdmin
     {
         $success = $this->db->drop_tables([$table]);
 
-        $error = $this->db->error();
+        $error = $this->util->error();
 
         $message = $this->util->lang('Table has been dropped.');
 

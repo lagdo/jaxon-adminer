@@ -326,15 +326,6 @@ trait ServerTrait
     }
 
     /**
-     * Get escaped error message
-     * @return string
-     */
-    public function error()
-    {
-        return $this->server->error();
-    }
-
-    /**
      * Create database
      * @param string
      * @param string
