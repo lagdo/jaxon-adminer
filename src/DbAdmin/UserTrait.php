@@ -41,8 +41,9 @@ trait UserTrait
      */
     public function getPrivileges(string $server, string $database = '')
     {
-        $options = $this->connect($server);
+        $this->connect($server);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $this->util->lang('Privileges')]);
 
         return $this->user()->getPrivileges($database);

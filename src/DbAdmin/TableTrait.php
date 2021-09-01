@@ -42,8 +42,9 @@ trait TableTrait
      */
     public function getTableInfo(string $server, string $database, string $schema, string $table)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Tables'), $table]);
 
         $this->util->input->table = $table;
@@ -130,8 +131,9 @@ trait TableTrait
      */
     public function getTableData(string $server, string $database, string $schema, string $table = '')
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $breadcrumbs = [$options['name'], $database, $this->util->lang('Tables')];
         if (($table)) {
             $breadcrumbs[] = $table;
@@ -156,7 +158,9 @@ trait TableTrait
      */
     public function getTableField(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
+
+        $options = $this->package->getServerOptions($server);
         return $this->table()->getTableField();
     }
 

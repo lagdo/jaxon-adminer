@@ -49,8 +49,9 @@ trait TableSelectTrait
         array $queryOptions = []
     )
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database,
             $this->util->lang('Tables'), $table, $this->util->lang('Select')]);
 

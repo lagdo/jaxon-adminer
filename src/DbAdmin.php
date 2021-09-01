@@ -24,13 +24,6 @@ class DbAdmin extends DbAdmin\AbstractAdmin
     use DbAdmin\ImportTrait;
 
     /**
-     * The supported databases servers
-     *
-     * @var array
-     */
-    protected static $servers = [];
-
-    /**
      * The breadcrumbs items
      *
      * @var array
@@ -57,22 +50,11 @@ class DbAdmin extends DbAdmin\AbstractAdmin
     public function __construct(Package $package)
     {
         $this->package = $package;
-        $this->translator = new Translator();
-        // Make the translator available into views
-        \jaxon()->view()->share('trans', $this->translator);
-    }
 
-    /**
-     * Define a supported database server
-     *
-     * @param string $name
-     * @param string $class
-     *
-     * @return void
-     */
-    public static function addServer(string $name, string $class)
-    {
-        self::$servers[$name] = $class;
+        $jaxon = \jaxon();
+        $this->translator = $jaxon->di()->get(Translator::class);
+        // Make the translator available into views
+        $jaxon->view()->share('trans', $this->translator);
     }
 
     /**
@@ -138,21 +120,22 @@ class DbAdmin extends DbAdmin\AbstractAdmin
      */
     protected function connect(string $server, string $database = '', string $schema = '')
     {
-        $options = $this->package->getServerOptions($server);
         // Prevent multiple calls.
         if (($this->db)) {
             $this->select($database, $schema);
-            return $options;
+            return;
         }
 
-        $this->db = new Db($options);
-        $this->util = new Util($this->db, $this->translator);
+        $di = \jaxon()->di();
+        $di->set('adminer_config_server', function() use($server) {
+            return $server;
+        });
+        $this->db = $di->get(Db::class);
+        $this->util = $di->get(Util::class);
 
         // Connect to the selected server
-        $this->db->connect($this->util, self::$servers[$options['driver']]);
-
+        $this->db->connect();
         $this->select($database, $schema);
-        return $options;
     }
 
     /**

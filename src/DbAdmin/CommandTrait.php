@@ -41,8 +41,9 @@ trait CommandTrait
      */
     public function prepareCommand(string $server, string $database = '', string $schema = '')
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $breadcrumbs = [$options['name']];
         if (($database)) {
             $breadcrumbs[] = $database;

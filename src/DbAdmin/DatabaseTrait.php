@@ -42,8 +42,9 @@ trait DatabaseTrait
      */
     public function getDatabaseInfo(string $server, string $database)
     {
-        $options = $this->connect($server, $database);
+        $this->connect($server, $database);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database]);
 
         return $this->database($options)->getDatabaseInfo();
@@ -60,8 +61,9 @@ trait DatabaseTrait
      */
     public function getTables(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Tables')]);
 
         return $this->database($options)->getTables();
@@ -78,8 +80,9 @@ trait DatabaseTrait
      */
     public function getViews(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Views')]);
 
         return $this->database($options)->getViews();
@@ -96,8 +99,9 @@ trait DatabaseTrait
      */
     public function getRoutines(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Routines')]);
 
         return $this->database($options)->getRoutines();
@@ -114,8 +118,9 @@ trait DatabaseTrait
      */
     public function getSequences(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Sequences')]);
 
         return $this->database($options)->getSequences();
@@ -132,8 +137,9 @@ trait DatabaseTrait
      */
     public function getUserTypes(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('User types')]);
 
         return $this->database($options)->getUserTypes();
@@ -150,8 +156,9 @@ trait DatabaseTrait
      */
     public function getEvents(string $server, string $database, string $schema)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Events')]);
 
         return $this->database($options)->getEvents();

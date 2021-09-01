@@ -43,8 +43,9 @@ trait ImportTrait
      */
     public function getImportOptions(string $server, string $database = '')
     {
-        $options = $this->connect($server, $database);
+        $this->connect($server, $database);
 
+        $options = $this->package->getServerOptions($server);
         $breadcrumbs = [$options['name']];
         if (($database)) {
             $breadcrumbs[] = $database;

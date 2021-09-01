@@ -42,8 +42,9 @@ trait ViewTrait
      */
     public function getViewInfo(string $server, string $database, string $schema, string $view)
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database, $this->util->lang('Views'), $view]);
 
         $this->util->input->table = $view;

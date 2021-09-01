@@ -41,8 +41,9 @@ trait ServerTrait
      */
     public function getServerInfo(string $server)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name']]);
 
         return $this->server($options)->getServerInfo();
@@ -57,7 +58,9 @@ trait ServerTrait
      */
     public function getCollations(string $server)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
+
+        $options = $this->package->getServerOptions($server);
         return $this->server($options)->getCollations();
     }
 
@@ -70,8 +73,9 @@ trait ServerTrait
      */
     public function getDatabases(string $server)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $this->util->lang('Databases')]);
 
         return $this->server($options)->getDatabases();
@@ -86,8 +90,9 @@ trait ServerTrait
      */
     public function getProcesses(string $server)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $this->util->lang('Process list')]);
 
         return $this->server($options)->getProcesses();
@@ -102,8 +107,9 @@ trait ServerTrait
      */
     public function getVariables(string $server)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $this->util->lang('Variables')]);
 
         return $this->server($options)->getVariables();
@@ -118,8 +124,9 @@ trait ServerTrait
      */
     public function getStatus(string $server)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $this->util->lang('Status')]);
 
         return $this->server($options)->getStatus();
@@ -136,7 +143,9 @@ trait ServerTrait
      */
     public function createDatabase(string $server, string $database, string $collation = '')
     {
-        $options = $this->connect($server);
+        $this->connect($server);
+
+        $options = $this->package->getServerOptions($server);
         return $this->server($options)->createDatabase($database, $collation);
     }
 
@@ -150,7 +159,9 @@ trait ServerTrait
      */
     public function dropDatabase(string $server, string $database)
     {
-        $options = $this->connect($server);
+        $this->connect($server);
+
+        $options = $this->package->getServerOptions($server);
         return $this->server($options)->dropDatabase($database);
     }
 }

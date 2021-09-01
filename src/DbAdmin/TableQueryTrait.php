@@ -51,8 +51,9 @@ trait TableQueryTrait
         string $action = 'New item'
     )
     {
-        $options = $this->connect($server, $database, $schema);
+        $this->connect($server, $database, $schema);
 
+        $options = $this->package->getServerOptions($server);
         $this->setBreadcrumbs([$options['name'], $database,
             $this->util->lang('Tables'), $table, $this->util->lang($action)]);
 
