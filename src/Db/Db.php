@@ -50,7 +50,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      *
      * @var int
      */
-    protected $affected_rows;
+    protected $affectedRows;
 
     /**
      * The constructor
@@ -123,9 +123,9 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function setAffectedRows($affected_rows)
+    public function setAffectedRows($affectedRows)
     {
-        $this->affected_rows = $affected_rows;
+        $this->affectedRows = $affectedRows;
     }
 
     /**
@@ -133,13 +133,13 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      */
     public function affectedRows()
     {
-        return $this->affected_rows;
+        return $this->affectedRows;
     }
 
     /**
      * @inheritDoc
      */
-    public function getOptions()
+    public function options()
     {
         $server = $this->options['host'];
         $port = $this->options['port'] ?? ''; // Optional
@@ -154,7 +154,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function connectSsl()
+    public function sslOptions()
     {
     }
 
@@ -169,12 +169,12 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function default_value($field)
+    public function defaultValue($field)
     {
         $default = $field["default"];
         return ($default === null ? "" : " DEFAULT " .
             (preg_match('~char|binary|text|enum|set~', $field["type"]) ||
-            preg_match('~^(?![a-z])~i', $default) ? $this->server->q($default) : $default));
+            preg_match('~^(?![a-z])~i', $default) ? $this->server->quote($default) : $default));
     }
 
     /**
@@ -189,7 +189,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
         }
         if ($query === null) {
             // return executed queries
-            return array(implode("\n", $queries), $this->format_time($start));
+            return array(implode("\n", $queries), $this->formatTime($start));
         }
         $queries[] = (preg_match('~;$~', $query) ? "DELIMITER ;;\n$query;\nDELIMITER " : $query) . ";";
         return $this->connection->query($query);
@@ -198,7 +198,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function apply_queries($query, $tables, $escape = null)
+    public function applyQueries($query, $tables, $escape = null)
     {
         if (!$escape) {
             $escape = function ($table) {
@@ -216,7 +216,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function get_vals($query, $column = 0)
+    public function values($query, $column = 0)
     {
         $return = [];
         $result = $this->connection->query($query);
@@ -231,7 +231,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function get_key_vals($query, $connection = null, $set_keys = true)
+    public function keyValues($query, $connection = null, $set_keys = true)
     {
         if (!is_object($connection)) {
             $connection = $this->connection;
@@ -253,7 +253,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function get_rows($query, $connection = null)
+    public function rows($query, $connection = null)
     {
         if (!is_object($connection)) {
             $connection = $this->connection;
@@ -271,7 +271,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
     /**
      * @inheritDoc
      */
-    public function number_type()
+    public function numberRegex()
     {
         return '((?<!o)int(?!er)|numeric|real|float|double|decimal|money)'; // not point, not interval
     }
@@ -281,14 +281,14 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      * @param string
      * @return string formatted
      */
-    public function db_size($database)
+    public function databaseSize($database)
     {
-        if (!$this->connection->select_db($database)) {
+        if (!$this->connection->selectDatabase($database)) {
             return "?";
         }
         $return = 0;
-        foreach ($this->server->table_status() as $table_status) {
-            $return += $table_status["Data_length"] + $table_status["Index_length"];
+        foreach ($this->server->tableStatus() as $tableStatus) {
+            $return += $tableStatus["Data_length"] + $tableStatus["Index_length"];
         }
         return $return;
     }
@@ -299,7 +299,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      * @param string escaped column identifier
      * @return string
      */
-    public function apply_sql_function($function, $column)
+    public function applySqlFunction($function, $column)
     {
         return ($function ? ($function == "unixepoch" ? "DATETIME($column, '$function')" :
             ($function == "count distinct" ? "COUNT(DISTINCT " : strtoupper("$function(")) . "$column)") : $column);
@@ -312,7 +312,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      *
      * @return string
      */
-    public function set_utf8mb4($create)
+    public function setUtf8mb4($create)
     {
         static $set = false;
         // possible false positive
@@ -328,12 +328,12 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      * @param string
      * @return string
      */
-    public function remove_definer($query)
+    public function removeDefiner($query)
     {
         return preg_replace('~^([A-Z =]+) DEFINER=`' . preg_replace(
             '~@(.*)~',
             '`@`(%|\1)',
-            $this->server->logged_user()
+            $this->server->loggedUser()
         ) . '`~', '\1', $query); //! proper escaping of user
     }
 
@@ -342,12 +342,12 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      * @param string
      * @return array array($col => [])
      */
-    public function column_foreign_keys($table)
+    public function columnForeignKeys($table)
     {
         $return = [];
-        foreach ($this->server->foreign_keys($table) as $foreign_key) {
-            foreach ($foreign_key["source"] as $val) {
-                $return[$val][] = $foreign_key;
+        foreach ($this->server->foreignKeys($table) as $foreignKey) {
+            foreach ($foreignKey["source"] as $val) {
+                $return[$val][] = $foreignKey;
             }
         }
         return $return;
@@ -360,16 +360,16 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      * @param array
      * @return string
      */
-    public function convert_fields($columns, $fields, $select = [])
+    public function convertFields($columns, $fields, $select = [])
     {
         $return = "";
         foreach ($columns as $key => $val) {
-            if ($select && !in_array($this->server->idf_escape($key), $select)) {
+            if ($select && !in_array($this->server->escapeId($key), $select)) {
                 continue;
             }
-            $as = $this->server->convert_field($fields[$key]);
+            $as = $this->server->convertField($fields[$key]);
             if ($as) {
-                $return .= ", $as AS " . $this->server->idf_escape($key);
+                $return .= ", $as AS " . $this->server->escapeId($key);
             }
         }
         return $return;
@@ -383,7 +383,7 @@ class Db implements DbInterface, ConnectionInterface, DriverInterface, ServerInt
      * @param array
      * @return string
      */
-    public function count_rows($table, $where, $is_group, $group)
+    public function countRows($table, $where, $is_group, $group)
     {
         $query = " FROM " . $this->server->table($table) . ($where ? " WHERE " . implode(" AND ", $where) : "");
         return ($is_group && ($this->server->jush == "sql" || count($group) == 1)

@@ -70,7 +70,7 @@ class UserAdmin extends AbstractAdmin
                 "All privileges" => "",
             ],
         ];
-        foreach ($this->db->get_rows("SHOW PRIVILEGES") as $row) {
+        foreach ($this->db->rows("SHOW PRIVILEGES") as $row) {
             // Context of "Grant option" privilege is set to empty string
             $contexts = \explode(",", ($row["Privilege"] == "Grant option" ? "" : $row["Context"]));
             foreach ($contexts as $context) {
@@ -154,7 +154,7 @@ class UserAdmin extends AbstractAdmin
      */
     public function getPrivileges($database = '')
     {
-        $main_actions = [
+        $mainActions = [
             'add-user' => $this->util->lang('Create user'),
         ];
 
@@ -189,7 +189,7 @@ class UserAdmin extends AbstractAdmin
             $detail['grants'] = \array_keys($grants);
         }
 
-        return \compact('headers', 'details', 'main_actions');
+        return \compact('headers', 'details', 'mainActions');
     }
 
     /**
@@ -214,7 +214,7 @@ class UserAdmin extends AbstractAdmin
             $i++;
         }
 
-        $main_actions = [];
+        $mainActions = [];
 
         $user = [
             'host' => [
@@ -237,7 +237,7 @@ class UserAdmin extends AbstractAdmin
 
         $details = $this->fetchUserPrivileges($grants);
 
-        return \compact('user', 'headers', 'details', 'main_actions');
+        return \compact('user', 'headers', 'details', 'mainActions');
     }
 
     /**
@@ -269,7 +269,7 @@ class UserAdmin extends AbstractAdmin
             $i++;
         }
 
-        $main_actions = [];
+        $mainActions = [];
 
         $user = [
             'host' => [
@@ -292,6 +292,6 @@ class UserAdmin extends AbstractAdmin
 
         $details = $this->fetchUserPrivileges($grants);
 
-        return \compact('user', 'headers', 'details', 'main_actions');
+        return \compact('user', 'headers', 'details', 'mainActions');
     }
 }

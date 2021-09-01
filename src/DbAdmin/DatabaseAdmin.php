@@ -65,13 +65,13 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getDatabaseInfo()
     {
-        $sql_actions = [
+        $sqlActions = [
             'database-command' => $this->util->lang('SQL command'),
             'database-import' => $this->util->lang('Import'),
             'database-export' => $this->util->lang('Export'),
         ];
 
-        $menu_actions = [
+        $menuActions = [
             'table' => $this->util->lang('Tables'),
             // 'view' => $this->util->lang('Views'),
             // 'routine' => $this->util->lang('Routines'),
@@ -80,19 +80,19 @@ class DatabaseAdmin extends AbstractAdmin
             // 'event' => $this->util->lang('Events'),
         ];
         if ($this->db->support('view')) {
-            $menu_actions['view'] = $this->util->lang('Views');
+            $menuActions['view'] = $this->util->lang('Views');
         }
         if ($this->db->support('routine')) {
-            $menu_actions['routine'] = $this->util->lang('Routines');
+            $menuActions['routine'] = $this->util->lang('Routines');
         }
         if ($this->db->support('sequence')) {
-            $menu_actions['sequence'] = $this->util->lang('Sequences');
+            $menuActions['sequence'] = $this->util->lang('Sequences');
         }
         if ($this->db->support('type')) {
-            $menu_actions['type'] = $this->util->lang('User types');
+            $menuActions['type'] = $this->util->lang('User types');
         }
         if ($this->db->support('event')) {
-            $menu_actions['event'] = $this->util->lang('Events');
+            $menuActions['event'] = $this->util->lang('Events');
         }
 
         // From db.inc.php
@@ -100,15 +100,15 @@ class DatabaseAdmin extends AbstractAdmin
         if ($this->db->support("scheme")) {
             $schemas = $this->schemas();
         }
-        // $tables_list = $this->db->tables_list();
+        // $tables_list = $this->db->tables();
 
         // $tables = [];
-        // foreach($table_status as $table)
+        // foreach($tableStatus as $table)
         // {
         //     $tables[] = $this->util->h($table);
         // }
 
-        return \compact('sql_actions', 'menu_actions', 'schemas'/*, 'tables'*/);
+        return \compact('sqlActions', 'menuActions', 'schemas'/*, 'tables'*/);
     }
 
     /**
@@ -118,7 +118,7 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getTables()
     {
-        $main_actions = [
+        $mainActions = [
             'add-table' => $this->util->lang('Create table'),
         ];
 
@@ -135,12 +135,12 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        // $table_status = $this->db->table_status('', true); // Tables details
-        $table_status = $this->db->table_status(); // Tables details
+        // $tableStatus = $this->db->tableStatus('', true); // Tables details
+        $tableStatus = $this->db->tableStatus(); // Tables details
 
         $details = [];
-        foreach ($table_status as $table => $status) {
-            if (!$this->db->is_view($status)) {
+        foreach ($tableStatus as $table => $status) {
+            if (!$this->db->isView($status)) {
                 $details[] = [
                     'name' => $this->util->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
@@ -151,7 +151,7 @@ class DatabaseAdmin extends AbstractAdmin
         }
 
         $select = $this->util->lang('Select');
-        return \compact('main_actions', 'headers', 'details', 'select');
+        return \compact('mainActions', 'headers', 'details', 'select');
     }
 
     /**
@@ -162,7 +162,7 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getViews()
     {
-        $main_actions = [
+        $mainActions = [
             'add-view' => $this->util->lang('Create view'),
         ];
 
@@ -178,12 +178,12 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        // $table_status = $this->db->table_status('', true); // Tables details
-        $table_status = $this->db->table_status(); // Tables details
+        // $tableStatus = $this->db->tableStatus('', true); // Tables details
+        $tableStatus = $this->db->tableStatus(); // Tables details
 
         $details = [];
-        foreach ($table_status as $table => $status) {
-            if ($this->db->is_view($status)) {
+        foreach ($tableStatus as $table => $status) {
+            if ($this->db->isView($status)) {
                 $details[] = [
                     'name' => $this->util->tableName($status),
                     'engine' => \array_key_exists('Engine', $status) ? $status['Engine'] : '',
@@ -192,7 +192,7 @@ class DatabaseAdmin extends AbstractAdmin
             }
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -202,7 +202,7 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getRoutines()
     {
-        $main_actions = [
+        $mainActions = [
             'procedure' => $this->util->lang('Create procedure'),
             'function' => $this->util->lang('Create function'),
         ];
@@ -232,7 +232,7 @@ class DatabaseAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -242,7 +242,7 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getSequences()
     {
-        $main_actions = [
+        $mainActions = [
             'sequence' => $this->util->lang('Create sequence'),
         ];
 
@@ -253,8 +253,8 @@ class DatabaseAdmin extends AbstractAdmin
         $sequences = [];
         if ($this->db->support("sequence")) {
             // From db.inc.php
-            $sequences = $this->db->get_vals("SELECT sequence_name FROM information_schema.sequences ".
-                "WHERE sequence_schema = current_schema() ORDER BY sequence_name");
+            $sequences = $this->db->values("SELECT sequence_name FROM information_schema.sequences ".
+                "WHERE sequence_schema = currentSchema() ORDER BY sequence_name");
         }
         $details = [];
         foreach ($sequences as $sequence) {
@@ -263,7 +263,7 @@ class DatabaseAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -273,7 +273,7 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getUserTypes()
     {
-        $main_actions = [
+        $mainActions = [
             'type' => $this->util->lang('Create type'),
         ];
 
@@ -282,7 +282,7 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $userTypes = $this->db->support("type") ? $this->db->user_types() : [];
+        $userTypes = $this->db->support("type") ? $this->db->userTypes() : [];
         $details = [];
         foreach ($userTypes as $userType) {
             $details[] = [
@@ -290,7 +290,7 @@ class DatabaseAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -300,7 +300,7 @@ class DatabaseAdmin extends AbstractAdmin
      */
     public function getEvents()
     {
-        $main_actions = [
+        $mainActions = [
             'event' => $this->util->lang('Create event'),
         ];
 
@@ -312,7 +312,7 @@ class DatabaseAdmin extends AbstractAdmin
         ];
 
         // From db.inc.php
-        $events = $this->db->support("event") ? $this->db->get_rows("SHOW EVENTS") : [];
+        $events = $this->db->support("event") ? $this->db->rows("SHOW EVENTS") : [];
         $details = [];
         foreach ($events as $event) {
             $detail = [
@@ -331,6 +331,6 @@ class DatabaseAdmin extends AbstractAdmin
             $details[] = $detail;
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 }

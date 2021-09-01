@@ -40,7 +40,7 @@ class Util implements UtilInterface
      * Get a target="_blank" attribute
      * @return string
      */
-    public function target_blank()
+    public function blankTarget()
     {
         return ' target="_blank" rel="noreferrer noopener"';
     }
@@ -51,7 +51,7 @@ class Util implements UtilInterface
      */
     public function name()
     {
-        return "<a href='https://www.adminer.org/'" . $this->target_blank() . " id='h1'>Adminer</a>";
+        return "<a href='https://www.adminer.org/'" . $this->blankTarget() . " id='h1'>Adminer</a>";
     }
 
     /**
@@ -89,7 +89,7 @@ class Util implements UtilInterface
     /**
      * @inheritDoc
      */
-    public function is_utf8($val)
+    public function isUtf8($val)
     {
         // don't print control chars except \t\r\n
         return (preg_match('~~u', $val) && !preg_match('~[\0-\x8\xB\xC\xE-\x1F]~', $val));
@@ -110,7 +110,7 @@ class Util implements UtilInterface
      * @param string
      * @return bool
      */
-    public function is_mail($email)
+    public function isMail($email)
     {
         $atom = '[-a-z0-9!#$%&\'*+/=?^_`{|}~]'; // characters of local-name
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component
@@ -123,7 +123,7 @@ class Util implements UtilInterface
      * @param string
      * @return bool
      */
-    public function is_url($string)
+    public function isUrl($string)
     {
         $domain = '[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])'; // one domain component //! IDN
         //! restrict path, query and fragment characters
@@ -135,7 +135,7 @@ class Util implements UtilInterface
      * @param array
      * @return bool
      */
-    public function is_shortable($field)
+    public function isShortable($field)
     {
         return preg_match('~char|text|json|lob|geometry|point|linestring|polygon|string|bytea~', $field["type"] ?? '');
     }
@@ -143,7 +143,7 @@ class Util implements UtilInterface
     /**
      * @inheritDoc
      */
-    public function ini_bool($ini)
+    public function iniBool($ini)
     {
         $val = ini_get($ini);
         return (preg_match('~^(on|true|yes)$~i', $val) || (int) $val); // boolean values set by php_value are strings
@@ -154,7 +154,7 @@ class Util implements UtilInterface
      * @param string
      * @return int
      */
-    public function ini_bytes($ini)
+    public function iniBytes($ini)
     {
         $val = ini_get($ini);
         $unit = strtolower(substr($val, -1)); // Get the last char
@@ -172,7 +172,7 @@ class Util implements UtilInterface
      * @param float output of microtime(true)
      * @return string HTML code
      */
-    public function format_time($start)
+    public function formatTime($start)
     {
         return $this->lang('%.3f s', max(0, microtime(true) - $start));
     }
@@ -182,15 +182,15 @@ class Util implements UtilInterface
      * @param int
      * @return string
      */
-    public function format_number($val)
+    public function formatNumber($val)
     {
-        return $this->translator->format_number($val);
+        return $this->translator->formatNumber($val);
     }
 
     /**
      * @inheritDoc
      */
-    public function nl_br($string)
+    public function convertEolToHtml($string)
     {
         return str_replace("\n", "<br>", $string); // nl2br() uses XHTML before PHP 5.3
     }
@@ -200,14 +200,14 @@ class Util implements UtilInterface
      * @param string
      * @return string
      */
-    public function escape_key($key)
+    public function escapeKey($key)
     {
         if (preg_match('(^([\w(]+)(' .
-            str_replace("_", ".*", preg_quote($this->db->idf_escape("_"))) . ')([ \w)]+)$)', $key, $match)) {
+            str_replace("_", ".*", preg_quote($this->db->escapeId("_"))) . ')([ \w)]+)$)', $key, $match)) {
             //! columns looking like functions
-            return $match[1] . $this->db->idf_escape($this->db->idf_unescape($match[2])) . $match[3]; //! SQL injection
+            return $match[1] . $this->db->escapeId($this->db->unescapeId($match[2])) . $match[3]; //! SQL injection
         }
-        return $this->db->idf_escape($key);
+        return $this->db->escapeId($key);
     }
 
     /**
@@ -221,14 +221,14 @@ class Util implements UtilInterface
         $return = [];
         $wheres = $where["where"] ?? [];
         foreach ((array) $wheres as $key => $val) {
-            $key = $this->bracket_escape($key, 1); // 1 - back
-            $column = $this->escape_key($key);
+            $key = $this->bracketEscape($key, 1); // 1 - back
+            $column = $this->escapeKey($key);
             $return[] = $column .
                 // LIKE because of floats but slow with ints
                 ($this->db->jush() == "sql" && is_numeric($val) && preg_match('~\.~', $val) ? " LIKE " .
                 $this->db->quote($val) : ($this->db->jush() == "mssql" ? " LIKE " .
                 $this->db->quote(preg_replace('~[_%[]~', '[\0]', $val)) : " = " . // LIKE because of text
-                $this->db->unconvert_field($fields[$key], $this->db->quote($val)))); //! enum and set
+                $this->db->unconvertField($fields[$key], $this->db->quote($val)))); //! enum and set
             if ($this->db->jush() == "sql" &&
                 preg_match('~char|text~', $fields[$key]["type"]) && preg_match("~[^ -@]~", $val)) {
                 // not just [a-z] to catch non-ASCII characters
@@ -237,7 +237,7 @@ class Util implements UtilInterface
         }
         $nulls = $where["null"] ?? [];
         foreach ((array) $nulls as $key) {
-            $return[] = $this->escape_key($key) . " IS NULL";
+            $return[] = $this->escapeKey($key) . " IS NULL";
         }
         return implode(" AND ", $return);
     }
@@ -245,24 +245,24 @@ class Util implements UtilInterface
     /**
      * @inheritDoc
      */
-    public function fields_from_edit()
+    public function getFieldsFromEdit()
     {
         $return = [];
         $values = $this->input->values;
         foreach ((array) $values["field_keys"] as $key => $val) {
             if ($val != "") {
-                $val = $this->bracket_escape($val);
+                $val = $this->bracketEscape($val);
                 $values["function"][$val] = $values["field_funs"][$key];
                 $values["fields"][$val] = $values["field_vals"][$key];
             }
         }
         foreach ((array) $values["fields"] as $key => $val) {
-            $name = $this->bracket_escape($key, 1); // 1 - back
+            $name = $this->bracketEscape($key, 1); // 1 - back
             $return[$name] = array(
                 "field" => $name,
                 "privileges" => array("insert" => 1, "update" => 1),
                 "null" => 1,
-                "auto_increment" => ($key == $this->db->primary()),
+                "auto_increment" => ($key == $this->db->primaryIdName()),
             );
         }
         return $return;
@@ -274,7 +274,7 @@ class Util implements UtilInterface
      * @param int
      * @return string
      */
-    public function repeat_pattern($pattern, $length)
+    public function repeatPattern($pattern, $length)
     {
         // fix for Compilation failed: number too big in {} quantifier
         // can create {0,0} which is OK
@@ -288,11 +288,11 @@ class Util implements UtilInterface
      * @param string
      * @return string escaped string with appended ...
      */
-    public function shorten_utf8($string, $length = 80, $suffix = "")
+    public function shortenUtf8($string, $length = 80, $suffix = "")
     {
-        if (!preg_match("(^(" . $this->repeat_pattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match)) {
+        if (!preg_match("(^(" . $this->repeatPattern("[\t\r\n -\x{10FFFF}]", $length) . ")($)?)u", $string, $match)) {
             // ~s causes trash in $match[2] under some PHP versions, (.|\n) is slow
-            preg_match("(^(" . $this->repeat_pattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
+            preg_match("(^(" . $this->repeatPattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
         }
         return $this->h($match[1]) . $suffix . (isset($match[2]) ? "" : "<i>…</i>");
     }
@@ -303,7 +303,7 @@ class Util implements UtilInterface
      * @param bool
      * @return string
      */
-    public function bracket_escape($idf, $back = false)
+    public function bracketEscape($idf, $back = false)
     {
         // escape brackets inside name="x[]"
         static $trans = array(':' => ':1', ']' => ':2', '[' => ':3', '"' => ':4');
@@ -316,7 +316,7 @@ class Util implements UtilInterface
      * @param array result of indexes()
      * @return array or null if there is no unique identifier
      */
-    public function unique_array($row, $indexes)
+    public function uniqueArray($row, $indexes)
     {
         foreach ($indexes as $index) {
             if (preg_match("~PRIMARY|UNIQUE~", $index["type"])) {
@@ -395,20 +395,20 @@ class Util implements UtilInterface
     /**
      * Get referencable tables with single column primary key except self
      * @param string
-     * @return array ($table_name => $field)
+     * @return array ($tableName => $field)
      */
-    public function referencable_primary($self)
+    public function referencableTables($self)
     {
         $return = []; // table_name => field
-        foreach ($this->db->table_status('', true) as $table_name => $table) {
-            if ($table_name != $self && $this->db->fk_support($table)) {
-                foreach ($this->db->fields($table_name) as $field) {
+        foreach ($this->db->tableStatus('', true) as $tableName => $table) {
+            if ($tableName != $self && $this->db->supportForeignKeys($table)) {
+                foreach ($this->db->fields($tableName) as $field) {
                     if (isset($field["primary"])) {
-                        if (isset($return[$table_name])) { // multi column primary key
-                            unset($return[$table_name]);
+                        if (isset($return[$tableName])) { // multi column primary key
+                            unset($return[$tableName]);
                             break;
                         }
-                        $return[$table_name] = $field;
+                        $return[$tableName] = $field;
                     }
                 }
             }
@@ -472,23 +472,23 @@ class Util implements UtilInterface
      * @param string HTML-escaped value to print
      * @param string link to foreign key
      * @param array single field returned from fields()
-     * @param array original value before applying editVal() and escaping
+     * @param array original value before applying editValue() and escaping
      * @return string
      */
-    public function selectVal($val, $link, $field, $original)
+    public function _selectValue($val, $link, $field, $original)
     {
         $type = $field["type"] ?? '';
         $return = ($val === null ? "<i>NULL</i>" :
             (preg_match("~char|binary|boolean~", $type) && !preg_match("~var~", $type) ?
             "<code>$val</code>" : $val));
-        if (preg_match('~blob|bytea|raw|file~', $type) && !$this->is_utf8($val)) {
+        if (preg_match('~blob|bytea|raw|file~', $type) && !$this->isUtf8($val)) {
             $return = "<i>" . $this->lang('%d byte(s)', strlen($original)) . "</i>";
         }
         if (preg_match('~json~', $type)) {
             $return = "<code class='jush-js'>$return</code>";
         }
         return ($link ? "<a href='" . $this->h($link) . "'" .
-            ($this->is_url($link) ? $this->target_blank() : "") . ">$return</a>" : $return);
+            ($this->isUrl($link) ? $this->blankTarget() : "") . ">$return</a>" : $return);
     }
 
     /**
@@ -507,7 +507,7 @@ class Util implements UtilInterface
      * @param array single field returned from fields()
      * @return string
      */
-    public function editVal($val, $field)
+    public function editValue($val, $field)
     {
         return $val;
     }
@@ -530,7 +530,7 @@ class Util implements UtilInterface
     //     foreach ($matches[1] as $i => $val) {
     //         $val = stripcslashes(str_replace("''", "'", $val));
     //         $checked = (is_int($value) ? $value == $i+1 : (is_array($value) ? in_array($i+1, $value) : $value === $val));
-    //         $return .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" . ($checked ? ' checked' : '') . '>' . h($adminer->editVal($val, $field)) . '</label>';
+    //         $return .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" . ($checked ? ' checked' : '') . '>' . h($adminer->editValue($val, $field)) . '</label>';
     //     }
     //     return $return;
     // }
@@ -572,7 +572,7 @@ class Util implements UtilInterface
             $checked = (\is_int($value) ? $value == $i + 1 :
                 (\is_array($value) ? \in_array($i+1, $value) : $value === $val));
             $return[] = "<label><input type='$type'$attrs value='" . ($i+1) . "'" .
-                ($checked ? ' checked' : '') . '>' . $this->h($this->editVal($val, $field)) . '</label>';
+                ($checked ? ' checked' : '') . '>' . $this->h($this->editValue($val, $field)) . '</label>';
         }
 
         return $return;
@@ -584,7 +584,7 @@ class Util implements UtilInterface
      * @param bool
      * @return mixed int for error, string otherwise
      */
-    private function get_file($key, $decompress = false)
+    private function getFile($key, $decompress = false)
     {
         $file = $_FILES[$key];
         if (!$file) {
@@ -624,13 +624,14 @@ class Util implements UtilInterface
      * @param string
      * @return string
      */
-    public function process_length($length)
+    public function processLength($length)
     {
         if (!$length) {
             return "";
         }
-        return (preg_match("~^\\s*\\(?\\s*$enum_length(?:\\s*,\\s*$enum_length)*+\\s*\\)?\\s*\$~", $length) &&
-            preg_match_all("~$enum_length~", $length, $matches) ? "(" . implode(",", $matches[0]) . ")" :
+        $enumLength = $this->server->enumLength;
+        return (preg_match("~^\\s*\\(?\\s*$enumLength(?:\\s*,\\s*$enumLength)*+\\s*\\)?\\s*\$~", $length) &&
+            preg_match_all("~$enumLength~", $length, $matches) ? "(" . implode(",", $matches[0]) . ")" :
             preg_replace('~^[0-9].*~', '(\0)', preg_replace('~[^-0-9,+()[\]]~', '', $length))
         );
     }
@@ -641,14 +642,14 @@ class Util implements UtilInterface
      * @param string
      * @return string
      */
-    public function process_type($field, $collate = "COLLATE")
+    public function processType($field, $collate = "COLLATE")
     {
         $values = [
             'unsigned' => $field["unsigned"] ?? null,
             'collation' => $field["collation"] ?? null,
         ];
-        return " $field[type]" . $this->process_length($field["length"]) .
-            (preg_match($this->db->number_type(), $field["type"]) &&
+        return " $field[type]" . $this->processLength($field["length"]) .
+            (preg_match($this->db->numberRegex(), $field["type"]) &&
             in_array($values["unsigned"], $this->db->unsigned()) ?
             " $values[unsigned]" : "") . (preg_match('~char|text|enum|set~', $field["type"]) &&
             $values["collation"] ? " $collate " . $this->db->quote($values["collation"]) : "")
@@ -661,18 +662,18 @@ class Util implements UtilInterface
      * @param array information about field type
      * @return array array("field", "type", "NULL", "DEFAULT", "ON UPDATE", "COMMENT", "AUTO_INCREMENT")
      */
-    public function process_field($field, $type_field)
+    public function processField($field, $typeField)
     {
         return array(
-            $this->db->idf_escape(trim($field["field"])),
-            $this->process_type($type_field),
+            $this->db->escapeId(trim($field["field"])),
+            $this->processType($typeField),
             ($field["null"] ? " NULL" : " NOT NULL"), // NULL for timestamp
-            $this->db->default_value($field),
+            $this->db->defaultValue($field),
             (preg_match('~timestamp|datetime~', $field["type"]) && $field["on_update"] ?
                 " ON UPDATE $field[on_update]" : ""),
             ($this->db->support("comment") && $field["comment"] != "" ?
                 " COMMENT " . $this->db->quote($field["comment"]) : ""),
-            ($field["auto_increment"] ? $this->db->auto_increment() : null),
+            ($field["auto_increment"] ? $this->db->autoIncrement() : null),
         );
     }
 
@@ -682,9 +683,9 @@ class Util implements UtilInterface
      * @param array the user inputs
      * @return string or false to leave the original value
      */
-    public function process_input($field, $inputs)
+    public function processInput($field, $inputs)
     {
-        $idf = $this->bracket_escape($field["field"]);
+        $idf = $this->bracketEscape($field["field"]);
         $function = $inputs["function"][$idf] ?? '';
         $value = $inputs["fields"][$idf];
         if ($field["type"] == "enum") {
@@ -701,7 +702,7 @@ class Util implements UtilInterface
         }
         if ($function == "orig") {
             return (preg_match('~^CURRENT_TIMESTAMP~i', $field["on_update"]) ?
-                $this->db->idf_escape($field["field"]) : false);
+                $this->db->escapeId($field["field"]) : false);
         }
         if ($function == "NULL") {
             return "NULL";
@@ -717,14 +718,14 @@ class Util implements UtilInterface
             }
             return $value;
         }
-        if (preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->ini_bool("file_uploads")) {
-            $file = $this->get_file("fields-$idf");
+        if (preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->iniBool("file_uploads")) {
+            $file = $this->getFile("fields-$idf");
             if (!is_string($file)) {
                 return false; //! report errors
             }
             return $this->db->quoteBinary($file);
         }
-        return $this->processInput($field, $value, $function);
+        return $this->_processInput($field, $value, $function);
     }
 
     /**
@@ -733,7 +734,7 @@ class Util implements UtilInterface
      * @param array
      * @return array (array(select_expressions), array(group_expressions))
      */
-    public function selectColumnsProcess($columns, $indexes)
+    public function processSelectColumns($columns, $indexes)
     {
         $select = []; // select expressions, empty for *
         $group = []; // expressions without aggregation - will be used for GROUP BY if an aggregation function is used
@@ -742,9 +743,9 @@ class Util implements UtilInterface
                 ($val["col"] != "" && (!$val["fun"] ||
                 in_array($val["fun"], $this->db->functions()) ||
                 in_array($val["fun"], $this->db->grouping())))) {
-                $select[$key] = $this->db->apply_sql_function(
+                $select[$key] = $this->db->applySqlFunction(
                     $val["fun"],
-                    ($val["col"] != "" ? $this->db->idf_escape($val["col"]) : "*")
+                    ($val["col"] != "" ? $this->db->escapeId($val["col"]) : "*")
                 );
                 if (!in_array($val["fun"], $this->db->grouping())) {
                     $group[] = $select[$key];
@@ -761,7 +762,7 @@ class Util implements UtilInterface
      * @param string
      * @return string expression to use in a query
      */
-    private function processInput($field, $value, $function = "")
+    private function _processInput($field, $value, $function = "")
     {
         if ($function == "SQL") {
             return $value; // SQL injection
@@ -773,16 +774,16 @@ class Util implements UtilInterface
         } elseif (preg_match('~^current_(date|timestamp)$~', $function)) {
             $return = $function;
         } elseif (preg_match('~^([+-]|\|\|)$~', $function)) {
-            $return = $this->db->idf_escape($name) . " $function $return";
+            $return = $this->db->escapeId($name) . " $function $return";
         } elseif (preg_match('~^[+-] interval$~', $function)) {
-            $return = $this->db->idf_escape($name) . " $function " .
+            $return = $this->db->escapeId($name) . " $function " .
                 (preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i", $value) ? $value : $return);
         } elseif (preg_match('~^(addtime|subtime|concat)$~', $function)) {
-            $return = "$function(" . $this->db->idf_escape($name) . ", $return)";
+            $return = "$function(" . $this->db->escapeId($name) . ", $return)";
         } elseif (preg_match('~^(md5|sha1|password|encrypt)$~', $function)) {
             $return = "$function($return)";
         }
-        return $this->db->unconvert_field($field, $return);
+        return $this->db->unconvertField($field, $return);
     }
 
     /**
@@ -791,13 +792,13 @@ class Util implements UtilInterface
      * @param array
      * @return array expressions to join by AND
      */
-    public function selectSearchProcess($fields, $indexes)
+    public function processSelectSearch($fields, $indexes)
     {
         $return = [];
         foreach ($indexes as $i => $index) {
             if ($index["type"] == "FULLTEXT" && $this->input->values["fulltext"][$i] != "") {
                 $columns = array_map(function ($column) {
-                    return $this->db->idf_escape($column);
+                    return $this->db->escapeId($column);
                 }, $index["columns"]);
                 $return[] = "MATCH (" . implode(", ", $columns) . ") AGAINST (" .
                     $this->db->quote($this->input->values["fulltext"][$i]) .
@@ -809,23 +810,23 @@ class Util implements UtilInterface
                 $prefix = "";
                 $cond = " $val[op]";
                 if (preg_match('~IN$~', $val["op"])) {
-                    $in = $this->process_length($val["val"]);
+                    $in = $this->processLength($val["val"]);
                     $cond .= " " . ($in != "" ? $in : "(NULL)");
                 } elseif ($val["op"] == "SQL") {
                     $cond = " $val[val]"; // SQL injection
                 } elseif ($val["op"] == "LIKE %%") {
-                    $cond = " LIKE " . $this->processInput($fields[$val["col"]], "%$val[val]%");
+                    $cond = " LIKE " . $this->_processInput($fields[$val["col"]], "%$val[val]%");
                 } elseif ($val["op"] == "ILIKE %%") {
-                    $cond = " ILIKE " . $this->processInput($fields[$val["col"]], "%$val[val]%");
+                    $cond = " ILIKE " . $this->_processInput($fields[$val["col"]], "%$val[val]%");
                 } elseif ($val["op"] == "FIND_IN_SET") {
-                    $prefix = "$val[op](" . q($val["val"]) . ", ";
+                    $prefix = "$val[op](" . $this->db->quote($val["val"]) . ", ";
                     $cond = ")";
                 } elseif (!preg_match('~NULL$~', $val["op"])) {
-                    $cond .= " " . $this->processInput($fields[$val["col"]], $val["val"]);
+                    $cond .= " " . $this->_processInput($fields[$val["col"]], $val["val"]);
                 }
                 if ($val["col"] != "") {
                     $return[] = $prefix . $this->db->convertSearch(
-                        $this->db->idf_escape($val["col"]),
+                        $this->db->escapeId($val["col"]),
                         $val,
                         $fields[$val["col"]]
                     ) . $cond;
@@ -834,11 +835,11 @@ class Util implements UtilInterface
                     $cols = [];
                     foreach ($fields as $name => $field) {
                         if ((preg_match('~^[-\d.' . (preg_match('~IN$~', $val["op"]) ? ',' : '') . ']+$~', $val["val"]) ||
-                            !preg_match('~' . $this->db->number_type() . '|bit~', $field["type"])) &&
+                            !preg_match('~' . $this->db->numberRegex() . '|bit~', $field["type"])) &&
                             (!preg_match("~[\x80-\xFF]~", $val["val"]) || preg_match('~char|text|enum|set~', $field["type"])) &&
                             (!preg_match('~date|timestamp~', $field["type"]) || preg_match('~^\d+-\d+-\d+~', $val["val"]))
                         ) {
-                            $cols[] = $prefix . $this->db->convertSearch($this->db->idf_escape($name), $val, $field) . $cond;
+                            $cols[] = $prefix . $this->db->convertSearch($this->db->escapeId($name), $val, $field) . $cond;
                         }
                     }
                     $return[] = ($cols ? "(" . implode(" OR ", $cols) . ")" : "1 = 0");
@@ -854,13 +855,13 @@ class Util implements UtilInterface
      * @param array
      * @return array expressions to join by comma
      */
-    public function selectOrderProcess($fields, $indexes)
+    public function processSelectOrder($fields, $indexes)
     {
         $return = [];
         foreach ((array) $this->input->values["order"] as $key => $val) {
             if ($val != "") {
                 $regexp = '~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~';
-                $return[] = (preg_match($regexp, $val) ? $val : $this->db->idf_escape($val)) . //! MS SQL uses []
+                $return[] = (preg_match($regexp, $val) ? $val : $this->db->escapeId($val)) . //! MS SQL uses []
                     (isset($this->input->values["desc"][$key]) ? " DESC" : "");
             }
         }
@@ -871,7 +872,7 @@ class Util implements UtilInterface
      * Process limit box in select
      * @return string expression to use in LIMIT, will be escaped
      */
-    public function selectLimitProcess()
+    public function processSelectLimit()
     {
         return (isset($this->input->values["limit"]) ? $this->input->values["limit"] : "50");
     }
@@ -880,7 +881,7 @@ class Util implements UtilInterface
      * Process length box in select
      * @return string number of characters to shorten texts, will be escaped
      */
-    public function selectLengthProcess()
+    public function processSelectLength()
     {
         return (isset($this->input->values["text_length"]) ? $this->input->values["text_length"] : "100");
     }
@@ -891,7 +892,7 @@ class Util implements UtilInterface
      * @param array
      * @return bool true if processed, false to process other parts of form
      */
-    public function selectEmailProcess($where, $foreignKeys)
+    public function processSelectEmail($where, $foreignKeys)
     {
         return false;
     }
@@ -920,15 +921,13 @@ class Util implements UtilInterface
      * @param int
      * @return string HTML
      */
-    public function select_value($val, $link, $field, $text_length)
+    public function selectValue($val, $link, $field, $textLength)
     {
         if (is_array($val)) {
             $return = "";
             foreach ($val as $k => $v) {
-                $return .= "<tr>"
-                    . ($val != array_values($val) ? "<th>" . h($k) : "")
-                    . "<td>" . $this->select_value($v, $link, $field, $text_length)
-                ;
+                $return .= "<tr>" . ($val != array_values($val) ? "<th>" . h($k) : "") . "<td>" .
+                    $this->selectValue($v, $link, $field, $textLength);
             }
             return "<table cellspacing='0'>$return</table>";
         }
@@ -936,26 +935,26 @@ class Util implements UtilInterface
             $link = $this->selectLink($val, $field);
         }
         if ($link === null) {
-            if ($this->is_mail($val)) {
+            if ($this->isMail($val)) {
                 $link = "mailto:$val";
             }
-            if ($this->is_url($val)) {
+            if ($this->isUrl($val)) {
                 $link = $val; // IE 11 and all modern browsers hide referrer
             }
         }
-        $return = $this->editVal($val, $field);
+        $return = $this->editValue($val, $field);
         if ($return !== null) {
-            if (!$this->is_utf8($return)) {
+            if (!$this->isUtf8($return)) {
                 $return = "\0"; // htmlspecialchars of binary data returns an empty string
-            } elseif ($text_length != "" && $this->is_shortable($field)) {
+            } elseif ($textLength != "" && $this->isShortable($field)) {
                 // usage of LEFT() would reduce traffic but complicate query -
                 // expected average speedup: .001 s VS .01 s on local network
-                $return = $this->shorten_utf8($return, max(0, +$text_length));
+                $return = $this->shortenUtf8($return, max(0, +$textLength));
             } else {
                 $return = $this->h($return);
             }
         }
-        return $this->selectVal($return, $link, $field, $val);
+        return $this->_selectValue($return, $link, $field, $val);
     }
 
     /**
@@ -965,7 +964,7 @@ class Util implements UtilInterface
      */
     public function sqlCommandQuery($query)
     {
-        return $this->shorten_utf8(trim($query), 1000);
+        return $this->shortenUtf8(trim($query), 1000);
     }
 
     /**
@@ -979,20 +978,13 @@ class Util implements UtilInterface
      * @param string
      * @return bool
      */
-    public function query_redirect(
-        $query,
-        $location = null,
-        $message = null,
-        $redirect = false,
-        $execute = true,
-        $failed = false,
-        $time = ""
-    ) {
-        global $error;
+    public function queryAndRedirect($query, $location = null, $message = null,
+        $redirect = false, $execute = true, $failed = false, $time = "")
+    {
         if ($execute) {
             $start = microtime(true);
             $failed = !$this->db->query($query);
-            $time = $this->format_time($start);
+            $time = $this->formatTime($start);
         }
         $sql = "";
         if ($query) {
@@ -1010,6 +1002,19 @@ class Util implements UtilInterface
     }
 
     /**
+     * Redirect by remembered queries
+     * @param string
+     * @param string
+     * @param bool
+     * @return bool
+     */
+    protected function queriesAndRedirect($location, $message, $redirect)
+    {
+        list($queries, $time) = $this->queries(null);
+        return $this->queryAndRedirect($queries, $location, $message, $redirect, false, !$redirect, $time);
+    }
+
+    /**
      * Drop old object and create a new one
      * @param string $drop drop old object query
      * @param string $create create new object query
@@ -1024,22 +1029,23 @@ class Util implements UtilInterface
      * @param string $new_name
      * @return null redirect in success
      */
-    public function drop_create($drop, $create, $drop_created, $test, $drop_test,
+    public function dropAndCreate($drop, $create, $drop_created, $test, $drop_test,
         $location, $message_drop, $message_alter, $message_create, $old_name, $new_name)
     {
         if ($old_name == "") {
-            $this->query_redirect($drop, $location, $message_drop);
+            $this->queryAndRedirect($drop, $location, $message_drop);
         } elseif ($old_name == "") {
-            $this->query_redirect($create, $location, $message_create);
+            $this->queryAndRedirect($create, $location, $message_create);
         } elseif ($old_name != $new_name) {
             $created = $this->db->queries($create);
-            $this->queries_redirect($location, $message_alter, $created && $this->db->queries($drop));
+            $this->queriesAndRedirect($location, $message_alter, $created && $this->db->queries($drop));
             if ($created) {
                 $this->db->queries($drop_created);
             }
         } else {
-            $this->queries_redirect($location, $message_alter, $this->db->queries($test) &&
-                $this->db->queries($drop_test) && $this->db->queries($drop) && $this->db->queries($create));
+            $this->queriesAndRedirect($location, $message_alter,
+                $this->db->queries($test) && $this->db->queries($drop_test) &&
+                $this->db->queries($drop) && $this->db->queries($create));
         }
     }
 
@@ -1050,8 +1056,8 @@ class Util implements UtilInterface
      * @param string
      * @return null redirect in success
      */
-    public function drop_only($drop, $location, $message_drop)
+    public function drop($drop, $location, $message_drop)
     {
-        return $this->query_redirect($drop, $location, $message_drop);
+        return $this->queryAndRedirect($drop, $location, $message_drop);
     }
 }

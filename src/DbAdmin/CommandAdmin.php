@@ -17,7 +17,7 @@ class CommandAdmin extends AbstractAdmin
      *
      * @var ConnectionInterface
      */
-    protected $connection2 = null;
+    protected $connection = null;
 
     /**
      * Open a second connection to the server
@@ -26,19 +26,19 @@ class CommandAdmin extends AbstractAdmin
      */
     private function connection()
     {
-        if ($this->connection2 === null && $this->db->database !== '') {
+        if ($this->connection === null && $this->db->database !== '') {
             // Connection for exploring indexes and EXPLAIN (to not replace FOUND_ROWS())
             //! PDO - silent error
             $connection = $this->db->createConnection();
             if (($connection)) {
-                $connection->select_db($this->db->database);
+                $connection->selectDatabase($this->db->database);
                 if ($this->db->schema !== '') {
-                    $this->db->set_schema($this->db->schema, $connection);
+                    $this->db->selectSchema($this->db->schema, $connection);
                 }
-                $this->connection2 = $connection;
+                $this->connection = $connection;
             }
         }
-        return $this->connection2;
+        return $this->connection;
     }
 
     /**
@@ -78,15 +78,15 @@ class CommandAdmin extends AbstractAdmin
                         $link = ME . "edit=" . \urlencode($links[$key]);
                         foreach ($indexes[$links[$key]] as $col => $j) {
                             $link .= "&where" . \urlencode("[" .
-                                $this->util->bracket_escape($col) . "]") . "=" . \urlencode($row[$j]);
+                                $this->util->bracketEscape($col) . "]") . "=" . \urlencode($row[$j]);
                         }
                     }
-                } elseif ($this->util->is_url($val)) {
+                } elseif ($this->util->isUrl($val)) {
                     $link = $val;
                 }
                 if ($val === null) {
                     $val = "<i>NULL</i>";
-                } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->util->is_utf8($val)) {
+                } elseif (isset($blobs[$key]) && $blobs[$key] && !$this->util->isUtf8($val)) {
                     //! link to download
                     $val = "<i>" . $this->util->lang('%d byte(s)', \strlen($val)) . "</i>";
                 } else {
@@ -162,7 +162,7 @@ class CommandAdmin extends AbstractAdmin
         if (\function_exists('memory_get_usage')) {
             // @ - may be disabled, 2 - substr and trim, 8e6 - other variables
             @\ini_set("memory_limit", \max(
-                $this->util->ini_bytes("memory_limit"),
+                $this->util->iniBytes("memory_limit"),
                 2 * \strlen($queries) + \memory_get_usage() + 8e6
             ));
         }
@@ -265,12 +265,12 @@ class CommandAdmin extends AbstractAdmin
                 $start = \microtime(true);
                 //! don't allow changing of character_set_results, convert encoding of displayed query
                 $connection = $this->connection();
-                if ($this->db->multi_query($q) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $q)) {
+                if ($this->db->multiQuery($q) && $connection !== null && \preg_match("~^$space*+USE\\b~i", $q)) {
                     $connection->query($q);
                 }
 
                 do {
-                    $result = $this->db->store_result();
+                    $result = $this->db->storedResult();
 
                     if ($this->db->hasError()) {
                         $error = $this->util->error();
@@ -305,7 +305,7 @@ class CommandAdmin extends AbstractAdmin
                     }
 
                     $start = \microtime(true);
-                } while ($this->db->next_result());
+                } while ($this->db->nextResult());
             }
 
             $queries = \substr($queries, $offset);
@@ -316,7 +316,7 @@ class CommandAdmin extends AbstractAdmin
             $messages[] = $this->util->lang('No commands to execute.');
         } elseif ($onlyErrors) {
             $messages[] =  $this->util->lang('%d query(s) executed OK.', $commands - \count($errors));
-            // $timestamps[] = $this->util->format_time($total_start);
+            // $timestamps[] = $this->util->formatTime($total_start);
         }
         // elseif($errors && $commands > 1)
         // {

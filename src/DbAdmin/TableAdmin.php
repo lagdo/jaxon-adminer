@@ -26,7 +26,7 @@ class TableAdmin extends AbstractAdmin
     protected function status(string $table)
     {
         if (!$this->tableStatus) {
-            $this->tableStatus = $this->db->table_status1($table, true);
+            $this->tableStatus = $this->db->tableStatusOrName($table, true);
         }
         return $this->tableStatus;
     }
@@ -67,7 +67,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function getTableInfo(string $table)
     {
-        $main_actions = [
+        $mainActions = [
             'edit-table' => $this->util->lang('Alter table'),
             'drop-table' => $this->util->lang('Drop table'),
             'select-table' => $this->util->lang('Select'),
@@ -87,7 +87,7 @@ class TableAdmin extends AbstractAdmin
             // 'foreign-keys' => $this->util->lang('Foreign keys'),
             // 'triggers' => $this->util->lang('Triggers'),
         ];
-        if ($this->db->is_view($status)) {
+        if ($this->db->isView($status)) {
             if ($this->db->support('view_trigger')) {
                 $tabs['triggers'] = $this->util->lang('Triggers');
             }
@@ -95,7 +95,7 @@ class TableAdmin extends AbstractAdmin
             if ($this->db->support('indexes')) {
                 $tabs['indexes'] = $this->util->lang('Indexes');
             }
-            if ($this->db->fk_support($status)) {
+            if ($this->db->supportForeignKeys($status)) {
                 $tabs['foreign-keys'] = $this->util->lang('Foreign keys');
             }
             if ($this->db->support('trigger')) {
@@ -103,7 +103,7 @@ class TableAdmin extends AbstractAdmin
             }
         }
 
-        return \compact('main_actions', 'title', 'comment', 'tabs');
+        return \compact('mainActions', 'title', 'comment', 'tabs');
     }
 
     /**
@@ -121,7 +121,7 @@ class TableAdmin extends AbstractAdmin
             throw new Exception($this->util->error());
         }
 
-        $main_actions = $this->getTableLinks();
+        $mainActions = $this->getTableLinks();
 
         $tabs = [
             'fields' => $this->util->lang('Columns'),
@@ -132,7 +132,7 @@ class TableAdmin extends AbstractAdmin
         if ($this->db->support('indexes')) {
             $tabs['indexes'] = $this->util->lang('Indexes');
         }
-        if ($this->db->fk_support($this->status($table))) {
+        if ($this->db->supportForeignKeys($this->status($table))) {
             $tabs['foreign-keys'] = $this->util->lang('Foreign keys');
         }
         if ($this->db->support('trigger')) {
@@ -173,7 +173,7 @@ class TableAdmin extends AbstractAdmin
             $details[] = $detail;
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -191,7 +191,7 @@ class TableAdmin extends AbstractAdmin
 
         // From table.inc.php
         $indexes = $this->db->indexes($table);
-        $main_actions = [
+        $mainActions = [
             'create' => $this->util->lang('Alter indexes'),
         ];
 
@@ -230,7 +230,7 @@ class TableAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -243,13 +243,13 @@ class TableAdmin extends AbstractAdmin
     public function getTableForeignKeys(string $table)
     {
         $status = $this->status($table);
-        if (!$this->db->fk_support($status)) {
+        if (!$this->db->supportForeignKeys($status)) {
             return null;
         }
 
         // From table.inc.php
-        $foreign_keys = $this->db->foreign_keys($table);
-        $main_actions = [
+        $foreignKeys = $this->db->foreignKeys($table);
+        $mainActions = [
             $this->util->lang('Add foreign key'),
         ];
 
@@ -261,38 +261,38 @@ class TableAdmin extends AbstractAdmin
             $this->util->lang('ON UPDATE'),
         ];
 
-        if (!$foreign_keys) {
-            $foreign_keys = [];
+        if (!$foreignKeys) {
+            $foreignKeys = [];
         }
         $details = [];
         // From table.inc.php
-        foreach ($foreign_keys as $name => $foreign_key) {
+        foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
-            if (\array_key_exists('db', $foreign_key) && $foreign_key['db'] != '') {
-                $target .= '<b>' . $this->util->h($foreign_key['db']) . '</b>.';
+            if (\array_key_exists('db', $foreignKey) && $foreignKey['db'] != '') {
+                $target .= '<b>' . $this->util->h($foreignKey['db']) . '</b>.';
             }
-            if (\array_key_exists('ns', $foreign_key) && $foreign_key['ns'] != '') {
-                $target .= '<b>' . $this->util->h($foreign_key['ns']) . '</b>.';
+            if (\array_key_exists('ns', $foreignKey) && $foreignKey['ns'] != '') {
+                $target .= '<b>' . $this->util->h($foreignKey['ns']) . '</b>.';
             }
-            $target = $this->util->h($foreign_key['table']) .
+            $target = $this->util->h($foreignKey['table']) .
                 '(' . \implode(', ', \array_map(function ($key) {
                     return $this->util->h($key);
-                }, $foreign_key['target'])) . ')';
+                }, $foreignKey['target'])) . ')';
             $details[] = [
                 'name' => $this->util->h($name),
                 'source' => '<i>' . \implode(
                     '</i>, <i>',
                     \array_map(function ($key) {
                         return $this->util->h($key);
-                    }, $foreign_key['source'])
+                    }, $foreignKey['source'])
                 ) . '</i>',
                 'target' => $target,
-                'on_delete' => $this->util->h($foreign_key['on_delete']),
-                'on_update' => $this->util->h($foreign_key['on_update']),
+                'on_delete' => $this->util->h($foreignKey['on_delete']),
+                'on_update' => $this->util->h($foreignKey['on_update']),
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -311,7 +311,7 @@ class TableAdmin extends AbstractAdmin
 
         // From table.inc.php
         $triggers = $this->db->triggers($table);
-        $main_actions = [
+        $mainActions = [
             $this->util->lang('Add trigger'),
         ];
 
@@ -336,7 +336,7 @@ class TableAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -348,13 +348,13 @@ class TableAdmin extends AbstractAdmin
      */
     private function getForeignKeys(string $table = '')
     {
-        $this->referencable_primary = $this->util->referencable_primary($table);
-        $this->foreign_keys = [];
-        foreach ($this->referencable_primary as $table_name => $field) {
-            $name = \str_replace('`', '``', $table_name) .
+        $this->referencableTables = $this->util->referencableTables($table);
+        $this->foreignKeys = [];
+        foreach ($this->referencableTables as $tableName => $field) {
+            $name = \str_replace('`', '``', $tableName) .
                 '`' . \str_replace('`', '``', $field['field']);
-            // not idf_escape() - used in JS
-            $this->foreign_keys[$name] = $table_name;
+            // not escapeId() - used in JS
+            $this->foreignKeys[$name] = $tableName;
         }
     }
 
@@ -368,15 +368,15 @@ class TableAdmin extends AbstractAdmin
     public function getFieldTypes(string $type = '')
     {
         // From includes/editing.inc.php
-        $extra_types = [];
+        $extraTypes = [];
         if ($type && !$this->db->typeExists($type) &&
-            !isset($this->foreign_keys[$type]) && !\in_array($type, $extra_types)) {
-            $extra_types[] = $type;
+            !isset($this->foreignKeys[$type]) && !\in_array($type, $extraTypes)) {
+            $extraTypes[] = $type;
         }
-        if ($this->foreign_keys) {
-            $this->db->setStructuredType($this->util->lang('Foreign keys'), $this->foreign_keys);
+        if ($this->foreignKeys) {
+            $this->db->setStructuredType($this->util->lang('Foreign keys'), $this->foreignKeys);
         }
-        return \array_merge($extra_types, $this->db->structuredTypes());
+        return \array_merge($extraTypes, $this->db->structuredTypes());
     }
 
     /**
@@ -388,7 +388,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function getTableData(string $table = '')
     {
-        $main_actions = [
+        $mainActions = [
             'table-save' => $this->util->lang('Save'),
             'table-cancel' => $this->util->lang('Cancel'),
         ];
@@ -397,7 +397,7 @@ class TableAdmin extends AbstractAdmin
         $status = [];
         $fields = [];
         if ($table !== '') {
-            $status = $this->db->table_status($table);
+            $status = $this->db->tableStatus($table);
             if (!$status) {
                 throw new Exception($this->util->lang('No tables.'));
             }
@@ -429,7 +429,7 @@ class TableAdmin extends AbstractAdmin
 
             $field['_length_required_'] = !$field['length'] && \preg_match('~var(char|binary)$~', $type);
             $field['_collation_hidden_'] = !\preg_match('~(char|text|enum|set)$~', $type);
-            $field['_unsigned_hidden_'] = !(!$type || \preg_match($this->db->number_type(), $type));
+            $field['_unsigned_hidden_'] = !(!$type || \preg_match($this->db->numberRegex(), $type));
             $field['_on_update_hidden_'] = !\preg_match('~timestamp|datetime~', $type);
             $field['_on_delete_hidden_'] = !\preg_match('~`~', $type);
         }
@@ -449,14 +449,14 @@ class TableAdmin extends AbstractAdmin
             'drop_col' => $this->db->support('drop_col'),
         ];
 
-        $foreign_keys = $this->foreign_keys;
+        $foreignKeys = $this->foreignKeys;
         $unsigned = $this->db->unsigned();
         // Give the var a better name
         $table = $status;
         return \compact(
-            'main_actions',
+            'mainActions',
             'table',
-            'foreign_keys',
+            'foreignKeys',
             'fields',
             'options',
             'collations',
@@ -511,7 +511,7 @@ class TableAdmin extends AbstractAdmin
         array $values,
         string $table,
         array $orig_fields,
-        array $table_status,
+        array $tableStatus,
         string $engine,
         string $collation,
         $comment
@@ -533,9 +533,9 @@ class TableAdmin extends AbstractAdmin
         $this->getForeignKeys();
 
         foreach ($values['fields'] as $key => $field) {
-            $foreign_key = $this->foreign_keys[$field['type']] ?? null;
+            $foreignKey = $this->foreignKeys[$field['type']] ?? null;
             //! can collide with user defined type
-            $type_field = ($foreign_key !== null ? $this->referencable_primary[$foreign_key] : $field);
+            $typeField = ($foreignKey !== null ? $this->referencableTables[$foreignKey] : $field);
             // Originally, deleted fields have the "field" field set to an empty string.
             // But in our implementation, the "field" field is deleted.
             // if($field['field'] != '')
@@ -546,24 +546,24 @@ class TableAdmin extends AbstractAdmin
                 $field['auto_increment'] = ($key == $values['auto_increment_col']);
                 $field["null"] = isset($field["null"]);
 
-                $process_field = $this->util->process_field($field, $type_field);
+                $process_field = $this->util->processField($field, $typeField);
                 $all_fields[] = [$field['orig'], $process_field, $after];
-                if (!$orig_field || $process_field != $this->util->process_field($orig_field, $orig_field)) {
+                if (!$orig_field || $process_field != $this->util->processField($orig_field, $orig_field)) {
                     $fields[] = [$field['orig'], $process_field, $after];
                     if ($field['orig'] != '' || $after) {
                         $use_all_fields = true;
                     }
                 }
-                if ($foreign_key !== null) {
-                    $foreign[$this->db->idf_escape($field['field'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
-                        $this->db->format_foreign_key([
-                            'table' => $this->foreign_keys[$field['type']],
+                if ($foreignKey !== null) {
+                    $foreign[$this->db->escapeId($field['field'])] = ($table != '' && $this->db->jush() != 'sqlite' ? 'ADD' : ' ') .
+                        $this->db->formatForeignKey([
+                            'table' => $this->foreignKeys[$field['type']],
                             'source' => [$field['field']],
-                            'target' => [$type_field['field']],
+                            'target' => [$typeField['field']],
                             'on_delete' => $field['on_delete'],
                         ]);
                 }
-                $after = ' AFTER ' . $this->db->idf_escape($field['field']);
+                $after = ' AFTER ' . $this->db->escapeId($field['field']);
             } elseif ($field['orig'] != '') {
                 // A missing "field" field and a not empty "orig" field means the column is to be dropped.
                 // We also append null in the array because the drivers code accesses field at position 1.
@@ -588,7 +588,7 @@ class TableAdmin extends AbstractAdmin
         //         foreach(\array_filter($values['partition_names']) as $key => $val)
         //         {
         //             $value = $values['partition_values'][$key];
-        //             $partitions[] = "\n  PARTITION " . $this->db->idf_escape($val) .
+        //             $partitions[] = "\n  PARTITION " . $this->db->escapeId($val) .
         //                 ' VALUES ' . ($values['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') .
         //                 ($value != '' ? ' ($value)' : ' MAXVALUE'); //! SQL injection
         //         }
@@ -600,7 +600,7 @@ class TableAdmin extends AbstractAdmin
         //     );
         // }
         // elseif($this->db->support('partitioning') &&
-        //     \preg_match('~partitioned~', $table_status['Create_options']))
+        //     \preg_match('~partitioned~', $tableStatus['Create_options']))
         // {
         //     $partitioning .= "\nREMOVE PARTITIONING";
         // }
@@ -611,7 +611,7 @@ class TableAdmin extends AbstractAdmin
             $fields = $all_fields;
         }
 
-        $success = $this->db->alter_table(
+        $success = $this->db->alterTable(
             $table,
             $name,
             $fields,
@@ -645,7 +645,7 @@ class TableAdmin extends AbstractAdmin
     public function createTable(array $values)
     {
         $orig_fields = [];
-        $table_status = [];
+        $tableStatus = [];
 
         $comment = $values['comment'] ?? null;
         $engine = $values['engine'] ?? '';
@@ -655,7 +655,7 @@ class TableAdmin extends AbstractAdmin
             $values,
             '',
             $orig_fields,
-            $table_status,
+            $tableStatus,
             $engine,
             $collation,
             $comment
@@ -673,14 +673,14 @@ class TableAdmin extends AbstractAdmin
     public function alterTable(string $table, array $values)
     {
         $orig_fields = $this->db->fields($table);
-        $table_status = $this->db->table_status($table);
-        if (!$table_status) {
+        $tableStatus = $this->db->tableStatus($table);
+        if (!$tableStatus) {
             throw new Exception($this->util->lang('No tables.'));
         }
 
-        $currComment = $table_status['Comment'] ?? null;
-        $currEngine = $table_status['Engine'] ?? '';
-        $currCollation = $table_status['Collation'] ?? '';
+        $currComment = $tableStatus['Comment'] ?? null;
+        $currEngine = $tableStatus['Engine'] ?? '';
+        $currCollation = $tableStatus['Collation'] ?? '';
         $comment = $values['comment'] != $currComment ? $values['comment'] : null;
         $engine = $values['engine'] != $currEngine ? $values['engine'] : '';
         $collation = $values['collation'] != $currCollation ? $values['collation'] : '';
@@ -689,7 +689,7 @@ class TableAdmin extends AbstractAdmin
             $values,
             $table,
             $orig_fields,
-            $table_status,
+            $tableStatus,
             $engine,
             $collation,
             $comment
@@ -705,7 +705,7 @@ class TableAdmin extends AbstractAdmin
      */
     public function dropTable(string $table)
     {
-        $success = $this->db->drop_tables([$table]);
+        $success = $this->db->dropTables([$table]);
 
         $error = $this->util->error();
 

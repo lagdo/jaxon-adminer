@@ -17,11 +17,11 @@ interface DriverInterface
      * Select data from table
      *
      * @param string $table
-     * @param array $select result of $this->util->selectColumnsProcess()[0]
-     * @param array $where result of $this->util->selectSearchProcess()
-     * @param array $group result of $this->util->selectColumnsProcess()[1]
-     * @param array $order result of $this->util->selectOrderProcess()
-     * @param int $limit result of $this->util->selectLimitProcess()
+     * @param array $select result of $this->util->processSelectColumns()[0]
+     * @param array $where result of $this->util->processSelectSearch()
+     * @param array $group result of $this->util->processSelectColumns()[1]
+     * @param array $order result of $this->util->processSelectOrder()
+     * @param int $limit result of $this->util->processSelectLimit()
      * @param int $page index of page starting at zero
      *
      * @return Statement
@@ -60,7 +60,7 @@ interface DriverInterface
      *
      * @return bool
      */
-    public function insertUpdate($table, $rows, $primary);
+    public function insertOrUpdate($table, $rows, $primary);
 
     /**
      * Delete data from table

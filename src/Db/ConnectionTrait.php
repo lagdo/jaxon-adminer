@@ -35,25 +35,13 @@ trait ConnectionTrait
     }
 
     /**
-     * Set the current database
-     *
-     * @param string $database
-     *
-     * @return boolean
-     */
-    public function select_db($database)
-    {
-        return $this->connection->select_db($database);
-    }
-
-    /**
      * Sets the client character set
      * @param string
      * @return bool
      */
-    public function set_charset($charset)
+    public function setCharset($charset)
     {
-        return $this->connection->set_charset($charset);
+        return $this->connection->setCharset($charset);
     }
 
     /**
@@ -90,9 +78,9 @@ trait ConnectionTrait
      *
      * @return mixed
      */
-    public function next_result()
+    public function nextResult()
     {
-        return $this->connection->next_result();
+        return $this->connection->nextResult();
     }
 
     /**
@@ -102,21 +90,21 @@ trait ConnectionTrait
      *
      * @return mixed
      */
-    public function multi_query($query)
+    public function multiQuery($query)
     {
-        return $this->connection->multi_query($query);
+        return $this->connection->multiQuery($query);
     }
 
     /**
-     * Get the result saved by the multi_query() method
+     * Get the result saved by the multiQuery() method
      *
      * @param mixed $result
      *
      * @return mixed
      */
-    public function store_result($result = null)
+    public function storedResult($result = null)
     {
-        return $this->connection->store_result($result);
+        return $this->connection->storedResult($result);
     }
 
     /**

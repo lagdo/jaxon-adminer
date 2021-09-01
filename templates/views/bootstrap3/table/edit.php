@@ -65,7 +65,7 @@
     'prefixFields' => sprintf("fields[%d]", $index + 1),
     'collations' => $this->collations,
     'unsigned' => $this->unsigned,
-    'foreign_keys' => $this->foreign_keys,
+    'foreignKeys' => $this->foreignKeys,
     'options' => $this->options,
     'support' => $this->support,
 ]) ?>

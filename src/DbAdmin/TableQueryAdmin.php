@@ -16,7 +16,7 @@ class TableQueryAdmin extends AbstractAdmin
     {
         $save = $options["save"];
         // From functions.inc.php (function input($field, $value, $function))
-        $name = $this->util->h($this->util->bracket_escape($field["field"]));
+        $name = $this->util->h($this->util->bracketEscape($field["field"]));
         $entry = [
             'type' => $this->util->h($field["full_type"]),
             'name' => $name,
@@ -81,9 +81,9 @@ class TableQueryAdmin extends AbstractAdmin
                 $val = \stripcslashes(\str_replace("''", "'", $val));
                 $checked = (\is_int($value) ? ($value >> $i) & 1 : \in_array($val, \explode(",", $value), true));
                 $entry['input']['value'][] = "<label><input type='checkbox' name='fields[$name][$i]' value='" . (1 << $i) . "'" .
-                    ($checked ? ' checked' : '') . ">" . $this->util->h($this->util->editVal($val, $field)) . '</label>';
+                    ($checked ? ' checked' : '') . ">" . $this->util->h($this->util->editValue($val, $field)) . '</label>';
             }
-        } elseif (\preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->util->ini_bool("file_uploads")) {
+        } elseif (\preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->util->iniBool("file_uploads")) {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
         } elseif (($text = \preg_match('~text|lob|memo~i', $field["type"])) || \preg_match("~\n~", $value)) {
             if ($text && $this->db->jush() != "sqlite") {
@@ -103,7 +103,7 @@ class TableQueryAdmin extends AbstractAdmin
                 ((\preg_match("~binary~", $field["type"]) ? 2 : 1) * $match[1] + (($match[3] ?? null) ? 1 : 0) +
                 (($match[2] ?? false) && !$unsigned ? 1 : 0)) :
                 ($this->db->typeExists($field["type"]) ? $this->db->type($field["type"]) + ($unsigned ? 0 : 1) : 0));
-            if ($this->db->jush() == 'sql' && $this->db->min_version(5.6) && \preg_match('~time~', $field["type"])) {
+            if ($this->db->jush() == 'sql' && $this->db->minVersion(5.6) && \preg_match('~time~', $field["type"])) {
                 $maxlength += 7; // microtime
             }
             // type='date' and type='time' display localized value which may be confusing,
@@ -168,14 +168,14 @@ class TableQueryAdmin extends AbstractAdmin
             $select = [];
             foreach ($fields as $name => $field) {
                 if (isset($field["privileges"]["select"])) {
-                    $as = $this->db->convert_field($field);
+                    $as = $this->db->convertField($field);
                     if ($queryOptions["clone"] && $field["auto_increment"]) {
                         $as = "''";
                     }
                     if ($this->db->jush() == "sql" && \preg_match("~enum|set~", $field["type"])) {
-                        $as = "1*" . $this->db->idf_escape($name);
+                        $as = "1*" . $this->db->escapeId($name);
                     }
-                    $select[] = ($as ? "$as AS " : "") . $this->db->idf_escape($name);
+                    $select[] = ($as ? "$as AS " : "") . $this->db->escapeId($name);
                 }
             }
             $row = [];
@@ -202,7 +202,7 @@ class TableQueryAdmin extends AbstractAdmin
         }
 
         if (!$this->db->support("table") && !$fields) {
-            $primary = $this->db->primary();
+            $primary = $this->db->primaryIdName();
             if (!$where) {
                 // insert
                 $result = $this->db->select($table, ["*"], $where, ["*"]);
@@ -227,7 +227,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From functions.inc.php (function edit_form($table, $fields, $row, $update))
         $entries = [];
-        $table_name = $this->util->tableName($this->db->table_status1($table, true));
+        $tableName = $this->util->tableName($this->db->tableStatusOrName($table, true));
         $error = null;
         if ($row === false) {
             $error = $this->util->lang('No rows.');
@@ -235,7 +235,7 @@ class TableQueryAdmin extends AbstractAdmin
             $error = $this->util->lang('You have no privileges to update this table.');
         } else {
             foreach ($fields as $name => $field) {
-                // $default = $queryOptions["set"][$this->util->bracket_escape($name)] ?? null;
+                // $default = $queryOptions["set"][$this->util->bracketEscape($name)] ?? null;
                 // if($default === null)
                 // {
                 $default = $field["default"];
@@ -257,7 +257,7 @@ class TableQueryAdmin extends AbstractAdmin
                     )
                 );
                 if (!$queryOptions["save"] && \is_string($value)) {
-                    $value = $this->util->editVal($value, $field);
+                    $value = $this->util->editValue($value, $field);
                 }
                 $function = (
                     $queryOptions["save"]
@@ -280,13 +280,13 @@ class TableQueryAdmin extends AbstractAdmin
             }
         }
 
-        $main_actions = [
+        $mainActions = [
             'query-save' => $this->util->lang('Save'),
             'query-cancel' => $this->util->lang('Cancel'),
         ];
 
         $fields = $entries;
-        return \compact('main_actions', 'table_name', 'error', 'fields');
+        return \compact('mainActions', 'tableName', 'error', 'fields');
     }
 
     /**
@@ -304,14 +304,14 @@ class TableQueryAdmin extends AbstractAdmin
         // From edit.inc.php
         $set = [];
         foreach ($fields as $name => $field) {
-            $val = $this->util->process_input($field, $queryOptions);
+            $val = $this->util->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->db->idf_escape($name)] = $val;
+                $set[$this->db->escapeId($name)] = $val;
             }
         }
 
         $result = $this->db->insert($table, $set);
-        $lastId = ($result ? $this->db->last_id() : 0);
+        $lastId = ($result ? $this->db->lastAutoIncrementId() : 0);
         $message = $this->util->lang('Item%s has been inserted.', ($lastId ? " $lastId" : ""));
 
         $error = $this->util->error();
@@ -333,14 +333,14 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From edit.inc.php
         $indexes = $this->db->indexes($table);
-        $unique_array = $this->util->unique_array($queryOptions["where"], $indexes);
+        $unique_array = $this->util->uniqueArray($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
         $set = [];
         foreach ($fields as $name => $field) {
-            $val = $this->util->process_input($field, $queryOptions);
+            $val = $this->util->processInput($field, $queryOptions);
             if ($val !== false && $val !== null) {
-                $set[$this->db->idf_escape($name)] = $val;
+                $set[$this->db->escapeId($name)] = $val;
             }
         }
 
@@ -366,7 +366,7 @@ class TableQueryAdmin extends AbstractAdmin
 
         // From edit.inc.php
         $indexes = $this->db->indexes($table);
-        $unique_array = $this->util->unique_array($queryOptions["where"], $indexes);
+        $unique_array = $this->util->uniqueArray($queryOptions["where"], $indexes);
         $query_where = "\nWHERE $where";
 
         $result = $this->db->delete($table, $query_where, !$unique_array);

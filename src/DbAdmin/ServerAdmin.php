@@ -73,39 +73,39 @@ class ServerAdmin extends AbstractAdmin
             "<b>" . $this->util->h($this->db->serverInfo()) . "</b>",
             "<b>{$this->db->extension()}</b>"
         );
-        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->h($this->db->logged_user()) . "</b>");
+        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->h($this->db->loggedUser()) . "</b>");
 
-        $sql_actions = [
+        $sqlActions = [
             'server-command' => $this->util->lang('SQL command'),
             'server-import' => $this->util->lang('Import'),
             'server-export' => $this->util->lang('Export'),
         ];
 
         // Content from the connect_error() function in connect.inc.php
-        $menu_actions = [
+        $menuActions = [
             'databases' => $this->util->lang('Databases'),
         ];
         // if($this->db->support('database'))
         // {
-        //     $menu_actions['databases'] = $this->util->lang('Databases');
+        //     $menuActions['databases'] = $this->util->lang('Databases');
         // }
         if ($this->db->support('privileges')) {
-            $menu_actions['privileges'] = $this->util->lang('Privileges');
+            $menuActions['privileges'] = $this->util->lang('Privileges');
         }
         if ($this->db->support('processlist')) {
-            $menu_actions['processes'] = $this->util->lang('Process list');
+            $menuActions['processes'] = $this->util->lang('Process list');
         }
         if ($this->db->support('variables')) {
-            $menu_actions['variables'] = $this->util->lang('Variables');
+            $menuActions['variables'] = $this->util->lang('Variables');
         }
         if ($this->db->support('status')) {
-            $menu_actions['status'] = $this->util->lang('Status');
+            $menuActions['status'] = $this->util->lang('Status');
         }
 
         // Get the database list
         $databases = $this->databases();
 
-        return \compact('server', 'user', 'databases', 'sql_actions', 'menu_actions');
+        return \compact('server', 'user', 'databases', 'sqlActions', 'menuActions');
     }
 
     /**
@@ -118,7 +118,7 @@ class ServerAdmin extends AbstractAdmin
      */
     public function createDatabase(string $database, string $collation = '')
     {
-        return $this->db->create_database($database, $collation);
+        return $this->db->createDatabase($database, $collation);
     }
 
     /**
@@ -130,7 +130,7 @@ class ServerAdmin extends AbstractAdmin
      */
     public function dropDatabase(string $database)
     {
-        return $this->db->drop_databases([$database]);
+        return $this->db->dropDatabases([$database]);
     }
 
     /**
@@ -152,9 +152,9 @@ class ServerAdmin extends AbstractAdmin
     {
         // Get the database list
         $databases = $this->databases();
-        $tables = $this->db->count_tables($databases);
+        $tables = $this->db->countTables($databases);
 
-        $main_actions = [
+        $mainActions = [
             'add-database' => $this->util->lang('Create database'),
         ];
 
@@ -171,13 +171,13 @@ class ServerAdmin extends AbstractAdmin
         foreach ($databases as $database) {
             $details[] = [
                 'name' => $this->util->h($database),
-                'collation' => $this->util->h($this->db->db_collation($database, $collations)),
+                'collation' => $this->util->h($this->db->databaseCollation($database, $collations)),
                 'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
-                'size' => $this->util->format_number($this->db->db_size($database)),
+                'size' => $this->util->formatNumber($this->db->databaseSize($database)),
             ];
         }
 
-        return \compact('headers', 'details', 'main_actions');
+        return \compact('headers', 'details', 'mainActions');
     }
 
     /**
@@ -188,7 +188,7 @@ class ServerAdmin extends AbstractAdmin
     public function getProcesses()
     {
         // From processlist.inc.php
-        $processes = $this->db->process_list();
+        $processes = $this->db->processes();
 
         $jush = $this->db->jush();
         // From processlist.inc.php
@@ -208,7 +208,7 @@ class ServerAdmin extends AbstractAdmin
                     ($jush == "sql" && $key == "Info" && $match && $val != "") ||
                     ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
                     ($jush == "oracle" && $key == "sql_text" && $val != "") ?
-                    "<code class='jush-{$jush}'>" . $this->util->shorten_utf8($val, 50) .
+                    "<code class='jush-{$jush}'>" . $this->util->shortenUtf8($val, 50) .
                     "</code>" . $this->util->lang('Clone') : $this->util->h($val);
             }
             $details[] = $detail;
@@ -225,14 +225,14 @@ class ServerAdmin extends AbstractAdmin
     public function getVariables()
     {
         // From variables.inc.php
-        $variables = $this->db->show_variables();
+        $variables = $this->db->variables();
 
         $headers = false;
 
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->util->h($key), $this->util->shorten_utf8($val, 50)];
+            $details[] = [$this->util->h($key), $this->util->shortenUtf8($val, 50)];
         }
 
         return \compact('headers', 'details');
@@ -246,7 +246,7 @@ class ServerAdmin extends AbstractAdmin
     public function getStatus()
     {
         // From variables.inc.php
-        $status = $this->db->show_status();
+        $status = $this->db->statusVariables();
         if (!\is_array($status)) {
             $status = [];
         }

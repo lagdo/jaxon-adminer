@@ -107,7 +107,7 @@ class Translator
      * @param int
      * @return string
      */
-    public function format_number($val)
+    public function formatNumber($val)
     {
         return strtr(number_format(intval($val), 0, ".", $this->lang(',')),
             preg_split('~~u', $this->lang('0123456789'), -1, PREG_SPLIT_NO_EMPTY));
@@ -148,7 +148,7 @@ class Translator
         array_shift($args);
         $format = str_replace("%d", "%s", $translation);
         if ($format != $translation) {
-            $args[0] = $this->format_number($number);
+            $args[0] = $this->formatNumber($number);
         }
         return vsprintf($format, $args);
     }

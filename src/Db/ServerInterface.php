@@ -34,21 +34,21 @@ interface ServerInterface
      *
      * @return string
      */
-    public function current_db();
+    public function currentDatabase();
 
     /**
      * Select the database and schema
      *
      * @return string
      */
-    public function current_schema();
+    public function currentSchema();
 
     /**
      * Get the name of the primary id field
      *
      * @return string
      */
-    public function primary();
+    public function primaryIdName();
 
     /**
      * Escape database identifier
@@ -57,14 +57,14 @@ interface ServerInterface
      *
      * @return string
      */
-    public function idf_escape($idf);
+    public function escapeId($idf);
 
     /**
      * Unescape database identifier
      * @param string $idf
      * @return string
      */
-    public function idf_unescape($idf);
+    public function unescapeId($idf);
 
     /**
      * Shortcut for $this->connection->quote($string)
@@ -117,7 +117,7 @@ interface ServerInterface
      * @param string
      * @return string
      */
-    public function limit1($table, $query, $where, $separator = "\n");
+    public function limitToOne($table, $query, $where, $separator = "\n");
 
     /**
      * Get database collation
@@ -125,7 +125,7 @@ interface ServerInterface
      * @param array result of collations()
      * @return string
      */
-    public function db_collation($db, $collations);
+    public function databaseCollation($db, $collations);
 
     /**
      * Get supported engines
@@ -137,30 +137,30 @@ interface ServerInterface
      * Get logged user
      * @return string
      */
-    public function logged_user();
+    public function loggedUser();
 
     /**
      * Format foreign key to use in SQL query
      *
      * @param array ("db" => string, "ns" => string, "table" => string, "source" => array, "target" => array,
-     * "on_delete" => one of $this->on_actions, "on_update" => one of $this->on_actions)
+     * "on_delete" => one of $this->onActions, "on_update" => one of $this->onActions)
      *
      * @return string
      */
-    public function format_foreign_key($foreign_key);
+    public function formatForeignKey($foreignKey);
 
     /**
      * Get tables list
      * @return array array($name => $type)
      */
-    public function tables_list();
+    public function tables();
 
     /**
      * Count tables in all databases
      * @param array
      * @return array array($db => $tables)
      */
-    public function count_tables($databases);
+    public function countTables($databases);
 
     /**
      * Get table status
@@ -168,7 +168,7 @@ interface ServerInterface
      * @param bool return only "Name", "Engine" and "Comment" fields
      * @return array array($name => array("Name" => , "Engine" => , "Comment" => , "Oid" => , "Rows" => , "Collation" => , "Auto_increment" => , "Data_length" => , "Index_length" => , "Data_free" => )) or only inner array with $name
      */
-    public function table_status($name = "", $fast = false);
+    public function tableStatus($name = "", $fast = false);
 
     /**
      * Get status of a single table and fall back to name on error
@@ -176,21 +176,21 @@ interface ServerInterface
      * @param bool
      * @return array
      */
-    public function table_status1($table, $fast = false);
+    public function tableStatusOrName($table, $fast = false);
 
     /**
      * Find out whether the identifier is view
      * @param array
      * @return bool
      */
-    public function is_view($table_status);
+    public function isView($tableStatus);
 
     /**
      * Check if table supports foreign keys
      * @param array result of table_status
      * @return bool
      */
-    public function fk_support($table_status);
+    public function supportForeignKeys($tableStatus);
 
     /**
      * Get information about fields
@@ -205,14 +205,14 @@ interface ServerInterface
      * @param string ConnectionInterface to use
      * @return array array($key_name => array("type" => , "columns" => [], "lengths" => [], "descs" => []))
      */
-    public function indexes($table, $connection2 = null);
+    public function indexes($table, $connection = null);
 
     /**
      * Get foreign keys in table
      * @param string
      * @return array array($name => array("db" => , "ns" => , "table" => , "source" => [], "target" => [], "on_delete" => , "on_update" => ))
      */
-    public function foreign_keys($table);
+    public function foreignKeys($table);
 
     /**
      * Get view SELECT
@@ -232,7 +232,7 @@ interface ServerInterface
      * @param string
      * @return bool
      */
-    public function information_schema($db);
+    public function isInformationSchema($db);
 
     /**
      * Create database
@@ -240,14 +240,14 @@ interface ServerInterface
      * @param string
      * @return string|boolean
      */
-    public function create_database($db, $collation) ;
+    public function createDatabase($db, $collation) ;
 
     /**
      * Drop databases
      * @param array
      * @return bool
      */
-    public function drop_databases($databases);
+    public function dropDatabases($databases);
 
     /**
      * Rename database from DB
@@ -255,19 +255,19 @@ interface ServerInterface
      * @param string
      * @return bool
      */
-    public function rename_database($name, $collation);
+    public function renameDatabase($name, $collation);
 
     /**
      * Generate modifier for auto increment column
      * @return string
      */
-    public function auto_increment();
+    public function autoIncrement();
 
     /**
      * Get last auto increment ID
      * @return string
      */
-    public function last_id();
+    public function lastAutoIncrementId();
 
     /**
      * Run commands to create or alter table
@@ -282,7 +282,7 @@ interface ServerInterface
      * @param string
      * @return bool
      */
-    public function alter_table($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning);
+    public function alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning);
 
     /**
      * Run commands to alter indexes
@@ -290,28 +290,28 @@ interface ServerInterface
      * @param array of array("index type", "name", array("column definition", ...)) or array("index type", "name", "DROP")
      * @return bool
      */
-    public function alter_indexes($table, $alter);
+    public function alterIndexes($table, $alter);
 
     /**
      * Drop views
      * @param array
      * @return bool
      */
-    public function drop_views($views);
+    public function dropViews($views);
 
     /**
      * Run commands to truncate tables
      * @param array
      * @return bool
      */
-    public function truncate_tables($tables);
+    public function truncateTables($tables);
 
     /**
      * Drop tables
      * @param array
      * @return bool
      */
-    public function drop_tables($tables);
+    public function dropTables($tables);
 
     /**
      * Move tables to other schema
@@ -320,7 +320,7 @@ interface ServerInterface
      * @param string
      * @return bool
      */
-    public function move_tables($tables, $views, $target);
+    public function moveTables($tables, $views, $target);
 
     /**
      * Copy tables to other schema
@@ -329,7 +329,7 @@ interface ServerInterface
      * @param string
      * @return bool
      */
-    public function copy_tables($tables, $views, $target);
+    public function copyTables($tables, $views, $target);
 
     /**
      * Get information about trigger
@@ -349,7 +349,7 @@ interface ServerInterface
      * Get trigger options
      * @return array ("Timing" => [], "Event" => [], "Type" => [])
      */
-    public function trigger_options();
+    public function triggerOptions();
 
     /**
      * Get information about stored routine
@@ -369,7 +369,7 @@ interface ServerInterface
      * Get list of available routine languages
      * @return array
      */
-    public function routine_languages() ;
+    public function routineLanguages() ;
 
     /**
      * Get routine signature
@@ -377,7 +377,7 @@ interface ServerInterface
      * @param array result of routine()
      * @return string
      */
-    public function routine_id($name, $row);
+    public function routineId($name, $row);
 
     /**
      * Explain select
@@ -388,18 +388,10 @@ interface ServerInterface
     public function explain($connection, $query);
 
     /**
-     * Get approximate number of rows
-     * @param array
-     * @param array
-     * @return int or null if approximate number can't be retrieved
-     */
-    public function found_rows($table_status, $where);
-
-    /**
      * Get user defined types
      * @return array
      */
-    public function user_types();
+    public function userTypes();
 
     /**
      * Get existing schemas
@@ -411,7 +403,7 @@ interface ServerInterface
      * Get current schema
      * @return string
      */
-    public function get_schema();
+    public function schema();
 
     /**
      * Set current schema
@@ -419,7 +411,7 @@ interface ServerInterface
      * @param ConnectionInterface
      * @return bool
      */
-    public function set_schema($schema, $connection2 = null);
+    public function selectSchema($schema, $connection = null);
 
     /**
      * Get SQL command to create table
@@ -428,13 +420,13 @@ interface ServerInterface
      * @param string
      * @return string
      */
-    public function create_sql($table, $auto_increment, $style);
+    public function createTableSql($table, $auto_increment, $style);
 
     /**
      * Get SQL command to create foreign keys
      *
-     * create_sql() produces CREATE TABLE without FK CONSTRAINTs
-     * foreign_keys_sql() produces all FK CONSTRAINTs as ALTER TABLE ... ADD CONSTRAINT
+     * createTableSql() produces CREATE TABLE without FK CONSTRAINTs
+     * foreignKeysSql() produces all FK CONSTRAINTs as ALTER TABLE ... ADD CONSTRAINT
      * so that all FKs can be added after all tables have been created, avoiding any need
      * to reorder CREATE TABLE statements in order of their FK dependencies
      *
@@ -442,53 +434,53 @@ interface ServerInterface
      *
      * @return string
      */
-    public function foreign_keys_sql($table);
+    public function foreignKeysSql($table);
 
     /**
      * Get SQL command to truncate table
      * @param string
      * @return string
      */
-    public function truncate_sql($table);
+    public function truncateTableSql($table);
 
     /**
      * Get SQL command to change database
      * @param string
      * @return string
      */
-    public function use_sql($database);
+    public function useDatabaseSql($database);
 
     /**
      * Get SQL commands to create triggers
      * @param string
      * @return string
      */
-    public function trigger_sql($table);
+    public function createTriggerSql($table);
 
     /**
      * Get server variables
      * @return array ($name => $value)
      */
-    public function show_variables();
+    public function variables();
 
     /**
      * Get status variables
      * @return array ($name => $value)
      */
-    public function show_status();
+    public function statusVariables();
 
     /**
      * Get process list
      * @return array ($row)
      */
-    public function process_list();
+    public function processes();
 
     /**
      * Convert field in select and edit
      * @param array $field one element from $this->fields()
      * @return string
      */
-    public function convert_field(array $field);
+    public function convertField(array $field);
 
     /**
      * Convert value in edit after applying functions back
@@ -496,7 +488,7 @@ interface ServerInterface
      * @param string $return
      * @return string
      */
-    public function unconvert_field(array $field, $return);
+    public function unconvertField(array $field, $return);
 
     /**
      * Check whether a feature is supported
@@ -509,35 +501,35 @@ interface ServerInterface
      * Check if connection has at least the given version
      * @param string $version required version
      * @param string $maria_db required MariaDB version
-     * @param ConnectionInterface|null $connection2
+     * @param ConnectionInterface|null $connection
      * @return bool
      */
-    public function min_version($version, $maria_db = "", ConnectionInterface $connection2 = null);
+    public function minVersion($version, $maria_db = "", ConnectionInterface $connection = null);
 
     /**
      * Kill a process
      * @param int
      * @return bool
      */
-    // public function kill_process($val);
+    // public function killProcess($val);
 
     /**
      * Return query to get connection ID
      * @return string
      */
-    // public function connection_id();
+    // public function connectionId();
 
     /**
      * Get maximum number of connections
      * @return int
      */
-    // public function max_connections();
+    // public function maxConnections();
 
     /**
      * Get driver config
      * @return array
      */
-    public function driver_config();
+    public function driverConfig();
 
     /**
      * Get the server jush

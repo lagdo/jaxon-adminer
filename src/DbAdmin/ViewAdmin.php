@@ -26,7 +26,7 @@ class ViewAdmin extends AbstractAdmin
     protected function status(string $table)
     {
         if (!$this->viewStatus) {
-            $this->viewStatus = $this->db->table_status1($table, true);
+            $this->viewStatus = $this->db->tableStatusOrName($table, true);
         }
         return $this->viewStatus;
     }
@@ -68,7 +68,7 @@ class ViewAdmin extends AbstractAdmin
      */
     public function getViewInfo(string $table)
     {
-        $main_actions = [
+        $mainActions = [
             'edit-view' => $this->util->lang('Edit view'),
             'drop-view' => $this->util->lang('Drop view'),
         ];
@@ -92,7 +92,7 @@ class ViewAdmin extends AbstractAdmin
             $tabs['triggers'] = $this->util->lang('Triggers');
         }
 
-        return \compact('main_actions', 'title', 'comment', 'tabs');
+        return \compact('mainActions', 'title', 'comment', 'tabs');
     }
 
     /**
@@ -110,7 +110,7 @@ class ViewAdmin extends AbstractAdmin
             throw new Exception($this->util->error());
         }
 
-        $main_actions = $this->getViewLinks();
+        $mainActions = $this->getViewLinks();
 
         $tabs = [
             'fields' => $this->util->lang('Columns'),
@@ -154,7 +154,7 @@ class ViewAdmin extends AbstractAdmin
             $details[] = $detail;
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -173,7 +173,7 @@ class ViewAdmin extends AbstractAdmin
 
         // From table.inc.php
         $triggers = $this->db->triggers($table);
-        $main_actions = [
+        $mainActions = [
             $this->util->lang('Add trigger'),
         ];
 
@@ -198,7 +198,7 @@ class ViewAdmin extends AbstractAdmin
             ];
         }
 
-        return \compact('main_actions', 'headers', 'details');
+        return \compact('mainActions', 'headers', 'details');
     }
 
     /**
@@ -213,7 +213,7 @@ class ViewAdmin extends AbstractAdmin
         // From view.inc.php
         $orig_type = "VIEW";
         if ($this->db->jush() == "pgsql") {
-            $status = $this->db->table_status($view);
+            $status = $this->db->tableStatus($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
         $values = $this->db->view($view);
@@ -245,7 +245,7 @@ class ViewAdmin extends AbstractAdmin
 
         $sql = ($this->db->jush() == "mssql" ? "ALTER" : "CREATE OR REPLACE") .
             " $type " . $this->db->table($name) . " AS\n" . $values['select'];
-        $success = $this->util->query_redirect($sql, $location, $message);
+        $success = $this->util->queryAndRedirect($sql, $location, $message);
 
         $error = $this->util->error();
 
@@ -265,7 +265,7 @@ class ViewAdmin extends AbstractAdmin
         // From view.inc.php
         $orig_type = "VIEW";
         if ($this->db->jush() == "pgsql") {
-            $status = $this->db->table_status($view);
+            $status = $this->db->tableStatus($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
 
@@ -273,14 +273,14 @@ class ViewAdmin extends AbstractAdmin
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
         $message = $this->util->lang('View has been altered.');
         $type = $values["materialized"] ? "MATERIALIZED VIEW" : "VIEW";
-        $temp_name = $name . "_adminer_" . \uniqid();
+        $tempName = $name . "_adminer_" . \uniqid();
 
-        $this->util->drop_create(
+        $this->util->dropAndCreate(
             "DROP $orig_type " . $this->db->table($view),
             "CREATE $type " . $this->db->table($name) . " AS\n" . $values['select'],
             "DROP $type " . $this->db->table($name),
-            "CREATE $type " . $this->db->table($temp_name) . " AS\n" . $values['select'],
-            "DROP $type " . $this->db->table($temp_name),
+            "CREATE $type " . $this->db->table($tempName) . " AS\n" . $values['select'],
+            "DROP $type " . $this->db->table($tempName),
             $location,
             $this->util->lang('View has been dropped.'),
             $message,
@@ -306,14 +306,14 @@ class ViewAdmin extends AbstractAdmin
         // From view.inc.php
         $orig_type = "VIEW";
         if ($this->db->jush() == "pgsql") {
-            $status = $this->db->table_status($view);
+            $status = $this->db->tableStatus($view);
             $orig_type = \strtoupper($status["Engine"]);
         }
 
         $sql = "DROP $orig_type " . $this->db->table($view);
         $location = null; // $_POST["drop"] ? \substr(ME, 0, -1) : ME . "table=" . \urlencode($name);
         $message = $this->util->lang('View has been dropped.');
-        $success =$this->util->drop_only($sql, $location, $message);
+        $success =$this->util->drop($sql, $location, $message);
 
         $error = $this->util->error();
 

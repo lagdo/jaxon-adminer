@@ -24,7 +24,7 @@ class ImportAdmin extends CommandAdmin
         $gz = \extension_loaded('zlib') ? '[.gz]' : '';
         // ignore post_max_size because it is for all form fields
         // together and bytes computing would be necessary.
-        if ($this->util->ini_bool('file_uploads')) {
+        if ($this->util->iniBool('file_uploads')) {
             $contents['upload'] = "SQL$gz (&lt; " . \ini_get('upload_max_filesize') . 'B)';
         } else {
             $contents['upload_disabled'] = $this->util->lang('File uploads are disabled.');
@@ -51,7 +51,7 @@ class ImportAdmin extends CommandAdmin
 
     /**
      * Get file contents from $_FILES
-     * From the get_file() function in functions.inc.php
+     * From the getFile() function in functions.inc.php
      *
      * @param array $files
      * @param bool $decompress

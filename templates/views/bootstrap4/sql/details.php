@@ -3,8 +3,8 @@
     " . ($num_rows ? ($limit && $num_rows > $limit ?
                                     $this->trans->lang("%d / ", $limit) : "") . $this->trans->lang("%d row(s)", $num_rows) : "");
                                 echo $time;
-                                if($connection2 && \preg_match("~^($space|\\()*+SELECT\\b~i", $q) &&
-                                    ($explain = \adminer\explain($connection2, $q))) {
+                                if($connection && \preg_match("~^($space|\\()*+SELECT\\b~i", $q) &&
+                                    ($explain = \adminer\explain($connection, $q))) {
                                     echo ", <a href="#$explain_id">Explain</a>" .
                                         \adminer\script("qsl("a").onclick = partial(toggle, "$explain_id");", "");
                                 }

@@ -44,9 +44,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function current_db()
+    public function currentDatabase()
     {
-        return $this->server->current_db();
+        return $this->server->currentDatabase();
     }
 
     /**
@@ -54,9 +54,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function current_schema()
+    public function currentSchema()
     {
-        return $this->server->current_schema();
+        return $this->server->currentSchema();
     }
 
     /**
@@ -64,9 +64,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function primary()
+    public function primaryIdName()
     {
-        return $this->server->primary();
+        return $this->server->primaryIdName();
     }
 
     /**
@@ -76,9 +76,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function idf_escape($idf)
+    public function escapeId($idf)
     {
-        return $this->server->idf_escape($idf);
+        return $this->server->escapeId($idf);
     }
 
     /**
@@ -86,9 +86,9 @@ trait ServerTrait
      * @param string $idf
      * @return string
      */
-    public function idf_unescape($idf)
+    public function unescapeId($idf)
     {
-        return $this->server->idf_unescape($idf);
+        return $this->server->unescapeId($idf);
     }
 
     /**
@@ -98,7 +98,7 @@ trait ServerTrait
      */
     public function quote($string)
     {
-        return $this->server->q($string);
+        return $this->server->quote($string);
     }
 
     /**
@@ -132,7 +132,7 @@ trait ServerTrait
      */
     public function databases($flush)
     {
-        return $this->server->get_databases($flush);
+        return $this->server->databases($flush);
     }
 
     /**
@@ -157,9 +157,9 @@ trait ServerTrait
      * @param string
      * @return string
      */
-    public function limit1($table, $query, $where, $separator = "\n")
+    public function limitToOne($table, $query, $where, $separator = "\n")
     {
-        return $this->server->limit1($table, $query, $where, $separator);
+        return $this->server->limitToOne($table, $query, $where, $separator);
     }
 
     /**
@@ -168,9 +168,9 @@ trait ServerTrait
      * @param array result of collations()
      * @return string
      */
-    public function db_collation($db, $collations)
+    public function databaseCollation($db, $collations)
     {
-        return $this->server->db_collation($db, $collations);
+        return $this->server->databaseCollation($db, $collations);
     }
 
     /**
@@ -186,31 +186,31 @@ trait ServerTrait
      * Get logged user
      * @return string
      */
-    public function logged_user()
+    public function loggedUser()
     {
-        return $this->server->logged_user();
+        return $this->server->loggedUser();
     }
 
     /**
      * Format foreign key to use in SQL query
      *
      * @param array ("db" => string, "ns" => string, "table" => string, "source" => array, "target" => array,
-     * "on_delete" => one of $this->on_actions, "on_update" => one of $this->on_actions)
+     * "on_delete" => one of $this->onActions, "on_update" => one of $this->onActions)
      *
      * @return string
      */
-    public function format_foreign_key($foreign_key)
+    public function formatForeignKey($foreignKey)
     {
-        return $this->server->format_foreign_key($foreign_key);
+        return $this->server->formatForeignKey($foreignKey);
     }
 
     /**
      * Get tables list
      * @return array array($name => $type)
      */
-    public function tables_list()
+    public function tables()
     {
-        return $this->server->tables_list();
+        return $this->server->tables();
     }
 
     /**
@@ -218,9 +218,9 @@ trait ServerTrait
      * @param array
      * @return array array($db => $tables)
      */
-    public function count_tables($databases)
+    public function countTables($databases)
     {
-        return $this->server->count_tables($databases);
+        return $this->server->countTables($databases);
     }
 
     /**
@@ -229,9 +229,9 @@ trait ServerTrait
      * @param bool return only "Name", "Engine" and "Comment" fields
      * @return array array($name => array("Name" => , "Engine" => , "Comment" => , "Oid" => , "Rows" => , "Collation" => , "Auto_increment" => , "Data_length" => , "Index_length" => , "Data_free" => )) or only inner array with $name
      */
-    public function table_status($name = "", $fast = false)
+    public function tableStatus($name = "", $fast = false)
     {
-        return $this->server->table_status($name, $fast);
+        return $this->server->tableStatus($name, $fast);
     }
 
     /**
@@ -240,9 +240,9 @@ trait ServerTrait
      * @param bool
      * @return array
      */
-    public function table_status1($table, $fast = false)
+    public function tableStatusOrName($table, $fast = false)
     {
-        return $this->server->table_status1($table, $fast);
+        return $this->server->tableStatusOrName($table, $fast);
     }
 
     /**
@@ -250,9 +250,9 @@ trait ServerTrait
      * @param array
      * @return bool
      */
-    public function is_view($table_status)
+    public function isView($tableStatus)
     {
-        return $this->server->is_view($table_status);
+        return $this->server->isView($tableStatus);
     }
 
     /**
@@ -260,9 +260,9 @@ trait ServerTrait
      * @param array result of table_status
      * @return bool
      */
-    public function fk_support($table_status)
+    public function supportForeignKeys($tableStatus)
     {
-        return $this->server->fk_support($table_status);
+        return $this->server->supportForeignKeys($tableStatus);
     }
 
     /**
@@ -281,9 +281,9 @@ trait ServerTrait
      * @param string ConnectionInterface to use
      * @return array array($key_name => array("type" => , "columns" => [], "lengths" => [], "descs" => []))
      */
-    public function indexes($table, $connection2 = null)
+    public function indexes($table, $connection = null)
     {
-        return $this->server->indexes($table, $connection2);
+        return $this->server->indexes($table, $connection);
     }
 
     /**
@@ -291,9 +291,9 @@ trait ServerTrait
      * @param string
      * @return array array($name => array("db" => , "ns" => , "table" => , "source" => [], "target" => [], "on_delete" => , "on_update" => ))
      */
-    public function foreign_keys($table)
+    public function foreignKeys($table)
     {
-        return $this->server->foreign_keys($table);
+        return $this->server->foreignKeys($table);
     }
 
     /**
@@ -320,9 +320,9 @@ trait ServerTrait
      * @param string
      * @return bool
      */
-    public function information_schema($db)
+    public function isInformationSchema($db)
     {
-        return $this->server->information_schema($db);
+        return $this->server->isInformationSchema($db);
     }
 
     /**
@@ -331,9 +331,9 @@ trait ServerTrait
      * @param string
      * @return string|boolean
      */
-    public function create_database($db, $collation)
+    public function createDatabase($db, $collation)
     {
-        return $this->server->create_database($db, $collation) ;
+        return $this->server->createDatabase($db, $collation) ;
     }
 
     /**
@@ -341,9 +341,9 @@ trait ServerTrait
      * @param array
      * @return bool
      */
-    public function drop_databases($databases)
+    public function dropDatabases($databases)
     {
-        return $this->server->drop_databases($databases);
+        return $this->server->dropDatabases($databases);
     }
 
     /**
@@ -352,27 +352,27 @@ trait ServerTrait
      * @param string
      * @return bool
      */
-    public function rename_database($name, $collation)
+    public function renameDatabase($name, $collation)
     {
-        return $this->server->rename_database($name, $collation);
+        return $this->server->renameDatabase($name, $collation);
     }
 
     /**
      * Generate modifier for auto increment column
      * @return string
      */
-    public function auto_increment()
+    public function autoIncrement()
     {
-        return $this->server->auto_increment();
+        return $this->server->autoIncrement();
     }
 
     /**
      * Get last auto increment ID
      * @return string
      */
-    public function last_id()
+    public function lastAutoIncrementId()
     {
-        return $this->server->last_id();
+        return $this->server->lastAutoIncrementId();
     }
 
     /**
@@ -388,9 +388,9 @@ trait ServerTrait
      * @param string
      * @return bool
      */
-    public function alter_table($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning)
+    public function alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning)
     {
-        return $this->server->alter_table($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning);
+        return $this->server->alterTable($table, $name, $fields, $foreign, $comment, $engine, $collation, $auto_increment, $partitioning);
     }
 
     /**
@@ -399,9 +399,9 @@ trait ServerTrait
      * @param array of array("index type", "name", array("column definition", ...)) or array("index type", "name", "DROP")
      * @return bool
      */
-    public function alter_indexes($table, $alter)
+    public function alterIndexes($table, $alter)
     {
-        return $this->server->alter_indexes($table, $alter);
+        return $this->server->alterIndexes($table, $alter);
     }
 
     /**
@@ -409,9 +409,9 @@ trait ServerTrait
      * @param array
      * @return bool
      */
-    public function drop_views($views)
+    public function dropViews($views)
     {
-        return $this->server->drop_views($views);
+        return $this->server->dropViews($views);
     }
 
     /**
@@ -419,9 +419,9 @@ trait ServerTrait
      * @param array
      * @return bool
      */
-    public function truncate_tables($tables)
+    public function truncateTables($tables)
     {
-        return $this->server->truncate_tables($tables);
+        return $this->server->truncateTables($tables);
     }
 
     /**
@@ -429,9 +429,9 @@ trait ServerTrait
      * @param array
      * @return bool
      */
-    public function drop_tables($tables)
+    public function dropTables($tables)
     {
-        return $this->server->drop_tables($tables);
+        return $this->server->dropTables($tables);
     }
 
     /**
@@ -441,9 +441,9 @@ trait ServerTrait
      * @param string
      * @return bool
      */
-    public function move_tables($tables, $views, $target)
+    public function moveTables($tables, $views, $target)
     {
-        return $this->server->move_tables($tables, $views, $target);
+        return $this->server->moveTables($tables, $views, $target);
     }
 
     /**
@@ -453,9 +453,9 @@ trait ServerTrait
      * @param string
      * @return bool
      */
-    public function copy_tables($tables, $views, $target)
+    public function copyTables($tables, $views, $target)
     {
-        return $this->server->copy_tables($tables, $views, $target);
+        return $this->server->copyTables($tables, $views, $target);
     }
 
     /**
@@ -482,9 +482,9 @@ trait ServerTrait
      * Get trigger options
      * @return array ("Timing" => [], "Event" => [], "Type" => [])
      */
-    public function trigger_options()
+    public function triggerOptions()
     {
-        return $this->server->trigger_options();
+        return $this->server->triggerOptions();
     }
 
     /**
@@ -511,9 +511,9 @@ trait ServerTrait
      * Get list of available routine languages
      * @return array
      */
-    public function routine_languages()
+    public function routineLanguages()
     {
-        return $this->server->routine_languages() ;
+        return $this->server->routineLanguages() ;
     }
 
     /**
@@ -522,9 +522,9 @@ trait ServerTrait
      * @param array result of routine()
      * @return string
      */
-    public function routine_id($name, $row)
+    public function routineId($name, $row)
     {
-        return $this->server->routine_id($name, $row);
+        return $this->server->routineId($name, $row);
     }
 
     /**
@@ -539,23 +539,12 @@ trait ServerTrait
     }
 
     /**
-     * Get approximate number of rows
-     * @param array
-     * @param array
-     * @return int or null if approximate number can't be retrieved
-     */
-    public function found_rows($table_status, $where)
-    {
-        return $this->server->found_rows($table_status, $where);
-    }
-
-    /**
      * Get user defined types
      * @return array
      */
-    public function user_types()
+    public function userTypes()
     {
-        return $this->server->user_types() ;
+        return $this->server->userTypes() ;
     }
 
     /**
@@ -571,9 +560,9 @@ trait ServerTrait
      * Get current schema
      * @return string
      */
-    public function get_schema()
+    public function schema()
     {
-        return $this->server->get_schema();
+        return $this->server->schema();
     }
 
     /**
@@ -582,9 +571,9 @@ trait ServerTrait
      * @param ConnectionInterface
      * @return bool
      */
-    public function set_schema($schema, $connection2 = null)
+    public function selectSchema($schema, $connection = null)
     {
-        return $this->server->set_schema($schema, $connection2 = null);
+        return $this->server->selectSchema($schema, $connection = null);
     }
 
     /**
@@ -594,16 +583,16 @@ trait ServerTrait
      * @param string
      * @return string
      */
-    public function create_sql($table, $auto_increment, $style)
+    public function createTableSql($table, $auto_increment, $style)
     {
-        return $this->server->create_sql($table, $auto_increment, $style);
+        return $this->server->createTableSql($table, $auto_increment, $style);
     }
 
     /**
      * Get SQL command to create foreign keys
      *
-     * create_sql() produces CREATE TABLE without FK CONSTRAINTs
-     * foreign_keys_sql() produces all FK CONSTRAINTs as ALTER TABLE ... ADD CONSTRAINT
+     * createTableSql() produces CREATE TABLE without FK CONSTRAINTs
+     * foreignKeysSql() produces all FK CONSTRAINTs as ALTER TABLE ... ADD CONSTRAINT
      * so that all FKs can be added after all tables have been created, avoiding any need
      * to reorder CREATE TABLE statements in order of their FK dependencies
      *
@@ -611,9 +600,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function foreign_keys_sql($table)
+    public function foreignKeysSql($table)
     {
-        return $this->server->foreign_keys_sql($table);
+        return $this->server->foreignKeysSql($table);
     }
 
     /**
@@ -621,9 +610,9 @@ trait ServerTrait
      * @param string
      * @return string
      */
-    public function truncate_sql($table)
+    public function truncateTableSql($table)
     {
-        return $this->server->truncate_sql($table);
+        return $this->server->truncateTableSql($table);
     }
 
     /**
@@ -631,9 +620,9 @@ trait ServerTrait
      * @param string
      * @return string
      */
-    public function use_sql($database)
+    public function useDatabaseSql($database)
     {
-        return $this->server->use_sql($database);
+        return $this->server->useDatabaseSql($database);
     }
 
     /**
@@ -641,36 +630,36 @@ trait ServerTrait
      * @param string
      * @return string
      */
-    public function trigger_sql($table)
+    public function createTriggerSql($table)
     {
-        return $this->server->trigger_sql($table);
+        return $this->server->createTriggerSql($table);
     }
 
     /**
      * Get server variables
      * @return array ($name => $value)
      */
-    public function show_variables()
+    public function variables()
     {
-        return $this->server->show_variables();
+        return $this->server->variables();
     }
 
     /**
      * Get status variables
      * @return array ($name => $value)
      */
-    public function show_status()
+    public function statusVariables()
     {
-        return $this->server->show_status();
+        return $this->server->statusVariables();
     }
 
     /**
      * Get process list
      * @return array ($row)
      */
-    public function process_list()
+    public function processes()
     {
-        return $this->server->process_list();
+        return $this->server->processes();
     }
 
     /**
@@ -678,9 +667,9 @@ trait ServerTrait
      * @param array $field one element from $this->fields()
      * @return string
      */
-    public function convert_field(array $field)
+    public function convertField(array $field)
     {
-        return $this->server->convert_field($field);
+        return $this->server->convertField($field);
     }
 
     /**
@@ -689,9 +678,9 @@ trait ServerTrait
      * @param string $return
      * @return string
      */
-    public function unconvert_field(array $field, $return)
+    public function unconvertField(array $field, $return)
     {
-        return $this->server->unconvert_field($field, $return);
+        return $this->server->unconvertField($field, $return);
     }
 
     /**
@@ -708,12 +697,12 @@ trait ServerTrait
      * Check if connection has at least the given version
      * @param string $version required version
      * @param string $maria_db required MariaDB version
-     * @param ConnectionInterface|null $connection2
+     * @param ConnectionInterface|null $connection
      * @return bool
      */
-    public function min_version($version, $maria_db = "", ConnectionInterface $connection2 = null)
+    public function minVersion($version, $maria_db = "", ConnectionInterface $connection = null)
     {
-        return $this->server->min_version($version, $maria_db, $connection2);
+        return $this->server->minVersion($version, $maria_db, $connection);
     }
 
     /**
@@ -721,41 +710,37 @@ trait ServerTrait
      * @param int
      * @return bool
      */
-    // public function kill_process($val)
+    // public function killProcess($val)
     // {
-    //     return $this->server->kill_process($val);
+    //     return $this->server->killProcess($val);
     // }
 
     /**
      * Return query to get connection ID
      * @return string
      */
-    // public function connection_id()
+    // public function connectionId()
     // {
-    //     return $this->server->connection_id();
+    //     return $this->server->connectionId();
     // }
 
     /**
      * Get maximum number of connections
      * @return int
      */
-    // public function max_connections()
+    // public function maxConnections()
     // {
-    //     return $this->server->max_connections();
+    //     return $this->server->maxConnections();
     // }
 
     /**
      * Get driver config
-     * @return array array('possible_drivers' => , 'jush' => , 'types' => , 'structured_types' => , 'unsigned' => , 'operators' => , 'functions' => , 'grouping' => , 'edit_functions' => )
+     * @return array array('possibleDrivers' => , 'jush' => , 'types' => , 'structuredTypes' => , 'unsigned' => , 'operators' => , 'functions' => , 'grouping' => , 'editFunctions' => )
      */
-    public function driver_config()
+    public function driverConfig()
     {
-        return $this->server->driver_config();
+        return $this->server->driverConfig();
     }
-
-
-
-
 
     /**
      * Get the server jush
@@ -803,7 +788,7 @@ trait ServerTrait
      */
     public function editFunctions()
     {
-        return $this->server->edit_functions;
+        return $this->server->editFunctions;
     }
 
     /**
@@ -839,7 +824,7 @@ trait ServerTrait
      */
     public function structuredTypes()
     {
-        return $this->server->structured_types;
+        return $this->server->structuredTypes;
     }
 
     /**
@@ -850,7 +835,7 @@ trait ServerTrait
      */
     public function setStructuredType(string $key, $value)
     {
-        $this->server->structured_types[$key] = $value;
+        $this->server->structuredTypes[$key] = $value;
     }
 
     /**
@@ -858,6 +843,6 @@ trait ServerTrait
      */
     public function onActions()
     {
-        return \explode('|', $this->server->on_actions);
+        return \explode('|', $this->server->onActions);
     }
 }

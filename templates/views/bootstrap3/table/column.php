@@ -91,7 +91,7 @@
                     if($this->field['null']): ?>checked <?php endif ?>/> Null
             </label>
             <div class="col-md-2 adminer-table-column-middle second-line">
-<?php if(true/*$this->foreign_keys*/): ?>
+<?php if(true/*$this->foreignKeys*/): ?>
                 <select class="form-control" name="<?php
                     echo $this->prefixFields ?>[on_delete]" data-field="on_delete"<?php
                     if($this->field['_on_delete_hidden_']): ?> readonly<?php endif ?>>
