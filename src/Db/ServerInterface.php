@@ -34,14 +34,14 @@ interface ServerInterface
      *
      * @return string
      */
-    public function currentDatabase();
+    public function selectedDatabase();
 
     /**
      * Select the database and schema
      *
      * @return string
      */
-    public function currentSchema();
+    public function selectedSchema();
 
     /**
      * Get the name of the primary id field

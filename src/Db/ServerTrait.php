@@ -44,9 +44,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function currentDatabase()
+    public function selectedDatabase()
     {
-        return $this->server->currentDatabase();
+        return $this->server->selectedDatabase();
     }
 
     /**
@@ -54,9 +54,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function currentSchema()
+    public function selectedSchema()
     {
-        return $this->server->currentSchema();
+        return $this->server->selectedSchema();
     }
 
     /**

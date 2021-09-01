@@ -254,7 +254,7 @@ class DatabaseAdmin extends AbstractAdmin
         if ($this->db->support("sequence")) {
             // From db.inc.php
             $sequences = $this->db->values("SELECT sequence_name FROM information_schema.sequences ".
-                "WHERE sequence_schema = currentSchema() ORDER BY sequence_name");
+                "WHERE sequence_schema = selectedSchema() ORDER BY sequence_name");
         }
         $details = [];
         foreach ($sequences as $sequence) {
