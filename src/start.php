@@ -8,8 +8,8 @@ $di->set(Lagdo\Adminer\Translator::class, function() {
 
 // Register the db classes in the dependency container
 $di->set(Lagdo\Adminer\Db\Db::class, function($di) {
-    $server = $di->get('adminer_config_server'); // The selected server.
     $package = $di->get(Lagdo\Adminer\Package::class);
+    $server = $di->get('adminer_config_server'); // The selected server.
     return new Lagdo\Adminer\Db\Db($package->getServerOptions($server));
 });
 $di->auto(Lagdo\Adminer\Db\Util::class);
@@ -22,6 +22,7 @@ $di->alias(Lagdo\DbAdmin\Driver\UtilInterface::class, Lagdo\Adminer\Db\Util::cla
 $di->set(Lagdo\DbAdmin\Driver\Db\ServerInterface::class, function($di) {
     $package = $di->get(Lagdo\Adminer\Package::class);
     $server = $di->get('adminer_config_server'); // The selected server.
+    // The above key is defined by the coresponding plugin package.
     return $di->get('adminer_server_' . $package->getServerDriver($server));
 });
 $di->set(Lagdo\DbAdmin\Driver\Db\DriverInterface::class, function($di) {
