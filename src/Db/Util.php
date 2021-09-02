@@ -73,7 +73,7 @@ class Util implements UtilInterface
     /**
      * @inheritDoc
      */
-    public function h($string)
+    public function html($string)
     {
         return \str_replace("\0", "&#0;", \htmlspecialchars($string, ENT_QUOTES, 'utf-8'));
     }
@@ -102,7 +102,7 @@ class Util implements UtilInterface
      */
     public function error()
     {
-        return $this->h($this->db->error());
+        return $this->html($this->db->error());
     }
 
     /**
@@ -294,7 +294,7 @@ class Util implements UtilInterface
             // ~s causes trash in $match[2] under some PHP versions, (.|\n) is slow
             preg_match("(^(" . $this->repeatPattern("[\t\r\n -~]", $length) . ")($)?)", $string, $match);
         }
-        return $this->h($match[1]) . $suffix . (isset($match[2]) ? "" : "<i>…</i>");
+        return $this->html($match[1]) . $suffix . (isset($match[2]) ? "" : "<i>…</i>");
     }
 
     /**
@@ -339,7 +339,7 @@ class Util implements UtilInterface
      */
     public function tableName($tableStatus)
     {
-        return $this->h($tableStatus["Name"]);
+        return $this->html($tableStatus["Name"]);
     }
 
     /**
@@ -350,7 +350,7 @@ class Util implements UtilInterface
      */
     public function fieldName($field, $order = 0)
     {
-        return '<span title="' . $this->h($field["full_type"]) . '">' . $this->h($field["field"]) . '</span>';
+        return '<span title="' . $this->html($field["full_type"]) . '">' . $this->html($field["field"]) . '</span>';
     }
 
     /**
@@ -487,7 +487,7 @@ class Util implements UtilInterface
         if (preg_match('~json~', $type)) {
             $return = "<code class='jush-js'>$return</code>";
         }
-        return ($link ? "<a href='" . $this->h($link) . "'" .
+        return ($link ? "<a href='" . $this->html($link) . "'" .
             ($this->isUrl($link) ? $this->blankTarget() : "") . ">$return</a>" : $return);
     }
 
@@ -530,7 +530,8 @@ class Util implements UtilInterface
     //     foreach ($matches[1] as $i => $val) {
     //         $val = stripcslashes(str_replace("''", "'", $val));
     //         $checked = (is_int($value) ? $value == $i+1 : (is_array($value) ? in_array($i+1, $value) : $value === $val));
-    //         $return .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" . ($checked ? ' checked' : '') . '>' . h($adminer->editValue($val, $field)) . '</label>';
+    //         $return .= " <label><input type='$type'$attrs value='" . ($i+1) . "'" .
+    //             ($checked ? ' checked' : '') . '>' . $this->util->html($adminer->editValue($val, $field)) . '</label>';
     //     }
     //     return $return;
     // }
@@ -572,7 +573,7 @@ class Util implements UtilInterface
             $checked = (\is_int($value) ? $value == $i + 1 :
                 (\is_array($value) ? \in_array($i+1, $value) : $value === $val));
             $return[] = "<label><input type='$type'$attrs value='" . ($i+1) . "'" .
-                ($checked ? ' checked' : '') . '>' . $this->h($this->editValue($val, $field)) . '</label>';
+                ($checked ? ' checked' : '') . '>' . $this->html($this->editValue($val, $field)) . '</label>';
         }
 
         return $return;
@@ -926,7 +927,7 @@ class Util implements UtilInterface
         if (is_array($val)) {
             $return = "";
             foreach ($val as $k => $v) {
-                $return .= "<tr>" . ($val != array_values($val) ? "<th>" . h($k) : "") . "<td>" .
+                $return .= "<tr>" . ($val != array_values($val) ? "<th>" . $this->html($k) : "") . "<td>" .
                     $this->selectValue($v, $link, $field, $textLength);
             }
             return "<table cellspacing='0'>$return</table>";
@@ -951,7 +952,7 @@ class Util implements UtilInterface
                 // expected average speedup: .001 s VS .01 s on local network
                 $return = $this->shortenUtf8($return, max(0, +$textLength));
             } else {
-                $return = $this->h($return);
+                $return = $this->html($return);
             }
         }
         return $this->_selectValue($return, $link, $field, $val);

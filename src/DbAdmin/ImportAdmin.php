@@ -32,7 +32,7 @@ class ImportAdmin extends CommandAdmin
 
         $importServerPath = $this->util->importServerPath();
         if (($importServerPath)) {
-            $contents['path'] = $this->util->h($importServerPath) . $gz;
+            $contents['path'] = $this->util->html($importServerPath) . $gz;
         }
 
         $labels = [

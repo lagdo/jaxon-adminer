@@ -39,7 +39,7 @@ class TableSelectAdmin extends AbstractAdmin
     {
         $fulltexts = [];
         foreach ($indexes as $i => $index) {
-            $fulltexts[$i] = $index["type"] == "FULLTEXT" ? h($options["fulltext"][$i]) : '';
+            $fulltexts[$i] = $index["type"] == "FULLTEXT" ? $this->util->html($options["fulltext"][$i]) : '';
         }
         return [
             // 'where' => $where,
@@ -83,7 +83,7 @@ class TableSelectAdmin extends AbstractAdmin
      */
     private function getLimitOptions(string $limit)
     {
-        return ['value' => $this->util->h($limit)];
+        return ['value' => $this->util->html($limit)];
     }
 
     /**
@@ -94,7 +94,7 @@ class TableSelectAdmin extends AbstractAdmin
     private function getLengthOptions($textLength)
     {
         return [
-            'value' => $textLength === null ? 0 : $this->util->h($textLength),
+            'value' => $textLength === null ? 0 : $this->util->html($textLength),
         ];
     }
 
@@ -351,7 +351,7 @@ class TableSelectAdmin extends AbstractAdmin
     {
         list($tableName, $select, $group, $fields, $foreignKeys, $columns, $indexes, $where, $order,
             $limit, $page, $textLength, $options, $query) = $this->prepareSelect($table, $queryOptions);
-        $query = $this->util->h($query);
+        $query = $this->util->html($query);
 
         $mainActions = [
             'select-exec' => $this->util->lang('Execute'),
@@ -420,7 +420,7 @@ class TableSelectAdmin extends AbstractAdmin
                     // $href = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($key);
                     // $desc = "&desc%5B0%5D=1";
                     $header['column'] = $column;
-                    $header['key'] = $this->util->h($this->util->bracketEscape($key));
+                    $header['key'] = $this->util->html($this->util->bracketEscape($key));
                     $header['sql'] = $this->db->applySqlFunction($fun, $name); //! columns looking like functions
                 }
                 $functions[$key] = $fun;

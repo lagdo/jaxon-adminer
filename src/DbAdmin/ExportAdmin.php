@@ -485,7 +485,7 @@ class ExportAdmin extends AbstractAdmin
         if ($this->options['is_sql']) {
             $headers = [
                 'version' => $this->db->version(),
-                'driver' => $this->db->getName(),
+                'driver' => $this->db->name(),
                 'server' => \str_replace("\n", " ", $this->db->serverInfo()),
                 'sql' => false,
                 'data_style' => false,

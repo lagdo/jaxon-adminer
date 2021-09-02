@@ -90,7 +90,7 @@ class CommandAdmin extends AbstractAdmin
                     //! link to download
                     $val = "<i>" . $this->util->lang('%d byte(s)', \strlen($val)) . "</i>";
                 } else {
-                    $val = $this->util->h($val);
+                    $val = $this->util->html($val);
                     if (isset($types[$key]) && $types[$key] == 254) { // 254 - char
                         $val = "<code>$val</code>";
                     }
@@ -141,7 +141,7 @@ class CommandAdmin extends AbstractAdmin
                 $blobs[$j] = true;
             }
             $types[$j] = $field->type ?? ''; // Some drivers don't set the type field.
-            $headers[] = $this->util->h($name);
+            $headers[] = $this->util->html($name);
         }
 
         return \compact('tables', 'headers', 'details', 'message');
@@ -287,7 +287,7 @@ class CommandAdmin extends AbstractAdmin
                             }
                         } else {
                             if (!$onlyErrors) {
-                                // $title = $this->util->h($this->db->info());
+                                // $title = $this->util->html($this->db->info());
                                 $messages[] = $this->util->lang('Query executed OK, %d row(s) affected.', $affected); //  . "$time";
                             }
                         }

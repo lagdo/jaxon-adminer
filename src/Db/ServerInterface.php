@@ -9,7 +9,7 @@ interface ServerInterface
      *
      * @return string
      */
-    public function getName();
+    public function name();
 
     /**
      * Connect to the database server

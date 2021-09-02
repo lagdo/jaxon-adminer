@@ -9,9 +9,9 @@ trait ServerTrait
      *
      * @return string
      */
-    public function getName()
+    public function name()
     {
-        return $this->server->getName();
+        return $this->server->name();
     }
 
     /**
@@ -23,7 +23,7 @@ trait ServerTrait
     public function createConnection()
     {
         // Returns the existing connection. A new connection is not created. Todo?
-        return $this->server->getConnection();
+        return $this->server->connection();
     }
 
     /**

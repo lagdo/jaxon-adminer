@@ -77,7 +77,7 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         $status = $this->status($table);
         $name = $this->util->tableName($status);
-        $title = $this->util->lang('Table') . ': ' . ($name != '' ? $name : $this->util->h($table));
+        $title = $this->util->lang('Table') . ': ' . ($name != '' ? $name : $this->util->html($table));
 
         $comment = $status['Comment'] ?? '';
 
@@ -151,7 +151,7 @@ class TableAdmin extends AbstractAdmin
 
         $details = [];
         foreach ($fields as $field) {
-            $type = $this->util->h($field['full_type']);
+            $type = $this->util->html($field['full_type']);
             if ($field['null']) {
                 $type .= ' <i>nullable</i>'; // ' <i>NULL</i>';
             }
@@ -159,15 +159,15 @@ class TableAdmin extends AbstractAdmin
                 $type .= ' <i>' . $this->util->lang('Auto Increment') . '</i>';
             }
             if (\array_key_exists('default', $field)) {
-                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->h($field['default']) . '</b>]';
+                $type .= /*' ' . $this->util->lang('Default value') .*/ ' [<b>' . $this->util->html($field['default']) . '</b>]';
             }
             $detail = [
-                'name' => $this->util->h($field['field'] ?? ''),
+                'name' => $this->util->html($field['field'] ?? ''),
                 'type' => $type,
-                'collation' => $this->util->h($field['collation'] ?? ''),
+                'collation' => $this->util->html($field['collation'] ?? ''),
             ];
             if ($hasComment) {
-                $detail['comment'] = $this->util->h($field['comment'] ?? '');
+                $detail['comment'] = $this->util->html($field['comment'] ?? '');
             }
 
             $details[] = $detail;
@@ -210,7 +210,7 @@ class TableAdmin extends AbstractAdmin
             \ksort($index['columns']); // enforce correct columns order
             $print = [];
             foreach ($index['columns'] as $key => $val) {
-                $value = '<i>' . $this->util->h($val) . '</i>';
+                $value = '<i>' . $this->util->html($val) . '</i>';
                 if (\array_key_exists('lengths', $index) &&
                     \is_array($index['lengths']) &&
                     \array_key_exists($key, $index['lengths'])) {
@@ -224,7 +224,7 @@ class TableAdmin extends AbstractAdmin
                 $print[] = $value;
             }
             $details[] = [
-                'name' => $this->util->h($name),
+                'name' => $this->util->html($name),
                 'type' => $index['type'],
                 'desc' => \implode(', ', $print),
             ];
@@ -269,26 +269,26 @@ class TableAdmin extends AbstractAdmin
         foreach ($foreignKeys as $name => $foreignKey) {
             $target = '';
             if (\array_key_exists('db', $foreignKey) && $foreignKey['db'] != '') {
-                $target .= '<b>' . $this->util->h($foreignKey['db']) . '</b>.';
+                $target .= '<b>' . $this->util->html($foreignKey['db']) . '</b>.';
             }
             if (\array_key_exists('ns', $foreignKey) && $foreignKey['ns'] != '') {
-                $target .= '<b>' . $this->util->h($foreignKey['ns']) . '</b>.';
+                $target .= '<b>' . $this->util->html($foreignKey['ns']) . '</b>.';
             }
-            $target = $this->util->h($foreignKey['table']) .
+            $target = $this->util->html($foreignKey['table']) .
                 '(' . \implode(', ', \array_map(function ($key) {
-                    return $this->util->h($key);
+                    return $this->util->html($key);
                 }, $foreignKey['target'])) . ')';
             $details[] = [
-                'name' => $this->util->h($name),
+                'name' => $this->util->html($name),
                 'source' => '<i>' . \implode(
                     '</i>, <i>',
                     \array_map(function ($key) {
-                        return $this->util->h($key);
+                        return $this->util->html($key);
                     }, $foreignKey['source'])
                 ) . '</i>',
                 'target' => $target,
-                'on_delete' => $this->util->h($foreignKey['on_delete']),
-                'on_update' => $this->util->h($foreignKey['on_update']),
+                'on_delete' => $this->util->html($foreignKey['on_delete']),
+                'on_update' => $this->util->html($foreignKey['on_update']),
             ];
         }
 
@@ -329,9 +329,9 @@ class TableAdmin extends AbstractAdmin
         // From table.inc.php
         foreach ($triggers as $key => $val) {
             $details[] = [
-                $this->util->h($val[0]),
-                $this->util->h($val[1]),
-                $this->util->h($key),
+                $this->util->html($val[0]),
+                $this->util->html($val[1]),
+                $this->util->html($key),
                 $this->util->lang('Alter'),
             ];
         }

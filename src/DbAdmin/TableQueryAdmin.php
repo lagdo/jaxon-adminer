@@ -16,9 +16,9 @@ class TableQueryAdmin extends AbstractAdmin
     {
         $save = $options["save"];
         // From functions.inc.php (function input($field, $value, $function))
-        $name = $this->util->h($this->util->bracketEscape($field["field"]));
+        $name = $this->util->html($this->util->bracketEscape($field["field"]));
         $entry = [
-            'type' => $this->util->h($field["full_type"]),
+            'type' => $this->util->html($field["full_type"]),
             'name' => $name,
             'field' => [
                 'type' => $field['type'],
@@ -45,7 +45,7 @@ class TableQueryAdmin extends AbstractAdmin
         if ($field["type"] == "enum") {
             $entry['functions'] = [
                 'type' => 'name',
-                'name' => $this->util->h($functions[""] ?? ''),
+                'name' => $this->util->html($functions[""] ?? ''),
             ];
         } elseif (\count($functions) > 1) {
             $entry['functions'] = [
@@ -57,7 +57,7 @@ class TableQueryAdmin extends AbstractAdmin
         } else {
             $entry['functions'] = [
                 'type' => 'name',
-                'name' => $this->util->h(\reset($functions)),
+                'name' => $this->util->html(\reset($functions)),
             ];
         }
 
@@ -81,7 +81,7 @@ class TableQueryAdmin extends AbstractAdmin
                 $val = \stripcslashes(\str_replace("''", "'", $val));
                 $checked = (\is_int($value) ? ($value >> $i) & 1 : \in_array($val, \explode(",", $value), true));
                 $entry['input']['value'][] = "<label><input type='checkbox' name='fields[$name][$i]' value='" . (1 << $i) . "'" .
-                    ($checked ? ' checked' : '') . ">" . $this->util->h($this->util->editValue($val, $field)) . '</label>';
+                    ($checked ? ' checked' : '') . ">" . $this->util->html($this->util->editValue($val, $field)) . '</label>';
             }
         } elseif (\preg_match('~blob|bytea|raw|file~', $field["type"]) && $this->util->iniBool("file_uploads")) {
             $entry['input']['value'] = "<input type='file' name='fields-$name'>";
@@ -92,9 +92,9 @@ class TableQueryAdmin extends AbstractAdmin
                 $rows = \min(12, \substr_count($value, "\n") + 1);
                 $attrs .= " cols='30' rows='$rows'" . ($rows == 1 ? " style='height: 1.2em;'" : ""); // 1.2em - line-height
             }
-            $entry['input']['value'] = "<textarea$attrs>" . $this->util->h($value) . '</textarea>';
+            $entry['input']['value'] = "<textarea$attrs>" . $this->util->html($value) . '</textarea>';
         } elseif ($function == "json" || \preg_match('~^jsonb?$~', $field["type"])) {
-            $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" . $this->util->h($value) . '</textarea>';
+            $entry['input']['value'] = "<textarea$attrs cols='50' rows='12' class='jush-js'>" . $this->util->html($value) . '</textarea>';
         } else {
             $unsigned = $field["unsigned"] ?? false;
             // int(3) is only a display hint
@@ -111,7 +111,7 @@ class TableQueryAdmin extends AbstractAdmin
             $entry['input']['value'] = "<input" . ((!$has_function || $function === "") &&
                 \preg_match('~(?<!o)int(?!er)~', $field["type"]) &&
                 !\preg_match('~\[\]~', $field["full_type"]) ? " type='number'" : "") . " value='" .
-                $this->util->h($value) . "'" . ($maxlength ? " data-maxlength='$maxlength'" : "") .
+                $this->util->html($value) . "'" . ($maxlength ? " data-maxlength='$maxlength'" : "") .
                 (\preg_match('~char|binary~', $field["type"]) && $maxlength > 20 ? " size='40'" : "") . "$attrs>";
         }
 

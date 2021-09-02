@@ -69,11 +69,11 @@ class ServerAdmin extends AbstractAdmin
     {
         $server = $this->util->lang(
             '%s version: %s. PHP extension %s.',
-            $this->db->getName(),
-            "<b>" . $this->util->h($this->db->serverInfo()) . "</b>",
+            $this->db->name(),
+            "<b>" . $this->util->html($this->db->serverInfo()) . "</b>",
             "<b>{$this->db->extension()}</b>"
         );
-        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->h($this->db->loggedUser()) . "</b>");
+        $user = $this->util->lang('Logged as: %s.', "<b>" . $this->util->html($this->db->loggedUser()) . "</b>");
 
         $sqlActions = [
             'server-command' => $this->util->lang('SQL command'),
@@ -170,8 +170,8 @@ class ServerAdmin extends AbstractAdmin
         $details = [];
         foreach ($databases as $database) {
             $details[] = [
-                'name' => $this->util->h($database),
-                'collation' => $this->util->h($this->db->databaseCollation($database, $collations)),
+                'name' => $this->util->html($database),
+                'collation' => $this->util->html($this->db->databaseCollation($database, $collations)),
                 'tables' => \array_key_exists($database, $tables) ? $tables[$database] : 0,
                 'size' => $this->util->formatNumber($this->db->databaseSize($database)),
             ];
@@ -209,7 +209,7 @@ class ServerAdmin extends AbstractAdmin
                     ($jush == "pgsql" && $key == "current_query" && $val != "<IDLE>") ||
                     ($jush == "oracle" && $key == "sql_text" && $val != "") ?
                     "<code class='jush-{$jush}'>" . $this->util->shortenUtf8($val, 50) .
-                    "</code>" . $this->util->lang('Clone') : $this->util->h($val);
+                    "</code>" . $this->util->lang('Clone') : $this->util->html($val);
             }
             $details[] = $detail;
         }
@@ -232,7 +232,7 @@ class ServerAdmin extends AbstractAdmin
         $details = [];
         // From variables.inc.php
         foreach ($variables as $key => $val) {
-            $details[] = [$this->util->h($key), $this->util->shortenUtf8($val, 50)];
+            $details[] = [$this->util->html($key), $this->util->shortenUtf8($val, 50)];
         }
 
         return \compact('headers', 'details');
@@ -256,7 +256,7 @@ class ServerAdmin extends AbstractAdmin
         $details = [];
         // From variables.inc.php
         foreach ($status as $key => $val) {
-            $details[] = [$this->util->h($key), $this->util->h($val)];
+            $details[] = [$this->util->html($key), $this->util->html($val)];
         }
 
         return \compact('headers', 'details');

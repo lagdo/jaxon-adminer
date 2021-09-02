@@ -105,7 +105,7 @@ class DatabaseAdmin extends AbstractAdmin
         // $tables = [];
         // foreach($tableStatus as $table)
         // {
-        //     $tables[] = $this->util->h($table);
+        //     $tables[] = $this->util->html($table);
         // }
 
         return \compact('sqlActions', 'menuActions', 'schemas'/*, 'tables'*/);
@@ -223,11 +223,11 @@ class DatabaseAdmin extends AbstractAdmin
 
             $details[] = [
                 'name' => \array_key_exists("ROUTINE_NAME", $routine) ?
-                    $this->util->h($routine["ROUTINE_NAME"]) : '',
+                    $this->util->html($routine["ROUTINE_NAME"]) : '',
                 'type' => \array_key_exists("ROUTINE_TYPE", $routine) ?
-                    $this->util->h($routine["ROUTINE_TYPE"]) : '',
+                    $this->util->html($routine["ROUTINE_TYPE"]) : '',
                 'returnType' => \array_key_exists("DTD_IDENTIFIER", $routine) ?
-                    $this->util->h($routine["DTD_IDENTIFIER"]) : '',
+                    $this->util->html($routine["DTD_IDENTIFIER"]) : '',
                 // 'alter' => $this->util->lang('Alter'),
             ];
         }
@@ -259,7 +259,7 @@ class DatabaseAdmin extends AbstractAdmin
         $details = [];
         foreach ($sequences as $sequence) {
             $details[] = [
-                'name' => $this->util->h($sequence),
+                'name' => $this->util->html($sequence),
             ];
         }
 
@@ -286,7 +286,7 @@ class DatabaseAdmin extends AbstractAdmin
         $details = [];
         foreach ($userTypes as $userType) {
             $details[] = [
-                'name' => $this->util->h($userType),
+                'name' => $this->util->html($userType),
             ];
         }
 
@@ -316,7 +316,7 @@ class DatabaseAdmin extends AbstractAdmin
         $details = [];
         foreach ($events as $event) {
             $detail = [
-                'name' => $this->util->h($event["Name"]),
+                'name' => $this->util->html($event["Name"]),
             ];
             if (($event["Execute at"])) {
                 $detail['schedule'] = $this->util->lang('At given time');

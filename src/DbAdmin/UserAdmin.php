@@ -114,13 +114,13 @@ class UserAdmin extends AbstractAdmin
             foreach ((array)$features[$context] as $privilege => $comment) {
                 $detail = [
                     $desc,
-                    $this->util->h($privilege),
+                    $this->util->html($privilege),
                 ];
                 // echo "<tr><td" . ($desc ? ">$desc<td" : " colspan='2'") .
-                //     ' lang="en" title="' . h($comment) . '">' . h($privilege);
+                //     ' lang="en" title="' . $this->util->html($comment) . '">' . $this->util->html($privilege);
                 $i = 0;
                 foreach ($grants as $object => $grant) {
-                    $name = "'grants[$i][" . $this->util->h(strtoupper($privilege)) . "]'";
+                    $name = "'grants[$i][" . $this->util->html(strtoupper($privilege)) . "]'";
                     $value = $grant[\strtoupper($privilege)] ?? false;
                     if ($context == "Server Admin" && $object != (isset($grants["*.*"]) ? "*.*" : ".*")) {
                         $detail[] = '';
@@ -178,8 +178,8 @@ class UserAdmin extends AbstractAdmin
         $details = [];
         while ($row = $result->fetch_assoc()) {
             $details[] = [
-                'user' => $this->util->h($row["User"]),
-                'host' => $this->util->h($row["Host"]),
+                'user' => $this->util->html($row["User"]),
+                'host' => $this->util->html($row["Host"]),
             ];
         }
 
@@ -210,7 +210,7 @@ class UserAdmin extends AbstractAdmin
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->util->h($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->util->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
@@ -265,7 +265,7 @@ class UserAdmin extends AbstractAdmin
             //! separate db, table, columns, PROCEDURE|FUNCTION, routine
             $headers[] = $object === '*.*' ?
                 '<input type="hidden" name="objects[' . $i . ']" value="*.*" />*.*' :
-                '<input name="objects[' . $i . ']" value="' . $this->util->h($object) . '" autocapitalize="off" />';
+                '<input name="objects[' . $i . ']" value="' . $this->util->html($object) . '" autocapitalize="off" />';
             $i++;
         }
 
