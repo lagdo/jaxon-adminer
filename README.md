@@ -292,7 +292,7 @@ The following UI frameworks are supported:
 - [Bootstrap 3](https://getbootstrap.com/) (`bootstrap3`)
 - [Bootstrap 4](https://getbootstrap.com/) (`bootstrap4`)
 
-Mre UI frameworks will be added in future releases.
+More UI frameworks will be added in future releases.
 
 Contribute
 ----------
