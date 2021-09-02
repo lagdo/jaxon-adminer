@@ -128,9 +128,7 @@ class DbAdmin extends DbAdmin\AbstractAdmin
 
         $di = \jaxon()->di();
         // Save the selected server in the di container.
-        $di->set('adminer_config_server', function() use($server) {
-            return $server;
-        });
+        $di->val('adminer_config_server', $server);
         $this->db = $di->get(Db::class);
         $this->util = $di->get(Util::class);
 

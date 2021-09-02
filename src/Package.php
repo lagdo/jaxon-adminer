@@ -165,6 +165,18 @@ class Package extends JaxonPackage
     }
 
     /**
+     * Get the driver of a given server
+     *
+     * @param string $server    The server name in the configuration
+     *
+     * @return string
+     */
+    public function getServerDriver($server)
+    {
+        return $this->getConfig()->getOption("servers.$server.driver", '');
+    }
+
+    /**
      * Get the value of a given package option
      *
      * @param string $option    The option name
