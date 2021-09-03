@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\Adminer;
+namespace Lagdo\DbAdmin;
 
 use Jaxon\Plugin\Package as JaxonPackage;
-use Lagdo\Adminer\App\Server;
+use Lagdo\DbAdmin\App\Server;
 
 /**
  * Adminer package

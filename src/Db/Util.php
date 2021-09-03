@@ -1,10 +1,10 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\DbAdmin\Db;
 
 use Lagdo\DbAdmin\Driver\UtilInterface;
-use Lagdo\Adminer\Exception\DbException;
-use Lagdo\Adminer\Translator;
+use Lagdo\DbAdmin\Exception\DbException;
+use Lagdo\DbAdmin\Translator;
 
 class Util implements UtilInterface
 {

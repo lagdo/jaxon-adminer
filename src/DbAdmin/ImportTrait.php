@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer\DbAdmin;
+namespace Lagdo\DbAdmin\DbAdmin;
 
 use Exception;
 

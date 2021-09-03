@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer\Tests;
+namespace Lagdo\DbAdmin\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Exception;

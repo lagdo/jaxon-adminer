@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer;
+namespace Lagdo\DbAdmin;
 
 use Jaxon\CallableClass as JaxonCallableClass;
 use Jaxon\Utils\View\Store;

@@ -45,7 +45,7 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
         // Other config options
         // ...
         'packages' => [
-            Lagdo\Adminer\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
@@ -71,11 +71,11 @@ Declare the package and the database servers in the `app` section of the [Jaxon 
 
 Insert the CSS and javascript codes in the HTML pages of your application using calls to `jaxon()->getCss()` and `jaxon()->getScript(true)`.
 
-In the page that displays the dashboard, insert the HTML code returned by the call to `jaxon()->package(\Lagdo\Adminer\Package::class)->getHtml()`. Two cases are then possible.
+In the page that displays the dashboard, insert the HTML code returned by the call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->getHtml()`. Two cases are then possible.
 
-- If the dashboard is displayed on a dedicated page, make a call to `jaxon()->package(\Lagdo\Adminer\Package::class)->ready()` in your PHP code when loading the page.
+- If the dashboard is displayed on a dedicated page, make a call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->ready()` in your PHP code when loading the page.
 
-- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `jaxon()->package(\Lagdo\Adminer\Package::class)->getReadyScript()` after the page is loaded.
+- If the dashboard is loaded with an Ajax request in a page already displayed, execute the javascript code returned the call to `jaxon()->package(\Lagdo\DbAdmin\Package::class)->getReadyScript()` after the page is loaded.
 
 Additional config options
 -------------------------
@@ -87,7 +87,7 @@ The `default` option sets a database server `Jaxon Adminer` must connect to when
 ```php
     'app' => [
         'packages' => [
-            Lagdo\Adminer\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
@@ -119,7 +119,7 @@ The `access.server` option can also be set at a server level, and in this case i
 ```php
     'app' => [
         'packages' => [
-            Lagdo\Adminer\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
@@ -157,7 +157,7 @@ This options can only be defined at server level, and will apply to that specifi
 ```php
     'app' => [
         'packages' => [
-            Lagdo\Adminer\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
@@ -216,7 +216,7 @@ A directory where the exported files are going to be saved must then be defined 
 ```php
     'app' => [
         'packages' => [
-            Lagdo\Adminer\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'servers' => [
                     'first_server' => [
                         'name' => '',     // The name to be displayed in the dashboard UI
@@ -262,7 +262,7 @@ The current template is set using the `template` option, and it default value is
 ```php
     'app' => [
         'packages' => [
-            Lagdo\Adminer\Package::class => [
+            Lagdo\DbAdmin\Package::class => [
                 'template' => 'bootstrap3',
                 'servers' => [
                     'first_server' => [

@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\Adminer\DbAdmin;
+namespace Lagdo\DbAdmin\DbAdmin;
 
-use Lagdo\Adminer\Db\Db;
-use Lagdo\Adminer\Db\Util;
+use Lagdo\DbAdmin\Db\Db;
+use Lagdo\DbAdmin\Db\Util;
 
 /**
  * Common attributes for all admins

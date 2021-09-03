@@ -22,8 +22,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Lagdo\\Adminer\\App\\": "app/",
-            "Lagdo\\Adminer\\": "src/"
+            "Lagdo\\DbAdmin\\App\\": "app/",
+            "Lagdo\\DbAdmin\\": "src/"
         },
         "files": [
             "src/start.php"
@@ -31,7 +31,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Lagdo\\Adminer\\Tests\\": "tests/"
+            "Lagdo\\DbAdmin\\Tests\\": "tests/"
         }
     }
 }

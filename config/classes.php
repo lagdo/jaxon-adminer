@@ -1,32 +1,32 @@
 <?php
 
 return [
-    Lagdo\Adminer\App\Import::class => [
+    Lagdo\DbAdmin\App\Import::class => [
         'executeSqlFiles' => [
             'upload' => "'adminer-import-sql-files-input'",
         ],
     ],
-    Lagdo\Adminer\App\Table::class => [
+    Lagdo\DbAdmin\App\Table::class => [
         'show,add,edit' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\Adminer\App\View::class => [
+    Lagdo\DbAdmin\App\View::class => [
         'show' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\Adminer\App\Table\Query::class => [
+    Lagdo\DbAdmin\App\Table\Query::class => [
         'showInsert,showUpdate' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\Adminer\App\Table\Select::class => [
+    Lagdo\DbAdmin\App\Table\Select::class => [
         'show' => [
             '__after' => 'showBreadcrumbs',
         ]
     ],
-    Lagdo\Adminer\App\Server::class => [
+    Lagdo\DbAdmin\App\Server::class => [
         'connect' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -70,7 +70,7 @@ return [
             ],
         ],
     ],
-    Lagdo\Adminer\App\Database::class => [
+    Lagdo\DbAdmin\App\Database::class => [
         'select' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -114,7 +114,7 @@ return [
             ],
         ],
     ],
-    Lagdo\Adminer\App\Command::class => [
+    Lagdo\DbAdmin\App\Command::class => [
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -128,7 +128,7 @@ return [
             ],
         ],
     ],
-    Lagdo\Adminer\App\Import::class => [
+    Lagdo\DbAdmin\App\Import::class => [
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',
@@ -142,7 +142,7 @@ return [
             ],
         ],
     ],
-    Lagdo\Adminer\App\Export::class => [
+    Lagdo\DbAdmin\App\Export::class => [
         'showServerForm' => [
             '__after' => [
                 'showBreadcrumbs',

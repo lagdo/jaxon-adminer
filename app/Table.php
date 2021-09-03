@@ -1,11 +1,11 @@
 <?php
 
-namespace Lagdo\Adminer\App;
+namespace Lagdo\DbAdmin\App;
 
-use Lagdo\Adminer\App\Table\Column;
-use Lagdo\Adminer\App\Table\Select;
-use Lagdo\Adminer\App\Table\Query;
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\App\Table\Column;
+use Lagdo\DbAdmin\App\Table\Select;
+use Lagdo\DbAdmin\App\Table\Query;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lagdo\Adminer\App\Table;
+namespace Lagdo\DbAdmin\App\Table;
 
-use Lagdo\Adminer\CallableClass;
+use Lagdo\DbAdmin\CallableClass;
 
 use Exception;
 

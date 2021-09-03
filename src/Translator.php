@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer;
+namespace Lagdo\DbAdmin;
 
 /**
  * Translator and language switcher

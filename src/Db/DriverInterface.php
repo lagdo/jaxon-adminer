@@ -1,6 +1,6 @@
 <?php
 
-namespace Lagdo\Adminer\Db;
+namespace Lagdo\DbAdmin\Db;
 
 interface DriverInterface
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Lagdo\Adminer;
+namespace Lagdo\DbAdmin;
 
-use Lagdo\Adminer\Db\Db;
-use Lagdo\Adminer\Db\Util;
+use Lagdo\DbAdmin\Db\Db;
+use Lagdo\DbAdmin\Db\Util;
 
 use Exception;
 
@@ -135,19 +135,5 @@ class DbAdmin extends DbAdmin\AbstractAdmin
         // Connect to the selected server
         $this->db->connect();
         $this->select($database, $schema);
-    }
-
-    /**
-     * Check if a database server supports a given feature
-     *
-     * @param string $server    The selected server
-     * @param string $feature   The feature to check
-     *
-     * @return bool
-     */
-    public function support(string $server, string $feature)
-    {
-        $this->connect($server);
-        return $this->db->support($feature);
     }
 }

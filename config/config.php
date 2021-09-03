@@ -3,7 +3,7 @@
 return [
     'directories' => [
         __DIR__ . '/../app' => [
-            'namespace' => 'Lagdo\\Adminer\\App',
+            'namespace' => 'Lagdo\\DbAdmin\\App',
             'autoload' => false,
             'classes' => require( __DIR__ . '/classes.php'),
         ],
@@ -30,9 +30,9 @@ return [
         // ],
     ],
     'container' => [
-        Lagdo\Adminer\DbAdmin::class => function($di) {
-            $package = $di->get(Lagdo\Adminer\Package::class);
-            return new Lagdo\Adminer\DbAdmin($package);
+        Lagdo\DbAdmin\DbAdmin::class => function($di) {
+            $package = $di->get(Lagdo\DbAdmin\Package::class);
+            return new Lagdo\DbAdmin\DbAdmin($package);
         },
     ],
 ];
